@@ -52,8 +52,8 @@ for o in range(9):
     opt(k+'drive_type',f'O{o+1} Drive Type',['Hard','Tanh','Arctan','Exp','Poly','Log','Fold','Half','Full'],1)
     p(k+'drive',f'O{o+1} Drive Amount',1,20,2)
     p(k+'drive_out',f'O{o+1} Drive Output',0,1,0.7)
-opt('plot_osc','Envelope Focus',[f'L{l} / {o}' for l in range(1,4) for o in range(1,4)],refresh_display=True)
-opt('plot_env','Envelope View',['Amplitude','Pitch'],refresh_display=True)
+opt('plot_osc','Envelope Focus',[f'L{l} / {o}' for l in range(1,4) for o in range(1,4)])
+opt('plot_env','Envelope View',['Amplitude','Pitch'])
 CONTROL_COUNT=len(params)
 PLOT_COLUMNS=432
 PLOT_WIDTH=2

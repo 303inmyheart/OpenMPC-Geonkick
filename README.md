@@ -1,11 +1,12 @@
 # Geonkick MPC
 
 The MPC adapter, build scripts and interface are AI-generated. The user has tested early builds on Live III and reported interface and control
-problems. Version 0.0.5 addresses these offline; its hardware test is **pending**. The original Geonkick DSP is the
+problems. Version 0.0.6 addresses UI/audio stalls; its MPC-app listening test is **pending**.
+An isolated analysis host on Live III passed the slow-UI callback regression. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.5 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.6 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -39,6 +40,10 @@ Implemented:
 - Versioned project state with 186 stored controls, plus 1296 derived read-only
   display channels. Original indices stay unchanged. 0.0.1 and 0.0.2 chunks
   load with the appended controls at neutral/default values.
+- Audio-side UI notifications are queued to a normal-priority display thread;
+  view changes reuse rendered audio, silent layers are skipped, playback-only
+  edits skip synthesis, and
+  OUTPUT changes are smoothed. A deliberately blocked UI host is regression-tested.
 - Per-instance worker generates sound buffers; audio playback neither allocates
   nor waits for synthesis. Existing hits retain their old sound during edits.
 

@@ -103,3 +103,39 @@ The temporary helper was removed.
 The user reported confusing controls, missing/doubled text, coarse frequency
 and ineffective decay on 0.0.4. These reports supersede the earlier pending
 status for that early build; they do not establish a passing hardware test.
+
+## 0.0.6 — UI callbacks separated from audio
+
+- Reproduced 0.0.5 with the actual native VST and a host that sleeps 20 ms in
+  UI callbacks: 37 callbacks ran on the rendering thread, worst block 100.383 ms.
+  The 128-frame/44.1 kHz period is 2.902 ms. This is a synthetic stress fixture,
+  not a measurement of an MPC underrun's duration.
+- With 0.0.6, native ASan/UBSan/leak and ARM64 QEMU suites pass, including the
+  slow-UI regression (zero UI callbacks on rendering thread), fine frequency
+  echoes, independent DSP oracle, state migration and cache lifetime tests.
+  Native slow-UI block timing remains diagnostic;
+  zero audio-thread UI callbacks is the regression assertion.
+- A separate low-priority analysis process on Live III loaded the candidate
+  .so from a temporary directory: zero audio-thread UI callbacks, worst measured
+  block 0.045 ms in the 16-block slow-UI fixture. It is not an MPC-app session,
+  long-duration stress test, or certification that all audible crackles are fixed.
+- Isolated Live III worker diagnostic, Init routing (one audible layer), 4-second
+  sound: 0.0.5 distortion cases were about 58–65 ms to become ready; initial candidate
+  cases about 50–58 ms before skipping muted layers; final candidate distortion
+  cases about 28–36 ms after skipping them. This includes scheduling and polling, is not a controlled
+  CPU benchmark, and does not cover nine active oscillators/effects.
+- Muted layers are skipped during synthesis. All nine isolated oscillator/effect
+  paths and the independent baseline signal oracle still pass.
+- View changes do not rerun synthesis; a view switch retains byte-identical
+  noise audio. Output/tuning/tracking/playback edits do not rerun synthesis.
+  OUTPUT gain smoothing is verified during a sustained hit.
+- Final skin check has no findings. The wrapper also compiles without the async
+  option/display thread. The dependency patch reverse-check passes.
+- Candidate tests wrote temporary analysis files only, removed afterward. No
+  candidate installation, settings edit, MPC input, service restart or project
+  change occurred. Installed version remains 0.0.5 until new explicit approval.
+
+Read-only sampling of the user's 0.0.5 interaction session showed a busy UI
+thread and touch-processing lag reports. These support investigating UI stalls;
+CPU samples alone do not prove the cause of every crackle. The next gate is
+listening to the same actions in the MPC app with this exact candidate.

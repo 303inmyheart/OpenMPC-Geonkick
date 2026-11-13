@@ -130,6 +130,25 @@ int main(void) {
     assert(energy(out,256)>0.01f);
     puts("Cropped decay/pitch remain distinct; ms/percent adapters, length extension, context and disabled FM target pass");
     set(a,"reset","1");wait_ready(a);
+    unsigned synthesis_count=(unsigned)get(a,"synthesis_count");
+    set(a,"volume","0.2");set(a,"tune","1");set(a,"keytrack","1");set(a,"playback","1");
+    usleep(15000);wait_ready(a);assert(get(a,"synthesis_count")==synthesis_count);
+    set(a,"plot_osc","3");set(a,"plot_env","1");wait_ready(a);
+    assert(get(a,"synthesis_count")==synthesis_count);
+    /* View changes retain byte-identical sound, including deterministic noise. */
+    set(a,"reset","1");set(a,"o1_wave","4");wait_ready(a);
+    note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,out,128);
+    set(a,"plot_env","1");wait_ready(a);
+    note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,other,128);
+    for(int i=0;i<256;i++)assert(out[i]==other[i]);
+    /* Gain edits stay continuous and approach the new target during playback. */
+    set(a,"reset","1");wait_ready(a);note(a,0xb0,120,0);note(a,0x90,60,127);
+    api->render(a,out,128);set(a,"volume","0");api->render(a,other,128);
+    assert(energy(other,256)>0.001f);
+    for(int i=0;i<20;i++)api->render(a,other,128);
+    assert(energy(other,256)<0.0000001f);
+    puts("Playback edits and view switches skip synthesis; view preserves noise audio; OUTPUT gain ramp passes");
+    set(a,"reset","1");wait_ready(a);
     /* Old sounds retain their buffers while rapid edits and notes recycle other slots. */
     for(int k=0;k<80;k++) {
         char v[32];snprintf(v,sizeof v,"%g",45+(k%20)*10.0);set(a,"o1_freq",v);

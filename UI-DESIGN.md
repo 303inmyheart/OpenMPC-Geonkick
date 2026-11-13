@@ -77,3 +77,13 @@ and bank labels include layer identity. Fine Hz and millisecond adapters do not
 change original project values or old parameter indices. The graph retains its
 432-column resolution; this version does not claim an additional waveform
 resolution increase. Actual-value previews cover SYNTH, tone OSC and noise OSC.
+
+## 0.0.6 scheduling correction
+
+Changing envelope focus/view now copies the held rendered sound and calculates
+its display instead of rerunning synthesis. OUTPUT/tune/playback/key tracking
+never schedule synthesis. UI feedback, including accepted stepped values and
+MIDI/engine-driven changes, is delivered from the display thread; repeated
+pending updates are coalesced to the current value. Curve changes no longer
+request a full UpdateDisplay screen rebuild. This is not a new drawing engine;
+waveform resolution and image assets retain the 0.0.5 format.

@@ -1797,8 +1797,7 @@
         "L3 / 1",
         "L3 / 2",
         "L3 / 3"
-      ],
-      "refresh_display": true
+      ]
     },
     {
       "key": "plot_env",
@@ -1809,8 +1808,7 @@
       "options": [
         "Amplitude",
         "Pitch"
-      ],
-      "refresh_display": true
+      ]
     },
     {
       "key": "viz_p_0",

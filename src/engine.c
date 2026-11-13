@@ -16,13 +16,13 @@
 #define VOICES 8
 #define SLOTS (VOICES+4)
 typedef struct {
-    atomic_int refs; int size; float *data; unsigned revision;
+    atomic_int refs; int size; float *data; unsigned revision,view_revision;
     unsigned char plot[3][PLOT_COLUMNS];
 } Cache;
 typedef struct { int slot,note,channel; double pos,step; float gain; unsigned age; } Voice;
 typedef struct {
     _Atomic float values[GP_COUNT];
-    atomic_uint revision;
+    atomic_uint revision,audio_revision,view_revision,synthesis_count;
     atomic_bool running;
     atomic_int ready;
     pthread_t worker;
@@ -32,6 +32,7 @@ typedef struct {
     int current;
     unsigned age;
     unsigned display_revision;
+    float output_gain;
     unsigned char dirty[GP_COUNT];
 } Engine;
 
@@ -67,7 +68,7 @@ static float clampf(float v,float lo,float hi) { return fminf(hi,fmaxf(lo,v)); }
 static void configure(Engine *e,const float *p) {
     struct gkick_synth *s=e->synth;
     s->length=value(p,"length"); s->amplitude=1;
-    for(int l=0;l<3;l++) { char key[24]; snprintf(key,sizeof key,"layer%d",l+1); s->osc_groups[l]=true; s->osc_groups_amplitude[l]=value(p,key); }
+    for(int l=0;l<3;l++) { char key[24]; snprintf(key,sizeof key,"layer%d",l+1); s->osc_groups_amplitude[l]=value(p,key); s->osc_groups[l]=s->osc_groups_amplitude[l]>0; }
     static const int wave[]={0,1,2,3,4,6};
     for(int i=0;i<9;i++) {
         struct gkick_oscillator *o=s->oscillators[i]; char key[40];
@@ -121,6 +122,7 @@ static void configure(Engine *e,const float *p) {
     s->distortion->out_limiter=value(p,"drive_out");
 }
 static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
+    atomic_fetch_add(&e->synthesis_count,1);
     configure(e,p);
     struct gkick_synth *s=e->synth;
     c->size=(int)(s->length*RATE); c->revision=rev;
@@ -129,12 +131,15 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
      * A short boundary fade prevents truncation clicks at the fixed sound end. */
     float dt=s->length/c->size;
     for(int i=0;i<c->size;i++) {
-        if(!(i%1024) && atomic_load(&e->revision)!=rev)return;
+        if(!(i%1024) && atomic_load(&e->audio_revision)!=rev)return;
         float x=gkick_synth_get_value(s,i*dt);
         x=isfinite(x)?clampf(x,-1,1):0;
         float fade=fminf(1,fminf(i/32.f,(c->size-1-i)/64.f));
         c->data[i]=x*fade;
     }
+}
+static void make_plot(Engine *e,Cache *c,const float *p) {
+    struct gkick_synth *s=e->synth;
     int osc=(int)value(p,"plot_osc");
     struct gkick_oscillator *selected=s->oscillators[osc];
     struct gkick_envelope *env=selected->envelopes[value(p,"plot_env")>0?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
@@ -149,35 +154,46 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
         c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*(PLOT_ENV_LEVELS-1));
     }
 }
-static unsigned snapshot(Engine *e,float *p) {
+static unsigned snapshot(Engine *e,float *p,unsigned *view) {
     unsigned a,b;
     do {
         a=atomic_load(&e->revision);
         if(a&1) continue;
         for(int i=0;i<GP_COUNT;i++) p[i]=atomic_load(&e->values[i]);
+        unsigned audio=atomic_load(&e->audio_revision);
+        *view=atomic_load(&e->view_revision);
         b=atomic_load(&e->revision);
-        if(a==b) return a;
+        if(a==b) return audio;
     } while(true);
 }
 static void *worker(void *arg) {
-    Engine *e=arg; unsigned done=0; float p[GP_COUNT];
+    Engine *e=arg; unsigned done=0,view_done=0; float p[GP_COUNT]; int held=0;
+    pthread_setname_np(pthread_self(),"gk-render");
     while(atomic_load(&e->running)) {
-        unsigned rev=snapshot(e,p);
-        if(rev!=done) {
-            int s=-1;
-            for(int i=0;i<SLOTS;i++) { int free=0; if(atomic_compare_exchange_strong(&e->slots[i].refs,&free,-1)) { s=i; break; } }
-            if(s>=0) {
-                synthesize(e,&e->slots[s],p,rev);
-                if(atomic_load(&e->revision)==rev) {
-                    atomic_store(&e->slots[s].refs,1);
-                    drop(e,atomic_exchange(&e->ready,s));
-                    done=rev;
-                } else atomic_store(&e->slots[s].refs,0);
+        unsigned view,rev=snapshot(e,p,&view);
+        if(rev!=done || view!=view_done) {
+            int slot=-1;
+            for(int i=0;i<SLOTS;i++) { int free=0; if(atomic_compare_exchange_strong(&e->slots[i].refs,&free,-1)) { slot=i; break; } }
+            if(slot>=0) {
+                Cache *c=&e->slots[slot];
+                if(rev!=done) synthesize(e,c,p,rev);
+                else {
+                    /* A view switch reuses audio. held owns a reference even
+                     * when old notes, the ready queue and UI change slots. */
+                    configure(e,p);c->size=e->slots[held].size;c->revision=rev;
+                    memcpy(c->data,e->slots[held].data,c->size*sizeof(float));
+                }
+                if(atomic_load(&e->audio_revision)==rev) {
+                    make_plot(e,c,p);c->view_revision=view;
+                    atomic_store(&c->refs,2); /* worker + ready/current */
+                    drop(e,atomic_exchange(&e->ready,slot));
+                    drop(e,held);held=slot;done=rev;view_done=view;
+                } else atomic_store(&c->refs,0);
             }
         }
-        usleep(10000);
+        usleep(2000);
     }
-    return NULL;
+    drop(e,held);return NULL;
 }
 
 static void preset(Engine *e,int which) {
@@ -202,12 +218,13 @@ static void preset(Engine *e,int which) {
 static void *create(const char *dir) {
     (void)dir;
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
-    e->current=-1; e->display_revision=1; atomic_init(&e->ready,-1); atomic_init(&e->revision,0); atomic_init(&e->running,false);
+    e->current=-1; e->display_revision=1; atomic_init(&e->ready,-1); atomic_init(&e->revision,0); atomic_init(&e->audio_revision,0); atomic_init(&e->view_revision,0); atomic_init(&e->synthesis_count,0); atomic_init(&e->running,false);
     for(int i=0;i<GP_COUNT;i++) atomic_init(&e->values[i],gparams[i].def);
     for(int i=0;i<VOICES;i++)e->voices[i].slot=-1;
     for(int i=0;i<SLOTS;i++) { atomic_init(&e->slots[i].refs,0); e->slots[i].data=calloc(MAX_SAMPLES,sizeof(float)); if(!e->slots[i].data)goto fail; }
+    e->output_gain=at(e,"volume");
     if(gkick_synth_new(&e->synth,RATE)!=GEONKICK_OK)goto fail;
-    float p[GP_COUNT]; snapshot(e,p); synthesize(e,&e->slots[0],p,0); atomic_store(&e->slots[0].refs,1); e->current=0;
+    float p[GP_COUNT]; unsigned view; snapshot(e,p,&view); synthesize(e,&e->slots[0],p,0); make_plot(e,&e->slots[0],p); atomic_store(&e->slots[0].refs,2); e->current=0;
     atomic_store(&e->running,true);
     if(pthread_create(&e->worker,NULL,worker,e)!=0) { atomic_store(&e->running,false); goto fail; }
     return e;
@@ -267,14 +284,14 @@ static void set_param(void *inst,const char *key,const char *text) {
         if(*s)return;
         atomic_fetch_add(&e->revision,1);
         for(int i=0;i<GP_COUNT;i++)atomic_store(&e->values[i],gparams[i].discrete?roundf(p[i]):p[i]);
-        atomic_fetch_add(&e->revision,1); stop_all(e); memset(e->dirty,1,sizeof e->dirty); return;
+        atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); stop_all(e); memset(e->dirty,1,sizeof e->dirty); return;
     }
     int i=index_of(key); if(i<0)return;
     char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return;
     v=clampf(v,gparams[i].lo,gparams[i].hi);if(gparams[i].discrete)v=roundf(v);
     if(!strcmp(key,"audition")) { if(v>0) { uint8_t m[]={0x90,60,110};midi(e,m,3); }return; }
     if(!strcmp(key,"reset")) {
-        if(v>0) { atomic_fetch_add(&e->revision,1);preset(e,0);atomic_fetch_add(&e->revision,1); }
+        if(v>0) { atomic_fetch_add(&e->revision,1);preset(e,0);atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); }
         return;
     }
     if(v==atomic_load(&e->values[i]))return;
@@ -298,6 +315,10 @@ static void set_param(void *inst,const char *key,const char *text) {
             if(mode>=0 && atomic_load(&e->values[env])!=mode) { atomic_store(&e->values[env],mode);e->dirty[env]=1; }
         }
     }
+    bool view_only=!strcmp(key,"plot_osc") || !strcmp(key,"plot_env");
+    bool playback_only=!strcmp(key,"volume") || !strcmp(key,"tune") || !strcmp(key,"keytrack") || !strcmp(key,"playback");
+    if(view_only)atomic_fetch_add(&e->view_revision,1);
+    else if(!playback_only)atomic_fetch_add(&e->audio_revision,1);
     atomic_fetch_add(&e->revision,1);
 }
 static int get_param(void *inst,const char *key,char *buf,int len) {
@@ -335,7 +356,8 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         int c=channel=='p'?0:channel=='n'?1:channel=='e'?2:-1;if(c<0)return 0;
         return snprintf(buf,len,"%.9g",e->slots[e->current].plot[c][column]/(float)((c==2?PLOT_ENV_LEVELS:PLOT_WAVE_LEVELS)-1));
     }
-    if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",e->slots[e->current].revision!=atomic_load(&e->revision));
+    if(!strcmp(key,"synthesis_count"))return snprintf(buf,len,"%u",atomic_load(&e->synthesis_count));
+    if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",(e->slots[e->current].revision!=atomic_load(&e->audio_revision) || e->slots[e->current].view_revision!=atomic_load(&e->view_revision)));
     if(!strcmp(key,"state")) {
         int n=snprintf(buf,len,"GKMP3");
         for(int i=0;i<GP_COUNT && n<len;i++)n+=snprintf(buf+n,len-n," %.9g",atomic_load(&e->values[i]));
@@ -364,7 +386,10 @@ static void render(void *inst,mpc_sample_t *out,int frames) {
             float a=c->data[at],b=at+1<c->size?c->data[at+1]:0;
             sum+=(a+(b-a)*(float)(v->pos-at))*v->gain;v->pos+=v->step;
         }
-        out[n*2]=out[n*2+1]=sum*volume;
+        /* A 5 ms gain transition avoids block-boundary clicks when OUTPUT
+         * changes; the initial value and unchanged gain remain exact. */
+        e->output_gain+=(volume-e->output_gain)*(1.f/(0.005f*RATE));
+        out[n*2]=out[n*2+1]=sum*e->output_gain;
     }
 }
 static const mpc_engine_t api={create,destroy,midi,set_param,get_param,render,NULL,NULL};

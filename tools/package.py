@@ -29,7 +29,7 @@ strip=shutil.which('aarch64-linux-gnu-strip') or str(build.LOCAL/'bin/aarch64-li
 build.run([strip,'--strip-unneeded',binary])
 notice=stage/'LICENSES.txt'
 notice.write_text('\n\n'.join([
-    f'Geonkick MPC {cfg["version"]} DEVELOPMENT PROTOTYPE — GPL-3.0-or-later\nBased on Geonkick 3.9.0, Iurie Nistor and contributors.\nUpstream: https://github.com/quamplex/geonkick\nNo hardware validation yet. Public adapted-source publication is pending;\nthe source_repo manifest URL is reserved for a future public fork.\nLocal corresponding source and build scripts are supplied in the project.',
+    f'Geonkick MPC {cfg["version"]} DEVELOPMENT PROTOTYPE — GPL-3.0-or-later\nBased on Geonkick 3.9.0, Iurie Nistor and contributors.\nUpstream: https://github.com/quamplex/geonkick\nMPC-app acceptance testing pending. Public adapted-source publication is pending;\nthe source_repo manifest URL is reserved for a future public fork.\nLocal corresponding source and build scripts are supplied in the project.',
     (root/'LICENSE').read_text(),
     'OpenMPC VST wrapper — MIT\n'+(build.MPC/'LICENSE').read_text(),
     'Artwork rendered using DejaVu Sans:\n'+(root/'art/FONT-LICENSE.txt').read_text(),

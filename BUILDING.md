@@ -6,7 +6,8 @@ Redkite and desktop-format dependencies; this C11 DSP-only port does not use it.
 
 Build dependency: neighbouring open-mpc/mpc-vst-plugins at
 `ef05a26c6e59f1bfd3ef2023e6a9d8b371b61310`, with
-patches/mpc-float32.patch, then patches/mpc-fine-int-sweep.patch applied. The wrapper is not copied into this repository.
+patches/mpc-float32.patch, patches/mpc-fine-int-sweep.patch and
+patches/mpc-async-host-notify.patch applied, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `a2dd2b78a19c4cd46257c09eb9a485a155ab2968` in the neighbouring
 mpc-vst-plugins-release-tools checkout.
@@ -67,3 +68,23 @@ The second wrapper patch routes sub-step continuous drags through direction
 history instead of counting against the already-rounded value. Repeated clamped
 edge events still count individually. Tests cover both event rates, reversal,
 continuous sweeps, endpoint clamping, host echoes and old frequency automation.
+
+0.0.6 opts into ASYNC_HOST_NOTIFY (requires DISPLAY_REV_THREAD). Audio-side
+UI notifications become per-parameter atomic pending flags. The normal-priority
+display thread sends current values, coalesces repeated writes, and bounds each
+notification pass to about 5 ms between host calls. A single blocked host call
+can exceed that budget, but cannot hold up audio via this notification path.
+The AEffect is fully initialized before the reporter starts; opting in fails
+initialization if its thread cannot be created. Legacy synchronous mode compiles
+unchanged. Shared host assertions are preserved; the port adds 30 ms after each
+run() batch to await asynchronous callbacks instead of assuming delivery inside
+processReplacing(). The dedicated slow-UI regression uses the actual .so and
+asserts zero automate/update-display callbacks on its rendering thread.
+
+Audio/view generations are separate. The worker retains a cache reference so a
+view-only job can reuse exact audio instead of rerunning oscillators/effects.
+Layers at zero gain do not execute their oscillators. Output/tune/keytrack/
+playback do not schedule synthesis. A diagnostic synthesis
+counter checks this in engine tests; it is not a stored or VST parameter.
+OUTPUT uses a 5 ms smoothing time constant. Stored controls/parameter indices
+and upstream DSP sources remain unchanged from 0.0.5.

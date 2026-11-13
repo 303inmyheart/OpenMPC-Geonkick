@@ -1,4 +1,4 @@
-# Geonkick MPC bedienen — 0.0.5
+# Geonkick MPC bedienen — 0.0.6
 
 Ein Plugin erzeugt einen Drum-Sound aus drei Layern mit je drei Oszillatoren.
 Für eine Kick genügt zunächst Layer 1, OSC 1. Layer 2 und 3 starten stumm;
@@ -45,3 +45,7 @@ auf die Summe der Layer; die FX-Seiten wirken jeweils nur auf einen Oszillator.
 ![OSC-Seite für Rauschen](docs/screenshots/osc-noise.png)
 
 Offline-Vorschauen mit echten Plugin-Werten; keine MPC-Geräteaufnahmen.
+
+Ab 0.0.6 werden OUTPUT-Änderungen kurz geglättet. Ein Wechsel der angezeigten
+Hüllkurve berechnet den Sound nicht neu. Neue Klänge entstehen weiterhin im
+Hintergrund; bereits laufende Schläge behalten ihren bisherigen Klang.
