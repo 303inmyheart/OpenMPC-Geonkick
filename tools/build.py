@@ -40,6 +40,7 @@ def build(target,sanitize=False):
 def skin():
     prepare()
     run([sys.executable,'tools/tile.py'])
+    run([sys.executable,'tools/plot_assets.py'])
     run(['gcc','-O2','-I'+str(MPC/'tools/vendor/force-shadow/tools'),MPC/'tools/shadow_art.c','-lm','-o','build/shadow_art'])
     generated=ROOT/'build/skin'/f"{CFG['vendor']} - VST - {CFG['name']}"
     if generated.exists():shutil.rmtree(generated)

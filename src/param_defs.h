@@ -185,5 +185,8 @@ static const GParam gparams[] = {
     {"o9_drive_type", 0.0f, 8.0f, 1.0f, 1},
     {"o9_drive", 1.0f, 20.0f, 2.0f, 0},
     {"o9_drive_out", 0.0f, 1.0f, 0.7f, 0},
+    {"plot_osc", 0.0f, 8.0f, 0.0f, 1},
+    {"plot_env", 0.0f, 1.0f, 0.0f, 1},
 };
-#define GP_COUNT 184
+#define GP_COUNT 186
+#define PLOT_COLUMNS 96

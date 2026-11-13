@@ -19,7 +19,7 @@ static void note(void *e,int status,int n,int v) { uint8_t m[]={(uint8_t)status,
 static float energy(const float *b,int n) { float s=0;for(int i=0;i<n;i++){assert(isfinite(b[i]));s+=b[i]*b[i];}return s; }
 int main(void) {
     api=mpc_engine();void *a=api->create(NULL),*b=api->create(NULL);assert(a&&b);
-    float out[256],other[256],phase=0,maxerr=0;
+    float out[256],other[256],phase=0,maxerr=0,captured[30000];
     note(a,0x90,60,127);
     int frames=(int)(0.6f*44100),pos=0;
     while(pos<frames) {
@@ -30,12 +30,35 @@ int main(void) {
             float fade=fminf(1,fminf(pos/32.f,(frames-1-pos)/64.f));
             float expected=sinf(phase)*0.8f*amp*fade*0.7f;
             maxerr=fmaxf(maxerr,fabsf(out[i*2]-expected));
+            captured[pos]=out[i*2]/0.7f;
             assert(out[i*2]==out[i*2+1]);
             float freq=220.f*(t<0.04f?1-0.75f*t/0.04f:0.25f);
             phase+=(6.2831853f*freq)/44100;if(phase>6.2831853f)phase-=6.2831853f;
         }
     }
     printf("independent chirp/envelope oracle max error: %.9g\n",maxerr);assert(maxerr<0.0001f);
+    for(int column=0;column<96;column++) {
+        int begin=(int)((long long)column*frames/96),end=(int)((long long)(column+1)*frames/96);
+        float positive=0,negative=0;
+        for(int i=begin;i<end;i++) { positive=fmaxf(positive,captured[i]);negative=fmaxf(negative,-captured[i]); }
+        char key[40];snprintf(key,sizeof key,"viz_p_%d",column);assert(fabsf(get(a,key)-positive)<0.0081f);
+        snprintf(key,sizeof key,"viz_n_%d",column);assert(fabsf(get(a,key)-negative)<0.0081f);
+        float env=fmaxf(0,1-(column+0.5f)*0.6f/(96*0.5f));
+        snprintf(key,sizeof key,"viz_e_%d",column);assert(fabsf(get(a,key)-env)<0.0081f);
+    }
+    set(a,"plot_env","1");wait_ready(a);assert(fabsf(get(a,"viz_e_95")-0.25f)<0.0081f);
+    set(a,"viz_e_95","1");assert(fabsf(get(a,"viz_e_95")-0.25f)<0.0081f);
+    set(a,"plot_env","0");wait_ready(a);
+    puts("Waveform columns match captured audio; amplitude/pitch overlays and read-only data pass");
+    set(a,"o1_attack","0.1");
+    for(int i=0;i<2500;i++) {
+        get(a,"display_rev");
+        if(!get(a,"render_pending"))break;
+        usleep(2000);
+    }
+    assert(!get(a,"render_pending"));assert(get(a,"viz_e_0")<0.04f);
+    set(a,"reset","1");wait_ready(a);
+    puts("Completed graph can refresh while audio rendering is stopped");
     api->render(a,out,128);assert(energy(out,256)==0);
     api->render(b,other,128);assert(energy(other,256)==0);
     /* Full-length ignores note off; Gate honors note and channel. */
@@ -52,6 +75,9 @@ int main(void) {
     char legacy[8192];strcpy(legacy,state);memcpy(legacy,"GKMP1",5);
     char *end=legacy+6;for(int i=0;i<103;i++)strtof(end,&end);*end=0;
     set(b,"state",legacy);assert(get(b,"o9_wave")==5);assert(get(b,"o9_drive")==2);assert(get(b,"o9_attack")==0);
+    strcpy(legacy,state);memcpy(legacy,"GKMP2",5);end=legacy+6;
+    for(int i=0;i<184;i++)strtof(end,&end);*end=0;
+    set(b,"state",legacy);assert(get(b,"o9_drive")==7);assert(get(b,"plot_env")==0);assert(get(b,"plot_osc")==0);
     set(b,"state","GKMP1 nan");assert(get(b,"layer3")==get(a,"layer3"));
     set(b,"o9_level","nan");assert(get(b,"o9_level")==0.8f);
     /* Presets all produce audio; no voices/worker/global state leak into another instance. */

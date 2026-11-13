@@ -15,7 +15,10 @@
 #define MAX_SAMPLES (RATE*4)
 #define VOICES 8
 #define SLOTS (VOICES+4)
-typedef struct { atomic_int refs; int size; float *data; unsigned revision; } Cache;
+typedef struct {
+    atomic_int refs; int size; float *data; unsigned revision;
+    unsigned char plot[3][PLOT_COLUMNS];
+} Cache;
 typedef struct { int slot,note,channel; double pos,step; float gain; unsigned age; } Voice;
 typedef struct {
     _Atomic float values[GP_COUNT];
@@ -28,6 +31,7 @@ typedef struct {
     Voice voices[VOICES];
     int current;
     unsigned age;
+    unsigned display_revision;
     unsigned char dirty[GP_COUNT];
 } Engine;
 
@@ -47,7 +51,7 @@ static void stop_voice(Engine *e,Voice *v) { drop(e,v->slot); v->slot=-1; }
 static void stop_all(Engine *e) { for(int i=0;i<VOICES;i++) stop_voice(e,&e->voices[i]); }
 static void adopt(Engine *e) {
     int s=atomic_exchange(&e->ready,-1);
-    if(s>=0) { int old=e->current; e->current=s; drop(e,old); }
+    if(s>=0) { int old=e->current; e->current=s; drop(e,old); ++e->display_revision; }
 }
 static void envelope(struct gkick_envelope *env,float x1,float y0,float y1,float yend) {
     struct gkick_envelope_point_info pts[]={{0,y0,false},{x1,y1,false},{1,yend,false}};
@@ -120,6 +124,19 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
         float fade=fminf(1,fminf(i/32.f,(c->size-1-i)/64.f));
         c->data[i]=x*fade;
     }
+    int osc=(int)value(p,"plot_osc");
+    struct gkick_oscillator *selected=s->oscillators[osc];
+    struct gkick_envelope *env=selected->envelopes[value(p,"plot_env")>0?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
+    for(int column=0;column<PLOT_COLUMNS;column++) {
+        int begin=(int)((long long)column*c->size/PLOT_COLUMNS);
+        int end=(int)((long long)(column+1)*c->size/PLOT_COLUMNS);
+        float positive=0,negative=0;
+        for(int i=begin;i<end;i++) { positive=fmaxf(positive,c->data[i]);negative=fmaxf(negative,-c->data[i]); }
+        c->plot[0][column]=(unsigned char)roundf(clampf(positive,0,1)*63);
+        c->plot[1][column]=(unsigned char)roundf(clampf(negative,0,1)*63);
+        float shape=gkick_envelope_get_value(env,(column+0.5f)/PLOT_COLUMNS);
+        c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*63);
+    }
 }
 static unsigned snapshot(Engine *e,float *p) {
     unsigned a,b;
@@ -174,7 +191,7 @@ static void preset(Engine *e,int which) {
 static void *create(const char *dir) {
     (void)dir;
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
-    e->current=-1; atomic_init(&e->ready,-1); atomic_init(&e->revision,0); atomic_init(&e->running,false);
+    e->current=-1; e->display_revision=1; atomic_init(&e->ready,-1); atomic_init(&e->revision,0); atomic_init(&e->running,false);
     for(int i=0;i<GP_COUNT;i++) atomic_init(&e->values[i],gparams[i].def);
     for(int i=0;i<VOICES;i++)e->voices[i].slot=-1;
     for(int i=0;i<SLOTS;i++) { atomic_init(&e->slots[i].refs,0); e->slots[i].data=calloc(MAX_SAMPLES,sizeof(float)); if(!e->slots[i].data)goto fail; }
@@ -217,7 +234,8 @@ static void set_param(void *inst,const char *key,const char *text) {
     if(!strcmp(key,"state")) {
         int count;
         if(!strncmp(text,"GKMP1 ",6))count=103;
-        else if(!strncmp(text,"GKMP2 ",6))count=GP_COUNT;
+        else if(!strncmp(text,"GKMP2 ",6))count=184;
+        else if(!strncmp(text,"GKMP3 ",6))count=GP_COUNT;
         else return;
         float p[GP_COUNT];const char *s=text+6;char *end;
         for(int i=0;i<GP_COUNT;i++)p[i]=gparams[i].def;
@@ -238,14 +256,38 @@ static void set_param(void *inst,const char *key,const char *text) {
     }
     if(v==atomic_load(&e->values[i]))return;
     atomic_fetch_add(&e->revision,1);
-    if(!strcmp(key,"preset"))preset(e,(int)v);else atomic_store(&e->values[i],v);
+    if(!strcmp(key,"preset"))preset(e,(int)v);
+    else {
+        atomic_store(&e->values[i],v);
+        int oscillator=0;char suffix[32];
+        if(sscanf(key,"o%d_%31s",&oscillator,suffix)==2 && oscillator>=1 && oscillator<=9) {
+            int focus=index_of("plot_osc");
+            if(atomic_load(&e->values[focus])!=oscillator-1) { atomic_store(&e->values[focus],oscillator-1);e->dirty[focus]=1; }
+        }
+    }
     atomic_fetch_add(&e->revision,1);
 }
 static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
+    /* Wrapper serializes this call with MIDI/render. The display thread can
+     * adopt a completed sound even while the host isn't processing audio. */
+    if(!strcmp(key,"display_rev")) { adopt(e);return snprintf(buf,len,"%u",e->display_revision); }
+    size_t key_len=strlen(key);
+    if(key_len>8 && !strcmp(key+key_len-8,"_display")) {
+        char original[64];if(key_len-8>=sizeof original)return 0;
+        memcpy(original,key,key_len-8);original[key_len-8]=0;
+        int i=index_of(original);if(i<0)return 0;
+        return snprintf(buf,len,"%.3f",atomic_load(&e->values[i]));
+    }
+    if(!strncmp(key,"viz_",4)) {
+        char channel,trailing;int column;
+        if(sscanf(key,"viz_%c_%d%c",&channel,&column,&trailing)!=2 || column<0 || column>=PLOT_COLUMNS)return 0;
+        int c=channel=='p'?0:channel=='n'?1:channel=='e'?2:-1;if(c<0)return 0;
+        return snprintf(buf,len,"%.9g",e->slots[e->current].plot[c][column]/63.f);
+    }
     if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",e->slots[e->current].revision!=atomic_load(&e->revision));
     if(!strcmp(key,"state")) {
-        int n=snprintf(buf,len,"GKMP2");
+        int n=snprintf(buf,len,"GKMP3");
         for(int i=0;i<GP_COUNT && n<len;i++)n+=snprintf(buf+n,len-n," %.9g",atomic_load(&e->values[i]));
         return n<len?n:0;
     }

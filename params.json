@@ -14,7 +14,8 @@
       "min": 0.03,
       "max": 4,
       "default": 0.6,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "tune",
@@ -147,7 +148,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o1_sweep",
@@ -163,7 +165,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o1_phase",
@@ -235,7 +238,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o2_sweep",
@@ -251,7 +255,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o2_phase",
@@ -316,7 +321,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o3_sweep",
@@ -332,7 +338,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o3_phase",
@@ -397,7 +404,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o4_sweep",
@@ -413,7 +421,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o4_phase",
@@ -485,7 +494,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o5_sweep",
@@ -501,7 +511,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o5_phase",
@@ -566,7 +577,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o6_sweep",
@@ -582,7 +594,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o6_phase",
@@ -647,7 +660,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o7_sweep",
@@ -663,7 +677,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o7_phase",
@@ -735,7 +750,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o8_sweep",
@@ -751,7 +767,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o8_phase",
@@ -816,7 +833,8 @@
       "min": 0.005,
       "max": 4,
       "default": 0.5,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o9_sweep",
@@ -832,7 +850,8 @@
       "min": 0.001,
       "max": 1,
       "default": 0.04,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o9_phase",
@@ -949,7 +968,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o1_filter_on",
@@ -1038,7 +1058,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o2_filter_on",
@@ -1127,7 +1148,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o3_filter_on",
@@ -1216,7 +1238,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o4_filter_on",
@@ -1305,7 +1328,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o5_filter_on",
@@ -1394,7 +1418,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o6_filter_on",
@@ -1483,7 +1508,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o7_filter_on",
@@ -1572,7 +1598,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o8_filter_on",
@@ -1661,7 +1688,8 @@
       "min": 0,
       "max": 1,
       "default": 0,
-      "unit": "s"
+      "unit": "s",
+      "dynamic_display": true
     },
     {
       "key": "o9_filter_on",
@@ -1743,6 +1771,2629 @@
       "min": 0,
       "max": 1,
       "default": 0.7
+    },
+    {
+      "key": "plot_osc",
+      "name": "Envelope Focus",
+      "min": 0,
+      "max": 8,
+      "default": 0,
+      "options": [
+        "L1 / 1",
+        "L1 / 2",
+        "L1 / 3",
+        "L2 / 1",
+        "L2 / 2",
+        "L2 / 3",
+        "L3 / 1",
+        "L3 / 2",
+        "L3 / 3"
+      ],
+      "refresh_display": true
+    },
+    {
+      "key": "plot_env",
+      "name": "Envelope View",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Amplitude",
+        "Pitch"
+      ],
+      "refresh_display": true
+    },
+    {
+      "key": "viz_p_0",
+      "name": "Graph p 0",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_1",
+      "name": "Graph p 1",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_2",
+      "name": "Graph p 2",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_3",
+      "name": "Graph p 3",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_4",
+      "name": "Graph p 4",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_5",
+      "name": "Graph p 5",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_6",
+      "name": "Graph p 6",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_7",
+      "name": "Graph p 7",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_8",
+      "name": "Graph p 8",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_9",
+      "name": "Graph p 9",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_10",
+      "name": "Graph p 10",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_11",
+      "name": "Graph p 11",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_12",
+      "name": "Graph p 12",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_13",
+      "name": "Graph p 13",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_14",
+      "name": "Graph p 14",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_15",
+      "name": "Graph p 15",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_16",
+      "name": "Graph p 16",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_17",
+      "name": "Graph p 17",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_18",
+      "name": "Graph p 18",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_19",
+      "name": "Graph p 19",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_20",
+      "name": "Graph p 20",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_21",
+      "name": "Graph p 21",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_22",
+      "name": "Graph p 22",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_23",
+      "name": "Graph p 23",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_24",
+      "name": "Graph p 24",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_25",
+      "name": "Graph p 25",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_26",
+      "name": "Graph p 26",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_27",
+      "name": "Graph p 27",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_28",
+      "name": "Graph p 28",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_29",
+      "name": "Graph p 29",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_30",
+      "name": "Graph p 30",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_31",
+      "name": "Graph p 31",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_32",
+      "name": "Graph p 32",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_33",
+      "name": "Graph p 33",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_34",
+      "name": "Graph p 34",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_35",
+      "name": "Graph p 35",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_36",
+      "name": "Graph p 36",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_37",
+      "name": "Graph p 37",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_38",
+      "name": "Graph p 38",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_39",
+      "name": "Graph p 39",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_40",
+      "name": "Graph p 40",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_41",
+      "name": "Graph p 41",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_42",
+      "name": "Graph p 42",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_43",
+      "name": "Graph p 43",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_44",
+      "name": "Graph p 44",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_45",
+      "name": "Graph p 45",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_46",
+      "name": "Graph p 46",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_47",
+      "name": "Graph p 47",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_48",
+      "name": "Graph p 48",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_49",
+      "name": "Graph p 49",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_50",
+      "name": "Graph p 50",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_51",
+      "name": "Graph p 51",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_52",
+      "name": "Graph p 52",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_53",
+      "name": "Graph p 53",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_54",
+      "name": "Graph p 54",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_55",
+      "name": "Graph p 55",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_56",
+      "name": "Graph p 56",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_57",
+      "name": "Graph p 57",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_58",
+      "name": "Graph p 58",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_59",
+      "name": "Graph p 59",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_60",
+      "name": "Graph p 60",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_61",
+      "name": "Graph p 61",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_62",
+      "name": "Graph p 62",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_63",
+      "name": "Graph p 63",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_64",
+      "name": "Graph p 64",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_65",
+      "name": "Graph p 65",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_66",
+      "name": "Graph p 66",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_67",
+      "name": "Graph p 67",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_68",
+      "name": "Graph p 68",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_69",
+      "name": "Graph p 69",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_70",
+      "name": "Graph p 70",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_71",
+      "name": "Graph p 71",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_72",
+      "name": "Graph p 72",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_73",
+      "name": "Graph p 73",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_74",
+      "name": "Graph p 74",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_75",
+      "name": "Graph p 75",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_76",
+      "name": "Graph p 76",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_77",
+      "name": "Graph p 77",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_78",
+      "name": "Graph p 78",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_79",
+      "name": "Graph p 79",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_80",
+      "name": "Graph p 80",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_81",
+      "name": "Graph p 81",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_82",
+      "name": "Graph p 82",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_83",
+      "name": "Graph p 83",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_84",
+      "name": "Graph p 84",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_85",
+      "name": "Graph p 85",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_86",
+      "name": "Graph p 86",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_87",
+      "name": "Graph p 87",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_88",
+      "name": "Graph p 88",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_89",
+      "name": "Graph p 89",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_90",
+      "name": "Graph p 90",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_91",
+      "name": "Graph p 91",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_92",
+      "name": "Graph p 92",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_93",
+      "name": "Graph p 93",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_94",
+      "name": "Graph p 94",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_p_95",
+      "name": "Graph p 95",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_0",
+      "name": "Graph n 0",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_1",
+      "name": "Graph n 1",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_2",
+      "name": "Graph n 2",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_3",
+      "name": "Graph n 3",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_4",
+      "name": "Graph n 4",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_5",
+      "name": "Graph n 5",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_6",
+      "name": "Graph n 6",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_7",
+      "name": "Graph n 7",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_8",
+      "name": "Graph n 8",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_9",
+      "name": "Graph n 9",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_10",
+      "name": "Graph n 10",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_11",
+      "name": "Graph n 11",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_12",
+      "name": "Graph n 12",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_13",
+      "name": "Graph n 13",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_14",
+      "name": "Graph n 14",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_15",
+      "name": "Graph n 15",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_16",
+      "name": "Graph n 16",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_17",
+      "name": "Graph n 17",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_18",
+      "name": "Graph n 18",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_19",
+      "name": "Graph n 19",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_20",
+      "name": "Graph n 20",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_21",
+      "name": "Graph n 21",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_22",
+      "name": "Graph n 22",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_23",
+      "name": "Graph n 23",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_24",
+      "name": "Graph n 24",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_25",
+      "name": "Graph n 25",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_26",
+      "name": "Graph n 26",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_27",
+      "name": "Graph n 27",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_28",
+      "name": "Graph n 28",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_29",
+      "name": "Graph n 29",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_30",
+      "name": "Graph n 30",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_31",
+      "name": "Graph n 31",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_32",
+      "name": "Graph n 32",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_33",
+      "name": "Graph n 33",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_34",
+      "name": "Graph n 34",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_35",
+      "name": "Graph n 35",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_36",
+      "name": "Graph n 36",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_37",
+      "name": "Graph n 37",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_38",
+      "name": "Graph n 38",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_39",
+      "name": "Graph n 39",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_40",
+      "name": "Graph n 40",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_41",
+      "name": "Graph n 41",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_42",
+      "name": "Graph n 42",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_43",
+      "name": "Graph n 43",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_44",
+      "name": "Graph n 44",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_45",
+      "name": "Graph n 45",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_46",
+      "name": "Graph n 46",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_47",
+      "name": "Graph n 47",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_48",
+      "name": "Graph n 48",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_49",
+      "name": "Graph n 49",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_50",
+      "name": "Graph n 50",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_51",
+      "name": "Graph n 51",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_52",
+      "name": "Graph n 52",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_53",
+      "name": "Graph n 53",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_54",
+      "name": "Graph n 54",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_55",
+      "name": "Graph n 55",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_56",
+      "name": "Graph n 56",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_57",
+      "name": "Graph n 57",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_58",
+      "name": "Graph n 58",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_59",
+      "name": "Graph n 59",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_60",
+      "name": "Graph n 60",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_61",
+      "name": "Graph n 61",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_62",
+      "name": "Graph n 62",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_63",
+      "name": "Graph n 63",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_64",
+      "name": "Graph n 64",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_65",
+      "name": "Graph n 65",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_66",
+      "name": "Graph n 66",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_67",
+      "name": "Graph n 67",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_68",
+      "name": "Graph n 68",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_69",
+      "name": "Graph n 69",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_70",
+      "name": "Graph n 70",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_71",
+      "name": "Graph n 71",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_72",
+      "name": "Graph n 72",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_73",
+      "name": "Graph n 73",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_74",
+      "name": "Graph n 74",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_75",
+      "name": "Graph n 75",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_76",
+      "name": "Graph n 76",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_77",
+      "name": "Graph n 77",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_78",
+      "name": "Graph n 78",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_79",
+      "name": "Graph n 79",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_80",
+      "name": "Graph n 80",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_81",
+      "name": "Graph n 81",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_82",
+      "name": "Graph n 82",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_83",
+      "name": "Graph n 83",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_84",
+      "name": "Graph n 84",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_85",
+      "name": "Graph n 85",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_86",
+      "name": "Graph n 86",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_87",
+      "name": "Graph n 87",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_88",
+      "name": "Graph n 88",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_89",
+      "name": "Graph n 89",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_90",
+      "name": "Graph n 90",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_91",
+      "name": "Graph n 91",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_92",
+      "name": "Graph n 92",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_93",
+      "name": "Graph n 93",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_94",
+      "name": "Graph n 94",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_n_95",
+      "name": "Graph n 95",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_0",
+      "name": "Graph e 0",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_1",
+      "name": "Graph e 1",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_2",
+      "name": "Graph e 2",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_3",
+      "name": "Graph e 3",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_4",
+      "name": "Graph e 4",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_5",
+      "name": "Graph e 5",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_6",
+      "name": "Graph e 6",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_7",
+      "name": "Graph e 7",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_8",
+      "name": "Graph e 8",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_9",
+      "name": "Graph e 9",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_10",
+      "name": "Graph e 10",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_11",
+      "name": "Graph e 11",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_12",
+      "name": "Graph e 12",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_13",
+      "name": "Graph e 13",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_14",
+      "name": "Graph e 14",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_15",
+      "name": "Graph e 15",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_16",
+      "name": "Graph e 16",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_17",
+      "name": "Graph e 17",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_18",
+      "name": "Graph e 18",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_19",
+      "name": "Graph e 19",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_20",
+      "name": "Graph e 20",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_21",
+      "name": "Graph e 21",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_22",
+      "name": "Graph e 22",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_23",
+      "name": "Graph e 23",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_24",
+      "name": "Graph e 24",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_25",
+      "name": "Graph e 25",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_26",
+      "name": "Graph e 26",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_27",
+      "name": "Graph e 27",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_28",
+      "name": "Graph e 28",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_29",
+      "name": "Graph e 29",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_30",
+      "name": "Graph e 30",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_31",
+      "name": "Graph e 31",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_32",
+      "name": "Graph e 32",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_33",
+      "name": "Graph e 33",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_34",
+      "name": "Graph e 34",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_35",
+      "name": "Graph e 35",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_36",
+      "name": "Graph e 36",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_37",
+      "name": "Graph e 37",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_38",
+      "name": "Graph e 38",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_39",
+      "name": "Graph e 39",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_40",
+      "name": "Graph e 40",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_41",
+      "name": "Graph e 41",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_42",
+      "name": "Graph e 42",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_43",
+      "name": "Graph e 43",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_44",
+      "name": "Graph e 44",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_45",
+      "name": "Graph e 45",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_46",
+      "name": "Graph e 46",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_47",
+      "name": "Graph e 47",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_48",
+      "name": "Graph e 48",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_49",
+      "name": "Graph e 49",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_50",
+      "name": "Graph e 50",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_51",
+      "name": "Graph e 51",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_52",
+      "name": "Graph e 52",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_53",
+      "name": "Graph e 53",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_54",
+      "name": "Graph e 54",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_55",
+      "name": "Graph e 55",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_56",
+      "name": "Graph e 56",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_57",
+      "name": "Graph e 57",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_58",
+      "name": "Graph e 58",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_59",
+      "name": "Graph e 59",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_60",
+      "name": "Graph e 60",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_61",
+      "name": "Graph e 61",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_62",
+      "name": "Graph e 62",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_63",
+      "name": "Graph e 63",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_64",
+      "name": "Graph e 64",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_65",
+      "name": "Graph e 65",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_66",
+      "name": "Graph e 66",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_67",
+      "name": "Graph e 67",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_68",
+      "name": "Graph e 68",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_69",
+      "name": "Graph e 69",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_70",
+      "name": "Graph e 70",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_71",
+      "name": "Graph e 71",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_72",
+      "name": "Graph e 72",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_73",
+      "name": "Graph e 73",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_74",
+      "name": "Graph e 74",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_75",
+      "name": "Graph e 75",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_76",
+      "name": "Graph e 76",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_77",
+      "name": "Graph e 77",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_78",
+      "name": "Graph e 78",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_79",
+      "name": "Graph e 79",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_80",
+      "name": "Graph e 80",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_81",
+      "name": "Graph e 81",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_82",
+      "name": "Graph e 82",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_83",
+      "name": "Graph e 83",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_84",
+      "name": "Graph e 84",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_85",
+      "name": "Graph e 85",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_86",
+      "name": "Graph e 86",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_87",
+      "name": "Graph e 87",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_88",
+      "name": "Graph e 88",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_89",
+      "name": "Graph e 89",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_90",
+      "name": "Graph e 90",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_91",
+      "name": "Graph e 91",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_92",
+      "name": "Graph e 92",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_93",
+      "name": "Graph e 93",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_94",
+      "name": "Graph e 94",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "viz_e_95",
+      "name": "Graph e 95",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
     }
   ]
 }

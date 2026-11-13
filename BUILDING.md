@@ -29,14 +29,23 @@ The native tests load the actual VST shared library under ASan/UBSan/leak
 detection, then check the engine against an independent signal oracle and
 exercise asynchronous rendering. ARM64 runs the shared-library host and engine
 tests under QEMU. QEMU is not a hardware test or CPU benchmark.
-Version 0.0.2 adds 81 controls after the frozen original 103. GKMP2 chunks
-save all values; loading GKMP1 supplies neutral defaults for the extension.
+Version 0.0.2 adds 81 controls after the frozen original 103. Version 0.0.3 adds
+two stored view controls and 288 derived display values after those 184.
+GKMP3 saves 186 controls; GKMP1/GKMP2 migrate their 103/184 controls with default
+view settings. Display values are neither stored nor writable.
 
 tools/spec.py generates params.json, src/param_defs.h and layout.conf. Indices in
 params.lock are frozen from 0.0.1 onward; append new parameters. An edit to
 generated files must also update the generator. Skin finishing computes Q-Link
 bounds from native controls, including labels, and renames the browser default
 to Init. All build products, previews, logs and receipts stay under build/.
+
+tools/plot_assets.py creates shared native display strips; finish_skin.py adds
+the read-only plot components and namespaces compact selectors so detailed OSC
+pages cannot overwrite their smaller SYNTH counterparts. No Chromium dependency
+is needed. tools/render_ui.py renders a composite with actual native VST values
+and checks host display notifications. Build native and skin first; invoke it
+with Pillow available, as build.run does. See UI-DESIGN.md for details.
 
 Packaging uses official release.py, verifies the test receipts and validates
 the result with catalog_check.py. The ZIP contains only installation material,
