@@ -48,5 +48,5 @@ Hardware checks remain: frame selection, curve refresh while editing/idle,
 preset browser, touch targets, Q-Link bounds, derived display channels in host
 parameter lists, UI latency and CPU under real interaction. No graphical behavior
 is claimed as device-verified yet. The user approved installing 0.0.3 and its
-files have been updated and checksum-verified on the MPC. The application and
-its cached skin were not restarted; activation/testing is still pending.
+files have been updated and checksum-verified on the MPC. After separate user approval, the MPC application was restarted and returned
+to running. Actual on-screen graph behavior and interaction testing remain pending.

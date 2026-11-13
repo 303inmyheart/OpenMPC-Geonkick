@@ -1,7 +1,8 @@
 # Geonkick MPC
 
-The MPC adapter, build scripts and interface are AI-generated. Hardware testing
-of this new port has **not yet taken place**. The original Geonkick DSP is the
+The MPC adapter, build scripts and interface are AI-generated. Hands-on GUI/audio testing
+of this new port is **still pending**. The updated 0.0.3 VST was initialized by
+the real MPC host after the approved application restart. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for

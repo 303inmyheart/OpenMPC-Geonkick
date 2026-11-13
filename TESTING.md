@@ -38,8 +38,10 @@ installing the next 0.0.3 visual build. On that approval the existing Geonkick
 folder was updated from 0.0.2 to 0.0.3: all 582 package files were checksum
 verified after staging and again after replacement. The previous folder was
 backed up locally. MPC.settings stayed byte-identical and the running MPC process
-was unchanged. No application restart or GUI/audio verification was performed.
-The new skin's activation still requires a separately approved MPC app restart.
+was unchanged. After the user explicitly approved the restart, the MPC application service
+was restarted once and returned to active/running with a new process. The
+startup journal shows the updated Geonkick VST instance being created and
+initialized. Hands-on GUI/audio verification is still pending.
 
 Pending maintainer checks on Live III / MPC OS 3.10.1:
 
