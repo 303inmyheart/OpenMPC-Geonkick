@@ -43,9 +43,15 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
      deltas tracked without the absolute-jump cutoff, gesture writes serialized
      and synchronous self-echo ignored. 0.0.9 graph/audio improvement confirmed
      by user; fine-control acceptance for 0.0.10 remains pending.
+   - **0.0.11 candidate:** direct continuous touch handles, fine Q-Links/wheel
+     and shared physical values; native visual/focus acceptance pending.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
-   graphical point editing and preview/export. Evaluate native envelope editing first.
+   graphical point editing and preview/export. First prototype: native fixed
+   five-level/four-time envelope for selected oscillator amplitude/pitch,
+   explicit custom-envelope state/migration and safe point/time ordering.
+   Free point insertion/deletion and Bezier handles need further UI work.
+   See [feasibility](docs/ENVELOPE-EDITOR.md).
 4. **Kit architecture** — sixteen independent drums, pad/key/channel mapping,
    per-drum choke/mute/solo, kit persistence, practical navigation. Decide output
    routing within the MPC VST host's actual capabilities; do not promise desktop

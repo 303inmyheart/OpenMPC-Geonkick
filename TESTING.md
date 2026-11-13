@@ -272,3 +272,28 @@ fails against 0.0.9. The candidate follows individual raw deltas instead:
 Fine-control device acceptance remains required. The temporary diagnostic is
 retained for that check; raw captures stay private and are removed from /tmp
 after analysis. The user's standing install/restart authorization remains active.
+
+## 0.0.11 — direct touch, fine Q-Links
+
+The user confirms 0.0.10 real value jumps are resolved, but observes a brief
+visual knob rebound and wants coarse/direct touchscreen motion with fine
+Q-Links. Previously one native Knob handle represented raw touch input and the
+accepted fine value. The candidate keeps the fine Data/Q-Link binding and moves
+native Knob motion/display to an independent continuous Touch handle sharing
+the same physical engine value.
+
+- Native ASan/UBSan/leaks and actual ARM64 VST/engine suites under QEMU pass.
+- All 46 continuous adapters follow direct requested normalized positions,
+  preserve intermediate pitch fractions, refresh their readback, hand over to
+  a fine Q-Link step and preserve old 6010 Hz values through feedback echoes.
+- Accumulated raw fine-stream/reversal tests, shared graph/rebind fixture,
+  independent DSP oracle, presets/state and cache/voice lifetime still pass.
+- Structural split verified on 265 widget instances. Existing Q-Link map is
+  byte-identical to 0.0.10; old 1530 parameter identities/ranges/defaults remain.
+  All state still stores 186 physical controls, not duplicate touch values.
+- Final skin check and actual-value offline rendering are required for package.
+
+The native MPC must still verify that child Touch handles receive dragging,
+parent Data keeps Q-Link/wheel focus fine, and the cosmetic rebound is gone.
+Point-envelope editing was investigated in the original source and documented;
+no editor/state-format change is included in this build.

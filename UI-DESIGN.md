@@ -123,3 +123,12 @@ The user has confirmed that 0.0.9 redraws and the tested redraw actions no longe
 crackle. That drawing/rebind path and padded touch geometry are unchanged.
 Fine input now follows accumulated raw deltas rather than their distance to an
 accepted one-step value. The native widgets do not change their geometry/ranges.
+
+## 0.0.11 two input routes
+
+Each affected native control keeps its fine parent Data handle for focus,
+Q-Links and value labels. Its editable Knob child binds a continuous Touch
+handle, whose normalized coordinate directly represents the same physical
+value. The knob no longer paints the unaccepted fine-control input and then
+snaps to a correction. Geometry, transparent touch padding and graph updates
+stay unchanged. This native multi-handle behavior needs device verification.

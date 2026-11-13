@@ -19,7 +19,7 @@ static int started;
 static uint64_t clock_ns(void){struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000000000u+t.tv_nsec;}
 void wrap_trace(int kind,int index,float value){
  if(!atomic_load_explicit(&enabled,memory_order_relaxed) || (kind!=0 && kind!=2) || index<0 || index>=NPARAMS)return;
- if(PARAMS[index].nudge_pct<=0){const char *key=PARAMS[index].key;size_t len=strlen(key);if(key[0]!='o' || len<6 || strcmp(key+len-5,"_freq"))return;}
+ if(PARAMS[index].nudge_pct<=0){const char *key=PARAMS[index].key;size_t len=strlen(key);if(!((key[0]=='o' && len>=6 && !strcmp(key+len-5,"_freq")) || (len>=6 && !strcmp(key+len-6,"_touch"))))return;}
  uint64_t n=atomic_fetch_add_explicit(&produced,1,memory_order_relaxed);struct Event *e=&events[n%CAPACITY];
  atomic_store_explicit(&e->seq,0,memory_order_release);
  atomic_store_explicit(&e->ns,clock_ns(),memory_order_relaxed);atomic_store_explicit(&e->kind,kind,memory_order_relaxed);
@@ -27,7 +27,7 @@ void wrap_trace(int kind,int index,float value){
  atomic_store_explicit(&e->value,value,memory_order_relaxed);atomic_store_explicit(&e->seq,n+1,memory_order_release);
 }
 static void *write_events(void *unused){
- (void)unused;pthread_setname_np(pthread_self(),"gk-input-log");char path[160];snprintf(path,sizeof path,"/tmp/geonkick-input-010-%ld-%llu.tsv",(long)getpid(),(unsigned long long)clock_ns());
+ (void)unused;pthread_setname_np(pthread_self(),"gk-input-log");char path[160];snprintf(path,sizeof path,"/tmp/geonkick-input-011-%ld-%llu.tsv",(long)getpid(),(unsigned long long)clock_ns());
  FILE *f=fopen(path,"wx");if(!f)return NULL;
  fprintf(f,"ns\ttid\tkind\tindex\tkey\tnormalized\n");uint64_t next=0;size_t bytes=0;
  while(atomic_load(&running) && bytes<1024*1024){

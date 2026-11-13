@@ -4,7 +4,7 @@ import argparse,hashlib,json,os,re,shutil,subprocess,sys,zipfile
 from pathlib import Path
 import build
 root=build.ROOT
-ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--no-desktop',action='store_true');args=ap.parse_args()
+ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--desktop',action='store_true',help='Explicitly copy installer to Desktop');ap.add_argument('--no-desktop',action='store_true',help=argparse.SUPPRESS);args=ap.parse_args()
 cfg=json.loads((root/'release.json').read_text())
 release_tools=Path(os.environ.get('MPC_RELEASE_TOOLS',root.parent/'mpc-vst-plugins-release-tools'))
 ref=subprocess.check_output(['git','-C',str(release_tools),'rev-parse','HEAD'],text=True).strip()
@@ -53,7 +53,7 @@ with zipfile.ZipFile(archive) as z:
 digest=hashlib.sha256(archive.read_bytes()).hexdigest()
 (dest/'SHA256SUMS').write_text(digest+'  '+archive.name+'\n')
 print('Validated local development package:',archive,'SHA256:',digest)
-if not args.no_desktop:
+if args.desktop and not args.no_desktop:
     desktop=Path.home()/'Schreibtisch';desktop.mkdir(exist_ok=True)
     out=desktop/f'Geonkick-MPC-Gen2-{cfg["version"]}-dev1.zip'
     if out.exists():raise SystemExit('Refusing to overwrite '+str(out))

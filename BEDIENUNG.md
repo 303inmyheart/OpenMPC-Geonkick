@@ -1,4 +1,4 @@
-# Geonkick MPC bedienen — 0.0.10
+# Geonkick MPC bedienen — 0.0.11
 
 Ein Plugin erzeugt einen Drum-Sound aus drei Layern mit je drei Oszillatoren.
 Für eine Kick genügt zunächst Layer 1, OSC 1. Layer 2 und 3 starten stumm;
@@ -71,3 +71,11 @@ bleibt aktiv und fordert nach dem Drehen einmal das Neueinlesen beim Host an.
 jetzt auch bei längeren Drehbewegungen den einzelnen Eingabeschritten. Bitte
 noch einmal langsam und schnell in beide Richtungen prüfen; die großen
 Sprünge sollten nicht mehr durch aufgelaufene Eingabewerte entstehen.
+
+0.0.11 trennt die Eingabewege: Touch bewegt den Wert direkt und stufenlos über
+den Reglerbereich; Q-Links und Datenrad bleiben für feine Schritte zuständig.
+Beide bearbeiten denselben Klangwert. Der Frequenzbereich bleibt beim Touch
+musikalisch logarithmisch, die feinen Q-Link-Schritte bleiben 5 Cent.
+
+Ein nativer Punkteditor für Lautstärke/Pitch wurde untersucht, aber noch nicht
+implementiert; siehe [Machbarkeit](docs/ENVELOPE-EDITOR.md).

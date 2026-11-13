@@ -33,7 +33,7 @@ typedef struct {
     unsigned age;
     unsigned display_revision;
     float output_gain;
-    unsigned char dirty[GP_COUNT];
+    unsigned char dirty[GP_COUNT],dirty_alias[G_ALIAS_COUNT];
 } Engine;
 
 /* Same platform helpers as upstream geonkick.c, without its global worker. */
@@ -49,6 +49,12 @@ static int alias_of(const char *key) {
     return -1;
 }
 static float at(Engine *e,const char *key) { int i=index_of(key); return i<0?0:atomic_load(&e->values[i]); }
+static float alias_coordinate(int alias,float physical) {
+    const GAlias *a=&galiases[alias];
+    if(a->kind==3)return logf(physical/20.f)/logf(600.f);
+    if(a->kind>=4)return (physical-a->lo)/(a->hi-a->lo);
+    return a->kind==1?roundf(physical*1000):a->kind==2?roundf(physical*100):physical<=20?FREQ_FINE_MIN:physical>=12000?FREQ_FINE_MAX:roundf(240*log2f(physical/55.f));
+}
 static float value(const float *p,const char *key) { int i=index_of(key); return i<0?0:p[i]; }
 static void put(Engine *e,const char *key,float v) { int i=index_of(key); if(i>=0) atomic_store(&e->values[i],v); }
 static void drop(Engine *e,int slot) { if(slot>=0) atomic_fetch_sub(&e->slots[slot].refs,1); }
@@ -269,11 +275,14 @@ static void set_param(void *inst,const char *key,const char *text) {
         /* A host echo of an adapter's rounded display coordinate must not
          * quantize physical values restored from old projects/automation. */
         float current=at(e,galiases[alias].target);
-        float coordinate=galiases[alias].kind==1?roundf(current*1000):galiases[alias].kind==2?roundf(current*100):current<=20?FREQ_FINE_MIN:current>=12000?FREQ_FINE_MAX:roundf(240*log2f(current/55.f));
-        if(v==coordinate)return;
-        float physical=galiases[alias].kind==1?v/1000.f:galiases[alias].kind==2?v/100.f:clampf(55.f*exp2f(v/240.f),20,12000);
+        float coordinate=alias_coordinate(alias,current);
+        if(v==coordinate || (galiases[alias].kind>=3 && fabsf(v-coordinate)<1e-6f))return;
+        const GAlias *a=&galiases[alias];
+        float physical=a->kind==3?20.f*expf(logf(600.f)*clampf(v,0,1)):a->kind>=4?a->lo+(a->hi-a->lo)*clampf(v,0,1):a->kind==1?v/1000.f:a->kind==2?v/100.f:clampf(55.f*exp2f(v/240.f),20,12000);
         char value[48];snprintf(value,sizeof value,"%.9g",physical);
-        set_param(e,galiases[alias].target,value);return;
+        set_param(e,galiases[alias].target,value);
+        for(int j=0;j<G_ALIAS_COUNT;j++)if((galiases[j].kind>=3)!=(a->kind>=3) && !strcmp(galiases[j].target,a->target))e->dirty_alias[j]=1;
+        return;
     }
     if(!strcmp(key,"state")) {
         int count;
@@ -342,15 +351,15 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         int alias=alias_of(original);
         if(alias>=0) {
             float physical=at(e,galiases[alias].target);
-            if(galiases[alias].kind==0) {
+            if(galiases[alias].kind%3==0) {
                 int osc;char wave[32];
                 if(sscanf(galiases[alias].target,"o%d_freq",&osc)==1) {
                     snprintf(wave,sizeof wave,"o%d_wave",osc);
                     if(at(e,wave)>=4)return snprintf(buf,len,"NO PITCH");
                 }
             }
-            float displayed=galiases[alias].kind==1?physical*1000:galiases[alias].kind==2?physical*100:physical;
-            return snprintf(buf,len,galiases[alias].kind?"%.0f":"%.2f",displayed);
+            int unit=galiases[alias].kind%3;float displayed=unit==1?physical*1000:unit==2?physical*100:physical;
+            return snprintf(buf,len,unit?"%.0f":"%.2f",displayed);
         }
         int i=index_of(original);if(i<0)return 0;
         return snprintf(buf,len,"%.3f",atomic_load(&e->values[i]));
@@ -371,14 +380,15 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     int alias=alias_of(key);
     if(alias>=0) {
         float physical=at(e,galiases[alias].target);
-        float v=galiases[alias].kind==1?roundf(physical*1000):galiases[alias].kind==2?roundf(physical*100):physical<=20?FREQ_FINE_MIN:physical>=12000?FREQ_FINE_MAX:roundf(240*log2f(physical/55.f));
+        float v=alias_coordinate(alias,physical);
         return snprintf(buf,len,"%.9g",v);
     }
     int i=index_of(key);if(i<0)return 0;
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
-    Engine *e=inst;for(int i=0;i<GP_COUNT;i++)if(e->dirty[i]) { e->dirty[i]=0;snprintf(key,len,"%s",gparams[i].key);return 1; }return 0;
+    Engine *e=inst;for(int i=0;i<GP_COUNT;i++)if(e->dirty[i]) { e->dirty[i]=0;snprintf(key,len,"%s",gparams[i].key);return 1; }
+    for(int i=0;i<G_ALIAS_COUNT;i++)if(e->dirty_alias[i]) { e->dirty_alias[i]=0;snprintf(key,len,"%s",galiases[i].key);return 1; }return 0;
 }
 static void render(void *inst,mpc_sample_t *out,int frames) {
     Engine *e=inst;adopt(e);float volume=at(e,"volume");

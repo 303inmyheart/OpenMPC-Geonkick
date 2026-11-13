@@ -1,14 +1,14 @@
 # Geonkick MPC
 
 The MPC adapter, build scripts and interface are AI-generated. The user has tested early builds on Live III and reported interface and control
-problems. The user confirmed that 0.0.9 redraws the curve and the tested redraw actions
-no longer crackle on Live III. Version 0.0.10 follows the actual accumulated
-wheel/Q-Link input stream to address the remaining jumps. Its fine-control
-hardware acceptance is **pending**; the working graph/touch design is retained. The original Geonkick DSP is the
+problems. The user confirmed the real value jumps are resolved in 0.0.10; a brief
+visual knob rebound remained. Version 0.0.11 separates direct continuous Touch
+handles from fine Q-Link/data-wheel handles on the same physical parameter.
+Native touch feel and visual stability still require device acceptance. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.10 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.11 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -48,6 +48,10 @@ Implemented:
   follows that signal. No column callback burst is reintroduced.
 - Thin sliders retain their original visible pixels with transparent padded
   native hit areas (64 pixels high for the main envelope sliders).
+- Touch gestures use independent continuous handles for all 46 fine controls.
+  Q-Link/data-wheel selection and mapping stay fine; both routes share saved
+  physical values. The visible knob follows the direct Touch value, avoiding
+  the raw-fine-input/accepted-value normalization bounce.
 - Fine controls track consecutive raw input deltas, including long accumulated
   wheel/Q-Link streams, reversals and clamped endpoints. This prevents distance
   from the accepted value growing into an unintended absolute jump.
@@ -91,6 +95,8 @@ Pink noise is omitted because the pinned
 upstream implementation returns zero. The original state-variable filter is
 restricted to 30–8000 Hz and resonance 10–1000 to keep its discrete-time update
 stable at the MPC engine's 44.1 kHz. This needs revisiting for full parity.
+
+Point-editor feasibility and limits: [ENVELOPE-EDITOR.md](docs/ENVELOPE-EDITOR.md).
 
 See [LICENSE-AUDIT.md](LICENSE-AUDIT.md), [BUILDING.md](BUILDING.md), [TESTING.md](TESTING.md),
 [ROADMAP.md](ROADMAP.md) and [source provenance](src/VENDORED.md).

@@ -175,3 +175,23 @@ this also prevents an old echo from overwriting a newer concurrent user input.
 The bounded input diagnostic remains enabled for hardware acceptance with a new
 per-process /tmp prefix. Stored state, parameter indices and the working 0.0.9
 shared graph refresh/touch geometry are unchanged.
+
+0.0.11 appends 46 continuous *_touch adapters (1576 parameters total). The 186
+stored physical controls and all 1530 previous indices/ranges/defaults stay
+unchanged. Frequency touch uses log(Hz/20)/log(600); time/density touch uses the
+original physical min/max. Fine adapters retain cents/ms/percent steps. Echoes
+within normalized float formatting precision do not quantize restored physical
+values. Edits mark only the counterpart alias for host refresh, resetting fine
+input history after a touch edit without resetting it on each fine-input step.
+
+Skin parent Data/action/label bindings and Q-Link maps retain the fine index.
+Editable child Knob uses a separate named Touch handle remapped to its continuous
+adapter. The same padded strips and pixel bounds remain. Actual VST tests cover
+all 46 direct touch adapters, unrounded pitch, mirror readback, fine handover
+and old Hz echoes. Structural checks validate the split on 265 widget instances;
+Q-Links.json is byte-identical to 0.0.10. Named-handle behavior and visual
+stability still require MPC acceptance. See docs/ENVELOPE-EDITOR.md for the
+separate point-editor investigation; it is not part of this implementation.
+
+Installer output stays under build/releases by default; no Desktop copy.
+The --desktop option is an explicit opt-in for a later user request.

@@ -84,6 +84,16 @@ for original in list(params[:CONTROL_COUNT]):
     if key.endswith('_freq'):original['legacy']=True
 opt('ui_env_focus','Envelope Context',[f'{o}-{mode}' for o in range(9) for mode in ('tone','noise')],live=True,legacy=True)
 p('graph_revision','Graph Refresh',0,1023,1,live=True,legacy=True,display='int')
+# Distinct continuous touch handles share physical storage with fine controls.
+FINE_ALIASES=list(ALIASES)
+TOUCH_BINDINGS={}
+for fine,target,kind in FINE_ALIASES:
+    original=next(x for x in params[:CONTROL_COUNT] if x['key']==target)
+    key=target+'_touch'
+    default=math.log(original['default']/20)/math.log(600) if kind==0 else (original['default']-original['min'])/(original['max']-original['min'])
+    p(key,original['name']+' Touch',0,1,default,legacy=True,dynamic_display=True,unit='Hz' if kind==0 else 'ms' if kind==1 else '%')
+    ALIASES.append((key,target,kind+3));TOUCH_BINDINGS[fine]=key
+
 
 def generate():
     (ROOT/'params.json').write_text(json.dumps(dict(name='Geonkick MPC',params=params),indent=2)+'\n')
@@ -95,9 +105,11 @@ def generate():
         h.append('    {"%s", %sf, %sf, %sf, %d},'%(x['key'],float(x['min']),float(x['max']),float(x['default']),bool(x.get('options'))))
     h+=['};',f'#define GP_COUNT {CONTROL_COUNT}',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
         f'#define PLOT_WAVE_LEVELS {PLOT_WAVE_LEVELS}',f'#define PLOT_ENV_LEVELS {PLOT_ENV_LEVELS}']
-    h+=['typedef struct { const char *key,*target; int kind; } GAlias;',
+    h+=['typedef struct { const char *key,*target; int kind; float lo,hi; } GAlias;',
         'static const GAlias galiases[] = {']
-    h += ['    {"%s", "%s", %d},'%a for a in ALIASES]
+    for key,target,kind in ALIASES:
+        original=next(x for x in params[:CONTROL_COUNT] if x['key']==target)
+        h.append('    {"%s", "%s", %d, %sf, %sf},'%(key,target,kind,float(original['min']),float(original['max'])))
     h += ['};',f'#define G_ALIAS_COUNT {len(ALIASES)}',f'#define FREQ_FINE_MIN {FREQ_FINE_MIN}',f'#define FREQ_FINE_MAX {FREQ_FINE_MAX}']
     (ROOT/'src/param_defs.h').write_text('\n'.join(h)+'\n')
     theme='''style=dark
@@ -202,7 +214,7 @@ qlink_bounds=column
     # The physical Hz/seconds controls remain for state/old automation. Visible
     # controls use appended fine pitch and millisecond adapters, never reindexing.
     import re
-    replacements={target:key for key,target,_ in ALIASES}
+    replacements={target:key for key,target,kind in ALIASES if kind<3}
     def replace_token(match):return replacements.get(match.group(),match.group())
     lines=[re.sub(r'\b(?:length|o\d+_(?:freq|attack|decay|sweep_time|density))\b',replace_token,line) for line in lines]
     lines=[line.replace('label="FREQUENCY"','label="FREQUENCY (Hz)"').replace('label="DURATION"','label="LENGTH (ms)"')

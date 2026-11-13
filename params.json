@@ -13981,6 +13981,466 @@
       "live": true,
       "legacy": true,
       "display": "int"
+    },
+    {
+      "key": "o1_freq_touch",
+      "name": "O1 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o2_freq_touch",
+      "name": "O2 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o3_freq_touch",
+      "name": "O3 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o4_freq_touch",
+      "name": "O4 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o5_freq_touch",
+      "name": "O5 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o6_freq_touch",
+      "name": "O6 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o7_freq_touch",
+      "name": "O7 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o8_freq_touch",
+      "name": "O8 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o9_freq_touch",
+      "name": "O9 Freq Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.15813850803464852,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "length_touch",
+      "name": "Length Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.14357682619647352,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o1_decay_touch",
+      "name": "O1 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o1_sweep_time_touch",
+      "name": "O1 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o1_density_touch",
+      "name": "O1 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o2_decay_touch",
+      "name": "O2 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o2_sweep_time_touch",
+      "name": "O2 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o2_density_touch",
+      "name": "O2 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o3_decay_touch",
+      "name": "O3 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o3_sweep_time_touch",
+      "name": "O3 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o3_density_touch",
+      "name": "O3 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o4_decay_touch",
+      "name": "O4 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o4_sweep_time_touch",
+      "name": "O4 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o4_density_touch",
+      "name": "O4 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o5_decay_touch",
+      "name": "O5 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o5_sweep_time_touch",
+      "name": "O5 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o5_density_touch",
+      "name": "O5 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o6_decay_touch",
+      "name": "O6 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o6_sweep_time_touch",
+      "name": "O6 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o6_density_touch",
+      "name": "O6 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o7_decay_touch",
+      "name": "O7 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o7_sweep_time_touch",
+      "name": "O7 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o7_density_touch",
+      "name": "O7 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o8_decay_touch",
+      "name": "O8 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o8_sweep_time_touch",
+      "name": "O8 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o8_density_touch",
+      "name": "O8 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o9_decay_touch",
+      "name": "O9 Decay Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.12390488110137672,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o9_sweep_time_touch",
+      "name": "O9 Pitch Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.03903903903903904,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o9_density_touch",
+      "name": "O9 Density Touch",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "%"
+    },
+    {
+      "key": "o1_attack_touch",
+      "name": "O1 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o2_attack_touch",
+      "name": "O2 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o3_attack_touch",
+      "name": "O3 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o4_attack_touch",
+      "name": "O4 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o5_attack_touch",
+      "name": "O5 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o6_attack_touch",
+      "name": "O6 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o7_attack_touch",
+      "name": "O7 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o8_attack_touch",
+      "name": "O8 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
+    },
+    {
+      "key": "o9_attack_touch",
+      "name": "O9 Attack Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true,
+      "dynamic_display": true,
+      "unit": "ms"
     }
   ]
 }

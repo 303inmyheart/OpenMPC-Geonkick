@@ -8,7 +8,7 @@ import shadow_skin
 import shutil
 import re
 from PIL import Image,ImageDraw,ImageFont
-from spec import PLOT_COLUMNS,PLOT_WIDTH,PLOT_WAVE_LEVELS,PLOT_ENV_LEVELS
+from spec import PLOT_COLUMNS,PLOT_WIDTH,PLOT_WAVE_LEVELS,PLOT_ENV_LEVELS,TOUCH_BINDINGS
 layouts,_=shadow_skin.parse_layout(root/'layout.conf')
 params=json.loads((root/'params.json').read_text())['params']
 ids={p['key']:i for i,p in enumerate(params)}
@@ -160,6 +160,25 @@ for tab in page['tabs']:
             page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
         if any(m.get('value')=='Parameter '+str(ids[k]) for k in ids if k.endswith(('_freq_fine','_ms','_pct')) for m in child.get('handle remapping',{}).get('map',[])):
             defs[key]['disableCoarseDataWheel']=True
+        child['componentData']['type']=key
+# Native gestures write a continuous Touch handle; Q-Link selection, bounds
+# and readout retain the fine Data handle. Both address one physical value.
+for tab in page['tabs']:
+    children=defs[tab['componentName']]['componentsData']
+    for child in children:
+        mapping=child.get('handle remapping',{}).get('map',[])
+        fine=next((k for k in TOUCH_BINDINGS if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for m in mapping)),None)
+        if fine is None:continue
+        original=defs.get(child['componentData']['type'])
+        if not original or not any(p['componentData']['type']=='Knob' for p in original.get('componentsData',[])):continue
+        key=child['componentData']['type']+'_touchInput'
+        if key not in defs:
+            clone=deepcopy(original)
+            for part in clone['componentsData']:
+                cd=part['componentData']
+                if cd['type']=='Knob' and cd['data'].get('handleName')=='Data':cd['data']['handleName']='Touch'
+            defs[key]=clone;page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
+        mapping.append({'key':'Touch','value':'Parameter '+str(ids[TOUCH_BINDINGS[fine]])})
         child['componentData']['type']=key
 path.write_text(json.dumps(d,indent=2)+'\n')
 # Browser tile launches the real Init sound and presents the same name.
