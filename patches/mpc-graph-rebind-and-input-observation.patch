@@ -1,0 +1,33 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -189,6 +189,9 @@
+ #ifndef FINE_INPUT_CONTINUOUS
+ #define FINE_INPUT_CONTINUOUS 0
+ #endif
++#ifndef GRAPH_REBIND_ON_REFRESH
++#define GRAPH_REBIND_ON_REFRESH 0
++#endif
+ #ifndef GRAPH_INVALIDATION_ONLY
+ #define GRAPH_INVALIDATION_ONLY 0
+ #endif
+@@ -441,6 +444,7 @@
+      * unable to move a param on the track's automation screen (docs/NOTES.md, 2026-10-21). Polled readouts see the
+      * change within 100 ms (housekeeping); "refresh_display" opts a param back in for unpolled text that depends on it. */
+     if (p->refresh_display) w->need_update_display = 1;   /* deferred to processReplacing(), see the step_target branch */
++    TRACE(2, i, get_norm(w,i)); /* optional dev trace: accepted value */
+ }
+ 
+ /* MPC's plugin host (JUCE) sets parameter 0 to the far end of its range and straight back whenever it gets ready to play:
+@@ -643,6 +647,12 @@
+                     __atomic_store_n(&w->stepped_echo_pending[i], 1, __ATOMIC_RELEASE);
+                 }
+                 w->master(&w->fx, audioMasterAutomate, i, 0, 0, value);
++                if(GRAPH_REBIND_ON_REFRESH && !strcmp(PARAMS[i].key,"graph_revision")) {
++                    /* One host rebind after quiet, never a column event burst.
++                     * Some MPC bindings cache values despite bounds invalidation. */
++                    __atomic_exchange_n(&w->notify_update,0,__ATOMIC_ACQ_REL);
++                    w->master(&w->fx,audioMasterUpdateDisplay,0,0,0,0.0f);
++                }
+                 clock_gettime(CLOCK_MONOTONIC, &now);
+                 if ((now.tv_sec-begin.tv_sec)*1000000000LL+now.tv_nsec-begin.tv_nsec > 5000000) break;
+             }

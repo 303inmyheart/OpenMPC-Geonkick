@@ -2,7 +2,7 @@
   "name": "Geonkick MPC",
   "vendor": "OpenMPC",
   "uid": "GkM3",
-  "version": 8,
+  "version": 9,
   "so": "geonkick_mpc.so",
   "params": "params.json",
   "layout": "layout.conf",
@@ -19,7 +19,9 @@
     "LIVE_PARAMS_READONLY": 1,
     "GRAPH_UPDATE_IDLE_MS": 180,
     "FINE_INPUT_CONTINUOUS": 1,
-    "GRAPH_INVALIDATION_ONLY": 1
+    "GRAPH_INVALIDATION_ONLY": 1,
+    "GRAPH_REBIND_ON_REFRESH": 1,
+    "WRAP_TRACE": 1
   },
   "programs": {
     "param": "preset"
@@ -39,7 +41,8 @@
       "src/dsp/gkick_log.c",
       "src/dsp/audio_output.c",
       "src/dsp/ring_buffer.c",
-      "src/dsp/humanizer.c"
+      "src/dsp/humanizer.c",
+      "src/input_trace.c"
     ],
     "cflags": [
       "-std=gnu11",

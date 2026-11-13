@@ -36,6 +36,9 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
      invalidation replacing column notifications. Native/ARM64 checks pass;
      actual MPC redraw, hidden-page behavior and page return are experimental
      until tested. No reliable native current-tab callback is established.
+   - **0.0.9 candidate:** shared refresh retained with one quiet-time host rebind;
+     transparent larger horizontal slider targets. Temporary real-input
+     observation for the remaining jumps; real MPC acceptance still required.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
    graphical point editing and preview/export. Evaluate native envelope editing first.

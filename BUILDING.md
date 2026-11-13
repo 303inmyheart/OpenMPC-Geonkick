@@ -9,7 +9,8 @@ Build dependency: neighbouring open-mpc/mpc-vst-plugins at
 patches/mpc-float32.patch, patches/mpc-fine-int-sweep.patch and
 patches/mpc-async-host-notify.patch, then
 patches/mpc-display-parameter-budget.patch and
-patches/mpc-coalesced-graph-and-fine-input.patch applied, in that order. The wrapper is not copied into this repository.
+patches/mpc-coalesced-graph-and-fine-input.patch, then
+patches/mpc-graph-rebind-and-input-observation.patch applied, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `a2dd2b78a19c4cd46257c09eb9a485a155ab2968` in the neighbouring
 mpc-vst-plugins-release-tools checkout.
@@ -133,3 +134,26 @@ reads. JUCE 7's VSTParameter::getValue directly queries the loaded plugin
 (https://github.com/juce-framework/JUCE/blob/7.0.12/modules/juce_audio_processors/format_types/juce_VSTPluginFormat.cpp);
 using a shared invalidation handle is our MPC-specific hypothesis, not a
 behavior guaranteed by JUCE. Stored state remains 186 values; 1530 VST entries.
+
+0.0.9 keeps GRAPH_INVALIDATION_ONLY and adds GRAPH_REBIND_ON_REFRESH: one
+UpdateDisplay on the existing non-audio reporter after shared revision delivery,
+following the quiet interval. No periodic unconditional rebuilds or per-column
+notifications are restored. This is a response to failed real MPC repaint in
+0.0.8, and must be checked in the native host, including preset-browser behavior.
+
+Horizontal slider filmstrips receive transparent padding, preserving every
+original visible frame pixel. Their native Knob bounds include that padding;
+controls and captions retain their global painted positions. Upward padding is
+limited by nearby controls to prevent overlaps. The hit Knob is last in its
+component so captions do not swallow its expanded drag area. Main envelope
+sliders are 64 px high; tightly spaced sliders use smaller safe padding.
+
+Temporary input observation is compiled only for this development investigation:
+WRAP_TRACE records incoming and accepted values for fine controls and original
+oscillator frequency controls. The producer only writes a bounded atomic ring;
+a SCHED_OTHER writer handles file I/O. It activates only when /proc/self/exe is
+named MPC, writes at most about 1 MiB per library load under its own /tmp prefix,
+and is joined on unload. Actual test hosts leave it inactive. A test executable
+named MPC exercised logger lifecycle under ASan; its own files were removed.
+Remove this diagnostic after capturing the device input failure. Never publish
+its raw device logs or include them in installers.

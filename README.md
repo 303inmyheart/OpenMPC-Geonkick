@@ -1,14 +1,14 @@
 # Geonkick MPC
 
 The MPC adapter, build scripts and interface are AI-generated. The user has tested early builds on Live III and reported interface and control
-problems. The user reports a clear improvement in 0.0.7, but redraw-time crackles and
-sporadic control jumps remain. Version 0.0.8 fixes a reproduced rounded-input
-case and experiments with shared graph invalidation. Its real MPC repaint,
-page-return behavior and audio acceptance tests are **pending**. The original Geonkick DSP is the
+problems. The user reports 0.0.8 still jumps and its shared invalidation did not repaint
+the curve. Version 0.0.9 retains the coalesced path, adds one post-gesture host
+rebind, larger invisible slider hit areas and temporary input observation.
+Real MPC curve, audio and control acceptance tests are **pending**. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.8 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.9 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -44,7 +44,10 @@ Implemented:
   load with the appended controls at neutral/default values.
 - Graph refresh uses one derived revision signal instead of per-column host
   notifications; the skin binds each graph widget to that invalidation handle.
-  This is an experimental MPC repaint path, not yet hardware-verified.
+  The native repaint path remains experimental: a post-gesture host rebind now
+  follows that signal. No column callback burst is reintroduced.
+- Thin sliders retain their original visible pixels with transparent padded
+  native hit areas (64 pixels high for the main envelope sliders).
 - Rounded small movements remain one fine step even at exact integer boundaries;
   fine unit controls disable the native coarse-wheel mode.
 - Derived graph/view values are non-automatable. Curve feedback waits until

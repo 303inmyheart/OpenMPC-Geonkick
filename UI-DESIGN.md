@@ -106,3 +106,13 @@ only for components the MPC is showing. No native page callback is known, and
 this intended visibility behavior has not been verified on hardware. The quiet
 interval remains. Offline previews show actual data, but cannot prove native
 repaint or page-return behavior. Fine controls also disable coarse wheel mode.
+
+## 0.0.9 — shared-refresh rebind and larger hit areas
+
+The user rejected returning to the per-column update path. Shared graph
+invalidation remains, followed by one post-gesture host rebind to address native
+cached values. Native repaint is still an experiment; the 0.0.8 method failed
+its device test. Thin slider artwork remains unchanged. Transparent padding
+expands the native Knob gesture bounds above/below it where space allows;
+captions remain in their original global positions and no new touch overlaps
+are allowed. The padded Knob sits above its own captions to receive gestures.

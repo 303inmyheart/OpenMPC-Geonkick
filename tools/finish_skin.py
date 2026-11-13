@@ -15,6 +15,42 @@ ids={p['key']:i for i,p in enumerate(params)}
 path=next((root/'build/skin').glob('*/Plugin Skins/TUI.json'))
 d=json.loads(path.read_text());page=d['pageData']
 defs={c['key']:c['value'] for c in page['componentDefinitions']['localComponentDefinitions']}
+# Increase the real native slider hit box with transparent filmstrip padding.
+# Keep every painted pixel and caption at its old global position.
+from copy import deepcopy
+for tab in page['tabs']:
+    children=defs[tab['componentName']]['componentsData']
+    boxes=[]
+    for c in children:
+        typ=c['componentData']['type']
+        if typ!='Image':boxes.append(tuple(map(int,c['bounds']['bounds'].split())))
+    for c in children:
+        original=defs.get(c['componentData']['type'])
+        if not original:continue
+        sliders=[p for p in original.get('componentsData',[]) if p['componentData']['type']=='Knob' and p['componentData']['data'].get('dragOrientation')=='Horizontal']
+        if not sliders:continue
+        x,y,w,h=map(int,c['bounds']['bounds'].split())
+        free=min([y-(by+bh) for bx,by,bw,bh in boxes if bx<x+w and bx+bw>x and by+bh<=y] or [24])
+        top=min(24,max(0,free));bottom=24
+        key=c['componentData']['type']+f'_touch{top}_{bottom}'
+        if key not in defs:
+            clone=deepcopy(original);parts=clone['componentsData'];hit=[]
+            for part in parts:
+                px,py,pw,ph=map(int,part['bounds']['bounds'].split());pd=part['componentData']
+                if pd['type']=='Focus':part['bounds']['bounds']=f'{px} {py} {pw} {ph+top}'
+                else:part['bounds']['bounds']=f'{px} {py+top} {pw} {ph}'
+                if pd['type']=='Knob' and pd['data'].get('dragOrientation')=='Horizontal':
+                    data=pd['data'];source=path.parent/data['filmStrip'];strip=Image.open(source).convert('RGBA');frames=strip.height//ph
+                    height=ph+top+bottom;assert height*frames<=16384
+                    filename=source.stem+f'_touch{top}_{bottom}.png'
+                    padded=Image.new('RGBA',(strip.width,height*frames))
+                    for frame in range(frames):padded.alpha_composite(strip.crop((0,frame*ph,strip.width,(frame+1)*ph)),(0,frame*height+top))
+                    padded.save(path.parent/filename);data['filmStrip']=filename
+                    part['bounds']['bounds']=f'{px} {py} {pw} {height}';hit.append(part)
+            # The transparent hit area must receive gestures over its own caption.
+            clone['componentsData']=[p for p in parts if p not in hit]+hit
+            defs[key]=clone;page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
+        c['componentData']['type']=key;c['bounds']['bounds']=f'{x} {y-top} {w} {h+top}'
 for tab in page['tabs']:
     layout=layouts[tab['fnKeyIndex']]
     bank,keys=layout['qlinks'][tab['fnKeySubIndex']]

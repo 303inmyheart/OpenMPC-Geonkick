@@ -217,3 +217,30 @@ handling of invalidation and hidden components; redraw/page-return behavior and
 redraw-time audio still require hardware acceptance. Nothing new was installed
 or restarted. Device screenshots, stock-skin references and any diagnostic data
 remain private ignored artifacts.
+
+## 0.0.9 — shared refresh retained, larger slider hit areas, input observation
+
+User hardware report: 0.0.8's graph does not redraw and the sporadic jumps remain.
+The offline model therefore did not validate either complete real-host behavior.
+The candidate keeps the shared-refresh optimization and adds one post-gesture
+host UpdateDisplay from the reporter, instead of restoring column broadcasts.
+The actual-library fixture asserts the shared signal/rebind and zero column
+notifications. Real repaint and audio results remain pending.
+
+- Native ASan/UBSan/leaks and actual ARM64 QEMU VST/engine tests pass.
+- Native slider hit areas are enlarged with transparent padded frames. Every
+  original visible pixel in every frame was compared and is unchanged. Main
+  envelope hit height is 64 px, other constrained sliders 41/44 px in this skin.
+  Native skin overlap/edge checks have no findings; actual touch feel is pending.
+- Actual-value offline SYNTH/tone/noise composites render successfully.
+- A bounded asynchronous diagnostic records fine-control incoming/accepted
+  values on MPC only, under a private /tmp prefix. No producer-side file I/O.
+  Logger lifecycle and bounds were exercised under ASan using an analysis
+  executable named MPC; its own temporary test files were removed.
+- Original parameter indices, 186 stored controls and independent DSP oracle
+  remain unchanged. No new claim that the remaining input jumps are fixed.
+
+The user has now granted standing permission to install our new plugin builds
+and restart the MPC app until revoked. All other device access remains read-only
+except our temporary /tmp diagnostics. Deployment still backs up, stages and
+hash-verifies this plugin, without editing global settings or projects.
