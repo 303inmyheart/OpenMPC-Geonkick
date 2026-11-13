@@ -131,7 +131,6 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
      * A short boundary fade prevents truncation clicks at the fixed sound end. */
     float dt=s->length/c->size;
     for(int i=0;i<c->size;i++) {
-        if(!(i%1024) && atomic_load(&e->audio_revision)!=rev)return;
         float x=gkick_synth_get_value(s,i*dt);
         x=isfinite(x)?clampf(x,-1,1):0;
         float fade=fminf(1,fminf(i/32.f,(c->size-1-i)/64.f));
@@ -166,29 +165,34 @@ static unsigned snapshot(Engine *e,float *p,unsigned *view) {
         if(a==b) return audio;
     } while(true);
 }
+static uint64_t worker_clock_ns(void) { struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000000000u+t.tv_nsec; }
 static void *worker(void *arg) {
-    Engine *e=arg; unsigned done=0,view_done=0; float p[GP_COUNT]; int held=0;
+    Engine *e=arg; unsigned done=0,view_done=0; float p[GP_COUNT]; int held=0;uint64_t next_synthesis=0;
     pthread_setname_np(pthread_self(),"gk-render");
     while(atomic_load(&e->running)) {
         unsigned view,rev=snapshot(e,p,&view);
+        /* Coalesce fast knob input to at most ~30 render starts/second.
+         * Complete each chosen snapshot: aborting on every newer input starves
+         * audible updates while the wheel is moving. */
+        if(rev!=done && worker_clock_ns()<next_synthesis) { usleep(2000);continue; }
         if(rev!=done || view!=view_done) {
             int slot=-1;
             for(int i=0;i<SLOTS;i++) { int free=0; if(atomic_compare_exchange_strong(&e->slots[i].refs,&free,-1)) { slot=i; break; } }
             if(slot>=0) {
                 Cache *c=&e->slots[slot];
-                if(rev!=done) synthesize(e,c,p,rev);
+                if(rev!=done) { next_synthesis=worker_clock_ns()+33000000u;synthesize(e,c,p,rev); }
                 else {
                     /* A view switch reuses audio. held owns a reference even
                      * when old notes, the ready queue and UI change slots. */
                     configure(e,p);c->size=e->slots[held].size;c->revision=rev;
                     memcpy(c->data,e->slots[held].data,c->size*sizeof(float));
                 }
-                if(atomic_load(&e->audio_revision)==rev) {
+                {
                     make_plot(e,c,p);c->view_revision=view;
                     atomic_store(&c->refs,2); /* worker + ready/current */
                     drop(e,atomic_exchange(&e->ready,slot));
                     drop(e,held);held=slot;done=rev;view_done=view;
-                } else atomic_store(&c->refs,0);
+                }
             }
         }
         usleep(2000);

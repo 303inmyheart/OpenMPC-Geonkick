@@ -1,0 +1,88 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -150,6 +150,7 @@
+     int has_pend0;            /* (see setParameter) */
+     char last_rev[16];       /* HAS_DISPLAY_REV: the "display_rev" last seen */
+     float last_norm[NPARAMS];   /* HAS_DISPLAY_REV: value last reported per param (-1 = never) */
++    uint64_t last_input_ns; int graph_deferred;
+     unsigned char notify_pending[NPARAMS]; int notify_cursor, notify_update;
+ #ifdef DISPLAY_REV_THREAD
+     pthread_t rev_th; volatile int rev_stop; int rev_th_on;   /* the display_rev reporter thread (see rev_scan) */
+@@ -185,6 +186,27 @@
+ #if ASYNC_HOST_NOTIFY && !defined(DISPLAY_REV_THREAD)
+ #error ASYNC_HOST_NOTIFY requires DISPLAY_REV_THREAD
+ #endif
++#ifndef LIVE_PARAMS_READONLY
++#define LIVE_PARAMS_READONLY 0
++#endif
++#ifndef GRAPH_UPDATE_IDLE_MS
++#define GRAPH_UPDATE_IDLE_MS 0
++#endif
++/* Derived display values are readable host parameters, never automation inputs. */
++static int live_readonly(int i) {
++#if LIVE_PARAMS_READONLY && defined(PLUG_LIVE_COUNT)
++    int lo=0,hi=PLUG_LIVE_COUNT;
++    while(lo<hi) { int mid=(lo+hi)/2; if(PLUG_LIVE[mid]<i)lo=mid+1;else hi=mid; }
++    return lo<PLUG_LIVE_COUNT && PLUG_LIVE[lo]==i;
++#else
++    (void)i;return 0;
++#endif
++}
++static int graph_param(int i) { return i>=0 && i<NPARAMS && !strncmp(PARAMS[i].key,"viz_",4); }
++static uint64_t monotonic_ns(void) { struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000000000u+t.tv_nsec; }
++static int graph_quiet(wrap_t *w) {
++    return GRAPH_UPDATE_IDLE_MS<=0 || monotonic_ns()-__atomic_load_n(&w->last_input_ns,__ATOMIC_ACQUIRE)>=(uint64_t)GRAPH_UPDATE_IDLE_MS*1000000u;
++}
+ static const mpc_engine_t *g_api;
+ 
+ /* One engine call at a time per instance. A JUCE host (MPC's) sets and reads parameters, chunks and displays on its
+@@ -431,6 +453,7 @@
+ 
+ static void setParameter(AEffect *e, int32_t i, float n) {
+     wrap_t *w = e->object;
++    if(live_readonly(i))return;
+     /* An acknowledgement of our accepted stepped value is not a new turn.
+      * Feeding it into settle() overwrites the fractional gesture history and
+      * reverses the next absolute knob event. Track only values actually reported
+@@ -440,6 +463,8 @@
+         __atomic_load(&w->stepped_echo_value[i], &reported, __ATOMIC_RELAXED);
+         if (fabsf(n - reported) < 1e-6f && fabsf(get_norm(w, i) - reported) < 1e-6f) return;
+     }
++    if(GRAPH_UPDATE_IDLE_MS>0 && i>=0 && i<NPARAMS && fabsf(n-get_norm(w,i))>1e-6f)
++        __atomic_store_n(&w->last_input_ns,monotonic_ns(),__ATOMIC_RELEASE);
+     if (i == 0 && NPARAMS > 0) {
+         if (!__atomic_load_n(&w->has_pend0, __ATOMIC_ACQUIRE)) { float f = get_norm(w, 0); __atomic_store(&w->pend0_from, &f, __ATOMIC_RELAXED); }
+         __atomic_store(&w->pend0, &n, __ATOMIC_RELAXED);
+@@ -572,11 +597,14 @@
+  * runs this on a normal-priority thread of the wrapper's own instead (rev_thread), every 100 ms. */
+ static void rev_scan(wrap_t *w) {
+     char rev[16];
+-    if (eng_get(w, "display_rev", rev, sizeof rev) > 0 && strcmp(rev, w->last_rev)) {
++    int quiet=graph_quiet(w);
++    if (eng_get(w, "display_rev", rev, sizeof rev) > 0 && (strcmp(rev, w->last_rev) || (w->graph_deferred && quiet))) {
+         snprintf(w->last_rev, sizeof w->last_rev, "%s", rev);
+         if (!DISPLAY_REV_NO_UPDATE) w->need_update_display = 1;
++        w->graph_deferred=0;
+         for (int i = 0; i < NPARAMS; i++) {
+             if (PARAMS[i].momentary || popup_is(i) || PARAMS[i].string_display) continue;
++            if(graph_param(i) && !quiet) { w->graph_deferred=1;continue; }
+             float v = get_norm(w, i);
+             if (fabsf(v - w->last_norm[i]) > 1e-4f) { w->last_norm[i] = v; notify_value(w, i, v); }
+         }
+@@ -598,6 +626,7 @@
+             for (int k = 0; k < NPARAMS; k++) {
+                 if (__atomic_load_n(&w->rev_stop, __ATOMIC_ACQUIRE)) break;
+                 int i = w->notify_cursor; w->notify_cursor = (i + 1) % NPARAMS;
++                if(graph_param(i) && !graph_quiet(w))continue;
+                 if (!__atomic_exchange_n(&w->notify_pending[i], 0, __ATOMIC_ACQ_REL)) continue;
+                 float value = get_norm(w, i);
+                 if (PARAMS[i].nopts > 1 || PARAMS[i].int_display) {
+@@ -953,7 +982,7 @@
+     case effGetVendorString: copy_str(p, PLUG_VENDOR, 32); return 1;
+     case effGetVendorVersion: return PLUG_VERSION;
+     case effGetVstVersion: return 2400;
+-    case effCanBeAutomated: return idx >= 0 && idx < NPARAMS;
++    case effCanBeAutomated: return idx >= 0 && idx < NPARAMS && !live_readonly(idx);
+     case effGetParamName:
+         if (idx >= 0 && idx < NPARAMS) param_name_text(w, idx, p, 32);
+         return 1;

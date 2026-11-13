@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 static const mpc_engine_t *api;
 static void set(void *e,const char *k,const char *v) { api->set_param(e,k,v); }
 static float get(void *e,const char *k) { char b[80];assert(api->get_param(e,k,b,sizeof b)>0);return strtof(b,NULL); }
@@ -148,6 +149,21 @@ int main(void) {
     for(int i=0;i<20;i++)api->render(a,other,128);
     assert(energy(other,256)<0.0000001f);
     puts("Playback edits and view switches skip synthesis; view preserves noise audio; OUTPUT gain ramp passes");
+    set(a,"reset","1");wait_ready(a);
+    /* Continuous edits must publish completed audio before the gesture ends,
+     * with synthesis work bounded independently of incoming write frequency. */
+    unsigned jobs_before=(unsigned)get(a,"synthesis_count");
+    unsigned display_before=(unsigned)get(a,"display_rev");int progressed=0;
+    struct timespec stamp;clock_gettime(CLOCK_MONOTONIC,&stamp);double begin=stamp.tv_sec+stamp.tv_nsec*1e-9;
+    for(int k=0;k<240;k++) {
+        char v[32];snprintf(v,sizeof v,"%g",55+k*0.2);set(a,"o1_freq",v);
+        if((unsigned)get(a,"display_rev")!=display_before)progressed=1;
+        usleep(1000);
+    }
+    clock_gettime(CLOCK_MONOTONIC,&stamp);double elapsed=stamp.tv_sec+stamp.tv_nsec*1e-9-begin;
+    unsigned jobs=(unsigned)get(a,"synthesis_count")-jobs_before;
+    assert(progressed);assert(jobs<=elapsed*31+2);wait_ready(a);
+    printf("Continuous edits publish before gesture end; %u synthesis starts in %.3f s\n",jobs,elapsed);
     set(a,"reset","1");wait_ready(a);
     /* Old sounds retain their buffers while rapid edits and notes recycle other slots. */
     for(int k=0;k<80;k++) {

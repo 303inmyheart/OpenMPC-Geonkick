@@ -15,8 +15,8 @@ if target=='aarch64':
     sysroot=build.LOCAL/'aarch64-linux-gnu'
     if not sysroot.exists():sysroot=build.Path('/usr/aarch64-linux-gnu')
     prefix=[qemu,'-L',sysroot]
-for source,name in [(build.MPC/'tools/host_test.c','host_test'),(build.ROOT/'tests/controls_test.c','controls_test'),(build.ROOT/'tests/realtime_test.c','realtime_test'),(build.ROOT/'tests/engine_test.c','engine_test')]:
-    if name in ('host_test','controls_test','realtime_test'):
+for source,name in [(build.MPC/'tools/host_test.c','host_test'),(build.ROOT/'tests/controls_test.c','controls_test'),(build.ROOT/'tests/realtime_test.c','realtime_test'),(build.ROOT/'tests/ui_load_test.c','ui_load_test'),(build.ROOT/'tests/engine_test.c','engine_test')]:
+    if name in ('host_test','controls_test','realtime_test','ui_load_test'):
         if name=='host_test' and build.CFG['defines'].get('ASYNC_HOST_NOTIFY'):
             # The original framework suite assumes synchronous notification.
             # Allow the same checks to await our actual asynchronous UI path.

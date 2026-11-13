@@ -7,7 +7,8 @@ Redkite and desktop-format dependencies; this C11 DSP-only port does not use it.
 Build dependency: neighbouring open-mpc/mpc-vst-plugins at
 `ef05a26c6e59f1bfd3ef2023e6a9d8b371b61310`, with
 patches/mpc-float32.patch, patches/mpc-fine-int-sweep.patch and
-patches/mpc-async-host-notify.patch applied, in that order. The wrapper is not copied into this repository.
+patches/mpc-async-host-notify.patch, then
+patches/mpc-display-parameter-budget.patch applied, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `a2dd2b78a19c4cd46257c09eb9a485a155ab2968` in the neighbouring
 mpc-vst-plugins-release-tools checkout.
@@ -88,3 +89,20 @@ playback do not schedule synthesis. A diagnostic synthesis
 counter checks this in engine tests; it is not a stored or VST parameter.
 OUTPUT uses a 5 ms smoothing time constant. Stored controls/parameter indices
 and upstream DSP sources remain unchanged from 0.0.5.
+
+0.0.7 enables LIVE_PARAMS_READONLY for the generated sorted PLUG_LIVE list.
+Those 1297 derived values return false for effCanBeAutomated and ignore host
+writes early, retaining their indices and get/display behavior. Original
+frequency automation remains available. GRAPH_UPDATE_IDLE_MS=180 defers only
+viz_* scans/notifications during parameter edits, then delivers current values
+once quiet, even if display_rev did not change again. Exact stepped feedback
+and non-graph control updates are not deferred. The new actual-library test
+checks metadata, host echoes, zero graph callbacks during 90 edits, and refresh
+after the gesture. Native sanitizers and ARM64 QEMU pass.
+
+The synthesis worker starts at most one audio job every 33 ms, choosing the
+latest snapshot at each start. It finishes and publishes that coherent snapshot
+even if a newer edit arrives, then handles the newer state on the next job.
+This avoids perpetual cancellation during a continuous gesture. render_pending
+remains true until the current audio/view generations catch up. No state or
+parameter indices changed. No candidate was installed without new approval.

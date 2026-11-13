@@ -87,3 +87,12 @@ MIDI/engine-driven changes, is delivered from the display thread; repeated
 pending updates are coalesced to the current value. Curve changes no longer
 request a full UpdateDisplay screen rebuild. This is not a new drawing engine;
 waveform resolution and image assets retain the 0.0.5 format.
+
+## 0.0.7 graph feedback budget
+
+Curve feedback waits for a 180 ms quiet interval after parameter edits. The graph
+shows its previous completed state while a knob is moved and catches up after
+release (plus the normal display poll/queue interval). Normal knob readouts and
+stepped-control feedback remain active. Graph values and the derived visibility
+selector are not automation inputs; their VST indices remain stable. Real MPC
+acceptance must verify that readonly graph notifications still repaint the skin.

@@ -28,6 +28,10 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
      separate view/audio generations, exact cached audio on view switches and
      smoothed output gain. Slow-UI regression passes in an isolated Live III
      host; MPC-app listening/interaction acceptance is still required.
+   - **0.0.7 candidate:** derived-display automation disabled, curve feedback
+     deferred during gestures, synthesis requests coalesced and intermediate
+     results published. Native/ARM64 regression tests pass. Verify graph repaint
+     and real edit-time CPU/audio before claiming the issue fixed.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
    graphical point editing and preview/export. Evaluate native envelope editing first.

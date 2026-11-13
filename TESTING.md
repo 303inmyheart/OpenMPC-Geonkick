@@ -139,3 +139,48 @@ Read-only sampling of the user's 0.0.5 interaction session showed a busy UI
 thread and touch-processing lag reports. These support investigating UI stalls;
 CPU samples alone do not prove the cause of every crackle. The next gate is
 listening to the same actions in the MPC app with this exact candidate.
+
+## 0.0.7 — high edit-time CPU investigation
+
+The user's 0.0.6 listening test failed: frequency and other edits still crackled
+and the user observed CPU above 200%. Build identity was independently verified
+against the exact packaged .so hash and the real host's version-6 initialization.
+The previous short isolated host test was insufficient for this failure mode.
+
+Read-only 0.0.6 Live III measurements:
+
+- Two-second thread samples over about a minute: roughly 49% of one core for
+  the main UI thread, 28% for gk-render and 22% for central audio processing.
+  The largest whole-process two-second average was about 155%; this sampling
+  does not resolve or disprove the user's shorter 200%+ peaks.
+- A separate 25-second CPU-clock/callchain sample at 199 Hz per selected thread
+  showed most UI/audio-processing samples inside the MPC executable. The
+  synth worker spent time in original envelope/oscillator synthesis and libc;
+  the plugin's playback AudioWorker was a small part of sampled CPU work.
+  These are CPU samples, not a measure of blocked time or proof of a specific
+  private MPC function. Named MPC hotspots were not resolved.
+- The kernel does not expose per-thread schedstat here. No process was stopped
+  or patched. Temporary profiler was removed. Raw maps, symbol metadata and
+  samples are private ignored build artifacts, not release assets.
+
+Concrete source findings and candidate checks:
+
+- 1296 graph parameters plus a derived visibility selector were advertised as
+  automatable despite being generated display values. The candidate marks
+  these 1297 read-only/non-automatable; original editable automation stays.
+- Graph feedback is deferred during input, then sent after a 180 ms quiet
+  interval. Native/ARM64 actual-library tests verify zero graph callbacks during
+  90 edits, continued ordinary feedback, final refresh and stable echoed pitch.
+- Rapid input formerly canceled the in-flight sound on every new revision.
+  The candidate coalesces starts to about 30 Hz and completes intermediate
+  snapshots. In native/ARM64 tests 240 fast changes caused 7–8 render starts
+  over about 0.26–0.27 seconds, with audio publications before the gesture ends.
+- Full native ASan/UBSan/leaks and ARM64 QEMU suites pass, including original
+  DSP oracle, fine pitch, slow-UI callback, old state and all oscillator paths.
+  Final skin check and default synchronous-wrapper compilation pass.
+
+These changes target measured and source-confirmed pressure points. They do not
+establish that all MPC-app crackles or CPU peaks are fixed. Required acceptance:
+real MPC host must still draw non-automatable graph values after a gesture,
+maintain Q-Link sync, and improve CPU/audio during the same editing actions.
+0.0.7 is local only; installed version stays 0.0.6 until explicit new approval.

@@ -30,6 +30,7 @@ def prepare():
     if not (MPC/'wrapper/audio_format.h').exists():raise SystemExit('Apply the JC303 float ABI patch to the MPC toolchain first.')
     if "Fine sub-step gestures" not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-fine-int-sweep.patch after mpc-float32.patch first.')
     if 'ASYNC_HOST_NOTIFY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-async-host-notify.patch first.')
+    if 'LIVE_PARAMS_READONLY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-display-parameter-budget.patch first.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()
