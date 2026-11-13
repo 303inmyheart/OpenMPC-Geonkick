@@ -53,3 +53,8 @@ including install/uninstall scripts, manifests, checksums and license notices.
 The source-repository field is reserved for the intended future
 303inmyheart/OpenMPC-Geonkick repository; publication is still pending.
 Do not submit this prototype to the catalog or claim public source availability.
+
+0.0.4 preserves the first 474 VST entries and appends finer display columns
+(total 1482). The 186 stored controls and GKMP3 state are unchanged. Native
+caption pixels are generated per page; live numeric fonts use the MPC's observed
+font-height conversion. The offline renderer compensates for the same conversion.

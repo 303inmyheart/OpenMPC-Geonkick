@@ -1,4 +1,4 @@
-# Visual synth interface — 0.0.3, 2026-11-13
+# Visual synth interface — 0.0.4, 2026-11-13
 
 The reference is Geonkick's own synth screen: a large waveform and envelope
 area above three oscillator modules, with master controls beside them. The
@@ -6,8 +6,9 @@ first two MPC prototypes lacked this visual feedback. The new default SYNTH
 page follows that hierarchy in an original gray/green layout.
 
 - Green: actual completed synthesis buffer before velocity, playback tuning
-  and final output gain. The 96 columns show positive/negative sample extrema,
-  quantized to 64 display levels.
+  and final output gain. The 432 columns show positive/negative sample extrema,
+  quantized to 97 waveform levels (one pixel per step). Envelope height uses
+  85 levels; each shared strip stays under the 16384-pixel image-height limit.
 - Gray: the selected oscillator's amplitude or frequency-envelope shape,
   independently normalized to 0–1, from Geonkick's envelope evaluator.
 - X-axis: the complete sound duration, shown by DURATION in seconds.
@@ -28,7 +29,7 @@ component aliases, not a plotting API. This describes those skins; it does not
 prove that MPC internals can never support a custom UI. No stock JSON or art
 is committed, bundled or changed.
 
-The prototype uses three shared native FilmStrip assets and 288 read-only VST
+The prototype uses three shared native FilmStrip assets and 1296 read-only VST
 display values. Columns ignore touch. The synth worker prepares values with
 each completed sound; normal audio playback does not calculate curves. A
 normal-priority wrapper thread reports changes at 100 ms intervals without
@@ -50,3 +51,19 @@ parameter lists, UI latency and CPU under real interaction. No graphical behavio
 is claimed as device-verified yet. The user approved installing 0.0.3 and its
 files have been updated and checksum-verified on the MPC. After separate user approval, the MPC application was restarted and returned
 to running. Actual on-screen graph behavior and interaction testing remain pending.
+
+## 0.0.4 display correction
+
+A read-only capture of the actual 0.0.3 screen confirmed nine-pixel waveform
+blocks and undersized native captions/values. Version 0.0.4 uses two-pixel
+columns over the same 864-pixel plot width. Page captions are rendered at native
+pixel resolution with the intended layout text; native live Value fonts are
+increased by 1.6 to compensate for the actual MPC font-height units. Caption
+images sit below controls so they cannot intercept touches. All 474 previous
+parameter indices remain intact; extra derived display columns are appended.
+
+The approved 0.0.4 build was installed, checksum-verified and the MPC app restarted.
+The app returned to its track-type selector, so an after-update capture could
+verify that it was running but could not verify the new plugin screen. No UI
+input or project/instrument selection was performed to obtain a screenshot.
+Device captures and old-plugin backups remain private, ignored build artifacts.

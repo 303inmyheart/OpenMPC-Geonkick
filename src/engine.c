@@ -132,10 +132,10 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
         int end=(int)((long long)(column+1)*c->size/PLOT_COLUMNS);
         float positive=0,negative=0;
         for(int i=begin;i<end;i++) { positive=fmaxf(positive,c->data[i]);negative=fmaxf(negative,-c->data[i]); }
-        c->plot[0][column]=(unsigned char)roundf(clampf(positive,0,1)*63);
-        c->plot[1][column]=(unsigned char)roundf(clampf(negative,0,1)*63);
+        c->plot[0][column]=(unsigned char)roundf(clampf(positive,0,1)*(PLOT_WAVE_LEVELS-1));
+        c->plot[1][column]=(unsigned char)roundf(clampf(negative,0,1)*(PLOT_WAVE_LEVELS-1));
         float shape=gkick_envelope_get_value(env,(column+0.5f)/PLOT_COLUMNS);
-        c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*63);
+        c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*(PLOT_ENV_LEVELS-1));
     }
 }
 static unsigned snapshot(Engine *e,float *p) {
@@ -283,7 +283,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         char channel,trailing;int column;
         if(sscanf(key,"viz_%c_%d%c",&channel,&column,&trailing)!=2 || column<0 || column>=PLOT_COLUMNS)return 0;
         int c=channel=='p'?0:channel=='n'?1:channel=='e'?2:-1;if(c<0)return 0;
-        return snprintf(buf,len,"%.9g",e->slots[e->current].plot[c][column]/63.f);
+        return snprintf(buf,len,"%.9g",e->slots[e->current].plot[c][column]/(float)((c==2?PLOT_ENV_LEVELS:PLOT_WAVE_LEVELS)-1));
     }
     if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",e->slots[e->current].revision!=atomic_load(&e->revision));
     if(!strcmp(key,"state")) {

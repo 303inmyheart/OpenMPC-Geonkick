@@ -55,9 +55,16 @@ for o in range(9):
 opt('plot_osc','Envelope Focus',[f'L{l} / {o}' for l in range(1,4) for o in range(1,4)],refresh_display=True)
 opt('plot_env','Envelope View',['Amplitude','Pitch'],refresh_display=True)
 CONTROL_COUNT=len(params)
-PLOT_COLUMNS=96
+PLOT_COLUMNS=432
+PLOT_WIDTH=2
+PLOT_WAVE_LEVELS=97
+PLOT_ENV_LEVELS=85
+# Preserve all 288 original display indices before appending finer columns.
 for channel in ('p','n','e'):
-    for i in range(PLOT_COLUMNS):
+    for i in range(96):
+        p(f'viz_{channel}_{i}',f'Graph {channel} {i}',0,1,0,live=True,legacy=True)
+for channel in ('p','n','e'):
+    for i in range(96,PLOT_COLUMNS):
         p(f'viz_{channel}_{i}',f'Graph {channel} {i}',0,1,0,live=True,legacy=True)
 
 def generate():
@@ -68,7 +75,8 @@ def generate():
        'static const GParam gparams[] = {']
     for x in params[:CONTROL_COUNT]:
         h.append('    {"%s", %sf, %sf, %sf, %d},'%(x['key'],float(x['min']),float(x['max']),float(x['default']),bool(x.get('options'))))
-    h+=['};',f'#define GP_COUNT {CONTROL_COUNT}',f'#define PLOT_COLUMNS {PLOT_COLUMNS}']
+    h+=['};',f'#define GP_COUNT {CONTROL_COUNT}',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
+        f'#define PLOT_WAVE_LEVELS {PLOT_WAVE_LEVELS}',f'#define PLOT_ENV_LEVELS {PLOT_ENV_LEVELS}']
     (ROOT/'src/param_defs.h').write_text('\n'.join(h)+'\n')
     theme='''style=dark
 font_label=art/DejaVuSans.ttf

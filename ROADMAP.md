@@ -18,6 +18,9 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Hardware tests: none yet.
      modules. Native FilmStrip displays, UI-thread notifications, old-state
      migration, gray/green layout and actual-DSP offline preview. Device UI
      verification is the next gate; free point/Bezier editing remains pending.
+   - **0.0.4:** 432 two-pixel waveform columns, finer vertical levels and corrected
+     native text/captions. Approved update and app restart completed; on-screen
+     plugin review is pending because MPC restarted into the track-type selector.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
    graphical point editing and preview/export. Evaluate native envelope editing first.

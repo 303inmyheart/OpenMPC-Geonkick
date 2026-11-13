@@ -6,7 +6,7 @@ the real MPC host after the approved application restart. The original Geonkick 
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.3 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.4 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -23,12 +23,14 @@ Implemented:
   Open Hat, Metal and Tom. Native VST program bank for MPC's preset browser.
 - Native MPC pages and Q-Links, per-layer oscillator subpages, Sounds-browser
   artwork and an Init .xpl. Frames include complete label and value bounds.
+- Sharper 0.0.4 display: 432 two-pixel waveform columns, pixel-height waveform
+  levels, finer envelope steps, native-size live values and crisp page captions.
 - Visual SYNTH page: green waveform of the actual completed sound, gray
   amplitude/pitch envelope of a selected oscillator, and three oscillator
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The palette follows the original gray/green design.
-- Versioned project state with 186 stored controls, plus 288 derived read-only
+- Versioned project state with 186 stored controls, plus 1296 derived read-only
   display channels. Original indices stay unchanged. 0.0.1 and 0.0.2 chunks
   load with the appended controls at neutral/default values.
 - Per-instance worker generates sound buffers; audio playback neither allocates

@@ -8,6 +8,7 @@ import shadow_skin
 import shutil
 import re
 from PIL import Image,ImageDraw,ImageFont
+from spec import PLOT_COLUMNS,PLOT_WIDTH,PLOT_WAVE_LEVELS,PLOT_ENV_LEVELS
 layouts,_=shadow_skin.parse_layout(root/'layout.conf')
 params=json.loads((root/'params.json').read_text())['params']
 ids={p['key']:i for i,p in enumerate(params)}
@@ -45,9 +46,9 @@ for channel,asset,height in [('p','positive',96),('n','negative',96),('e','envel
     filename=f'plot_{asset}.png';shutil.copy2(root/'art'/filename,path.parent/filename)
     name='gkPlot_'+channel
     item=shadow_skin._local(name,[],[shadow_skin._sub('Knob',{
-        'version':5,'knobType':'FilmStrip','filmStrip':filename,'numFrames':64,
+        'version':5,'knobType':'FilmStrip','filmStrip':filename,'numFrames':PLOT_ENV_LEVELS if channel=='e' else PLOT_WAVE_LEVELS,
         'invert':False,'dragOrientation':'Vertical','handleName':'Data'
-    },shadow_skin._bounds(0,0,9,height),'Plot')])
+    },shadow_skin._bounds(0,0,PLOT_WIDTH,height),'Plot')])
     item['value']['ignoreMousePresses']=True
     item['value']['hideQLinkBounds']=False
     page['componentDefinitions']['localComponentDefinitions'].append(item)
@@ -75,9 +76,45 @@ for tab in page['tabs']:
             page['componentDefinitions']['localComponentDefinitions'].append(item);defs[key]=item['value']
         child['componentData']['type']=key
     children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'plot_grid.png'},shadow_skin._bounds(70,122,920,220),'Plot background'))
-    for column in range(96):
+    for column in range(PLOT_COLUMNS):
         for channel,height,y in [('p',96,145),('n',96,241),('e',192,145)]:
-            children.append(shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_{channel}_{column}'],100+column*9,y+86,9,height,focus='No'))
+            children.append(shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_{channel}_{column}'],100+column*PLOT_WIDTH,y+86,PLOT_WIDTH,height,focus='No'))
+# MPC's native font-height unit is smaller than a rendered pixel. The previous
+# offline composite overestimated the on-device Name/Value text size. Bake
+# page-local captions at their intended pixel size and enlarge live Value fonts.
+# Captions carry each widget's actual layout label, not its global VST name.
+from copy import deepcopy
+for definition in page['componentDefinitions']['localComponentDefinitions']:
+    for sub in definition['value'].get('componentsData',[]):
+        cd=sub['componentData']
+        if cd['type']=='Label' and cd['data'].get('type')=='Value':
+            cd['data']['textStyle']['font']['height']*=1.6
+for i,tab in enumerate(page['tabs']):
+    children=defs[tab['componentName']]['componentsData']
+    labels=Image.new('RGBA',(1280,628),(0,0,0,0));draw=ImageDraw.Draw(labels);seen=set()
+    clones=[]
+    for child in children:
+        component=defs.get(child['componentData']['type'])
+        if component is None:continue
+        names=[s for s in component.get('componentsData',[]) if s['componentData']['type']=='Label' and s['componentData']['data'].get('type')=='Name']
+        if not names:continue
+        x,y,_,_=map(int,child['bounds']['bounds'].split())
+        for sub in names:
+            sx,sy,w,h=map(int,sub['bounds']['bounds'].split());style=sub['componentData']['data']['textStyle']
+            caption=child['componentData'].get('name','');key=(x+sx,y+sy,w,h,caption)
+            if key in seen:continue
+            seen.add(key);font=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),round(style['font']['height']))
+            draw.text((x+sx+w/2,y+sy+h/2),caption,font=font,anchor='mm',fill='#'+style['colour'][-6:])
+        name=child['componentData']['type']+'_captionless'
+        if name not in defs:
+            clone=deepcopy(component);clone['componentsData']=[s for s in clone['componentsData'] if not (s['componentData']['type']=='Label' and s['componentData']['data'].get('type')=='Name')]
+            defs[name]=clone;clones.append({'key':name,'value':clone})
+        child['componentData']['type']=name
+    page['componentDefinitions']['localComponentDefinitions'].extend(clones)
+    filename=f'gk_captions_{i}.png';labels.save(path.parent/filename)
+    # Below interactive children: a full-page image placed on top can intercept
+    # touches in MPC even when its pixels are transparent.
+    children.insert(1,shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':filename},shadow_skin._bounds(0,0,1280,628),'Captions'))
 path.write_text(json.dumps(d,indent=2)+'\n')
 # Browser tile launches the real Init sound and presents the same name.
 import xml.etree.ElementTree as ET

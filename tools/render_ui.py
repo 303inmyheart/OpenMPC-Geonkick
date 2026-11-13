@@ -67,7 +67,8 @@ try:
                     im.alpha_composite(Image.open(skin/data['onImage' if on else 'offImage']).convert('RGBA'),(x+sx,y+sy))
                 elif sd['type']=='Label':
                     style=data['textStyle'];caption=cd['name'] if data.get('type')=='Name' else display(i)
-                    font=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),round(style['font']['height']))
+                    height=style['font']['height']/(1.6 if data.get('type')=='Value' else 1)
+                    font=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),round(height))
                     dr.text((x+sx+w/2,y+sy+h/2),caption,font=font,anchor='mm',fill='#'+style['colour'][-6:])
         dest=root/'build'/f'ui-{filename}.png';im.convert('RGB').save(dest);print(dest)
     (root/'build/ui-values.json').write_text(json.dumps({p['key']:values[i] for i,p in enumerate(params)},indent=2)+'\n')

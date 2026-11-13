@@ -58,3 +58,23 @@ The formal fast benchmark is insufficient for this architecture's background
 synthesis load: it advances audio faster than wall clock. Worker CPU must also
 be sampled during paced playback and editing. Do not publish a PASS claim from
 the fast benchmark alone.
+
+## 0.0.4 — finer graph and readable native text
+
+- Native ASan/UBSan/leak suite and actual ARM64 VST/engine checks under QEMU pass.
+- 432 waveform columns match captured audio within half of one pixel-height
+  quantization step; the envelope uses 85 height levels. All 474 earlier VST
+  entries keep their indices/ranges/defaults. Stored project state is unchanged.
+- Native skin checks have no touch-overlap or edge warnings. Plot strips are
+  9312/16320 pixels tall, within the image limit. Package validation: zero warnings.
+- With explicit user approval, 606 package files were installed and hash-verified;
+  the prior plugin folder was backed up locally. MPC.settings stayed identical
+  during the file update. A separately authorized app restart returned to running.
+- Read-only before-capture confirms the 0.0.3 block/font issue. After the 0.0.4
+  restart MPC shows its track-type selector; the new plugin screen is not yet
+  visually verified. No project/instrument selection or UI input was performed.
+
+The actual installed 0.0.4 shared library also passed the isolated framework VST
+host suite on Live III from a temporary low-priority analysis process. This is
+a binary/host test, not a graphical MPC-app test or real-time CPU benchmark.
+The temporary helper was removed.

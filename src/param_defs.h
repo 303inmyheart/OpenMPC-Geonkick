@@ -189,4 +189,6 @@ static const GParam gparams[] = {
     {"plot_env", 0.0f, 1.0f, 0.0f, 1},
 };
 #define GP_COUNT 186
-#define PLOT_COLUMNS 96
+#define PLOT_COLUMNS 432
+#define PLOT_WAVE_LEVELS 97
+#define PLOT_ENV_LEVELS 85

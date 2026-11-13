@@ -1,6 +1,7 @@
 /* Independent signal oracle, asynchronous cache lifetime, state and isolation. */
 #include "params.h"
 #include "engine.h"
+#include "../src/param_defs.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -37,17 +38,17 @@ int main(void) {
         }
     }
     printf("independent chirp/envelope oracle max error: %.9g\n",maxerr);assert(maxerr<0.0001f);
-    for(int column=0;column<96;column++) {
-        int begin=(int)((long long)column*frames/96),end=(int)((long long)(column+1)*frames/96);
+    for(int column=0;column<PLOT_COLUMNS;column++) {
+        int begin=(int)((long long)column*frames/PLOT_COLUMNS),end=(int)((long long)(column+1)*frames/PLOT_COLUMNS);
         float positive=0,negative=0;
         for(int i=begin;i<end;i++) { positive=fmaxf(positive,captured[i]);negative=fmaxf(negative,-captured[i]); }
-        char key[40];snprintf(key,sizeof key,"viz_p_%d",column);assert(fabsf(get(a,key)-positive)<0.0081f);
-        snprintf(key,sizeof key,"viz_n_%d",column);assert(fabsf(get(a,key)-negative)<0.0081f);
-        float env=fmaxf(0,1-(column+0.5f)*0.6f/(96*0.5f));
-        snprintf(key,sizeof key,"viz_e_%d",column);assert(fabsf(get(a,key)-env)<0.0081f);
+        char key[40];snprintf(key,sizeof key,"viz_p_%d",column);assert(fabsf(get(a,key)-positive)<=0.5f/(PLOT_WAVE_LEVELS-1)+0.00001f);
+        snprintf(key,sizeof key,"viz_n_%d",column);assert(fabsf(get(a,key)-negative)<=0.5f/(PLOT_WAVE_LEVELS-1)+0.00001f);
+        float env=fmaxf(0,1-(column+0.5f)*0.6f/(PLOT_COLUMNS*0.5f));
+        snprintf(key,sizeof key,"viz_e_%d",column);assert(fabsf(get(a,key)-env)<=0.5f/(PLOT_ENV_LEVELS-1)+0.00001f);
     }
-    set(a,"plot_env","1");wait_ready(a);assert(fabsf(get(a,"viz_e_95")-0.25f)<0.0081f);
-    set(a,"viz_e_95","1");assert(fabsf(get(a,"viz_e_95")-0.25f)<0.0081f);
+    set(a,"plot_env","1");wait_ready(a);assert(fabsf(get(a,"viz_e_431")-0.25f)<0.0061f);
+    set(a,"viz_e_431","1");assert(fabsf(get(a,"viz_e_431")-0.25f)<0.0061f);
     set(a,"plot_env","0");wait_ready(a);
     puts("Waveform columns match captured audio; amplitude/pitch overlays and read-only data pass");
     set(a,"o1_attack","0.1");
