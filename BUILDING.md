@@ -10,7 +10,8 @@ patches/mpc-float32.patch, patches/mpc-fine-int-sweep.patch and
 patches/mpc-async-host-notify.patch, then
 patches/mpc-display-parameter-budget.patch and
 patches/mpc-coalesced-graph-and-fine-input.patch, then
-patches/mpc-graph-rebind-and-input-observation.patch applied, in that order. The wrapper is not copied into this repository.
+patches/mpc-graph-rebind-and-input-observation.patch and
+patches/mpc-accumulated-fine-input.patch applied, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `a2dd2b78a19c4cd46257c09eb9a485a155ab2968` in the neighbouring
 mpc-vst-plugins-release-tools checkout.
@@ -157,3 +158,20 @@ and is joined on unload. Actual test hosts leave it inactive. A test executable
 named MPC exercised logger lifecycle under ASan; its own files were removed.
 Remove this diagnostic after capturing the device input failure. Never publish
 its raw device logs or include them in installers.
+
+0.0.10 opts into FINE_TRACK_RAW_INPUT for nudge_pct integer controls. The real
+MPC input stream can accumulate by 1/128 or 1/100 while the accepted fine value
+moves by one integer. Compare consecutive raw inputs for direction/size instead
+of using their growing distance from the accepted value. Sub-step absolute
+sweeps keep settle() direction handling; large intentional moves remain direct;
+explicit MIDI/NRPN absolute writes round to the requested position. Repeated
+clamped endpoint events count individually. Old physical-Hz automation is intact.
+
+The opt-in control pipeline is serialized by the existing recursive priority-
+inheriting engine lock, including gesture history and final accepted values.
+Host callbacks remain outside that lock. Synchronous echoes of our own active
+notification are ignored using a saved/restored thread-local report context;
+this also prevents an old echo from overwriting a newer concurrent user input.
+The bounded input diagnostic remains enabled for hardware acceptance with a new
+per-process /tmp prefix. Stored state, parameter indices and the working 0.0.9
+shared graph refresh/touch geometry are unchanged.

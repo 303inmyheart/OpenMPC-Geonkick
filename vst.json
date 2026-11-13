@@ -2,7 +2,7 @@
   "name": "Geonkick MPC",
   "vendor": "OpenMPC",
   "uid": "GkM3",
-  "version": 9,
+  "version": 10,
   "so": "geonkick_mpc.so",
   "params": "params.json",
   "layout": "layout.conf",
@@ -21,7 +21,8 @@
     "FINE_INPUT_CONTINUOUS": 1,
     "GRAPH_INVALIDATION_ONLY": 1,
     "GRAPH_REBIND_ON_REFRESH": 1,
-    "WRAP_TRACE": 1
+    "WRAP_TRACE": 1,
+    "FINE_TRACK_RAW_INPUT": 1
   },
   "programs": {
     "param": "preset"

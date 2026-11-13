@@ -1,4 +1,4 @@
-# Geonkick MPC bedienen — 0.0.9
+# Geonkick MPC bedienen — 0.0.10
 
 Ein Plugin erzeugt einen Drum-Sound aus drei Layern mit je drei Oszillatoren.
 Für eine Kick genügt zunächst Layer 1, OSC 1. Layer 2 und 3 starten stumm;
@@ -66,3 +66,8 @@ Die vier Regler direkt unter der Kurve lassen sich bis 24 Pixel oberhalb und
 unterhalb des Balkens greifen. Bei engeren Reglern ist der obere Rand kleiner,
 damit keine benachbarte Bedienfläche überdeckt wird. Die neue Kurvenmethode
 bleibt aktiv und fordert nach dem Drehen einmal das Neueinlesen beim Host an.
+
+0.0.10 behält die funktionierende Kurvenmethode bei. Die feinen Regler folgen
+jetzt auch bei längeren Drehbewegungen den einzelnen Eingabeschritten. Bitte
+noch einmal langsam und schnell in beide Richtungen prüfen; die großen
+Sprünge sollten nicht mehr durch aufgelaufene Eingabewerte entstehen.

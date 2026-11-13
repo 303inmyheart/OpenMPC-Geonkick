@@ -1,14 +1,14 @@
 # Geonkick MPC
 
 The MPC adapter, build scripts and interface are AI-generated. The user has tested early builds on Live III and reported interface and control
-problems. The user reports 0.0.8 still jumps and its shared invalidation did not repaint
-the curve. Version 0.0.9 retains the coalesced path, adds one post-gesture host
-rebind, larger invisible slider hit areas and temporary input observation.
-Real MPC curve, audio and control acceptance tests are **pending**. The original Geonkick DSP is the
+problems. The user confirmed that 0.0.9 redraws the curve and the tested redraw actions
+no longer crackle on Live III. Version 0.0.10 follows the actual accumulated
+wheel/Q-Link input stream to address the remaining jumps. Its fine-control
+hardware acceptance is **pending**; the working graph/touch design is retained. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.9 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.10 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -48,6 +48,9 @@ Implemented:
   follows that signal. No column callback burst is reintroduced.
 - Thin sliders retain their original visible pixels with transparent padded
   native hit areas (64 pixels high for the main envelope sliders).
+- Fine controls track consecutive raw input deltas, including long accumulated
+  wheel/Q-Link streams, reversals and clamped endpoints. This prevents distance
+  from the accepted value growing into an unintended absolute jump.
 - Rounded small movements remain one fine step even at exact integer boundaries;
   fine unit controls disable the native coarse-wheel mode.
 - Derived graph/view values are non-automatable. Curve feedback waits until

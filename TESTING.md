@@ -244,3 +244,31 @@ The user has now granted standing permission to install our new plugin builds
 and restart the MPC app until revoked. All other device access remains read-only
 except our temporary /tmp diagnostics. Deployment still backs up, stages and
 hash-verifies this plugin, without editing global settings or projects.
+
+## 0.0.10 — actual accumulated input stream
+
+The user confirms 0.0.9 redraws again and the tested redraw actions no longer
+crackle on Live III. Its graph path and slider geometry are retained.
+Private incoming/accepted traces exposed the remaining jump mechanism: raw
+MPC events accumulate by 1/128 independently of the accepted fine value. The
+old heuristic compared their growing separation to a 10%-range cutoff, then
+accepted an unintended absolute position, causing about 229–249 pitch-step
+jumps. The previous rounded-input test did not represent this stream.
+
+A generated regression reproducing the stream (not publishing raw user logs)
+fails against 0.0.9. The candidate follows individual raw deltas instead:
+
+- All nine oscillators: 90 accumulating forward/backward events at both wheel
+  and Q-Link rates, including a clamped tail, remain one fine step per event.
+- Existing immediate feedback-echo, quantized-input whole-range, continuous
+  sweep/reversal, endpoint and original physical-Hz automation tests pass.
+- Native ASan/UBSan/leaks and actual ARM64 VST/engine tests under QEMU pass.
+- The fine-control/echo regression was repeated four times after correcting
+  control-history serialization and synchronous self-echo handling. All pass.
+- Shared graph/rebind fixture still has zero column callbacks; skin overlap
+  checks, default legacy wrapper compilation and patch reverse-check pass.
+- No audio-engine or graph/touch geometry changes are introduced in this build.
+
+Fine-control device acceptance remains required. The temporary diagnostic is
+retained for that check; raw captures stay private and are removed from /tmp
+after analysis. The user's standing install/restart authorization remains active.

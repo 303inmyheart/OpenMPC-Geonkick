@@ -39,6 +39,10 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
    - **0.0.9 candidate:** shared refresh retained with one quiet-time host rebind;
      transparent larger horizontal slider targets. Temporary real-input
      observation for the remaining jumps; real MPC acceptance still required.
+   - **0.0.10 candidate:** actual accumulated input stream reproduced, fine
+     deltas tracked without the absolute-jump cutoff, gesture writes serialized
+     and synchronous self-echo ignored. 0.0.9 graph/audio improvement confirmed
+     by user; fine-control acceptance for 0.0.10 remains pending.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
    graphical point editing and preview/export. Evaluate native envelope editing first.

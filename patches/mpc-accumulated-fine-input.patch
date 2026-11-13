@@ -1,0 +1,127 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -186,6 +186,9 @@
+ #if ASYNC_HOST_NOTIFY && !defined(DISPLAY_REV_THREAD)
+ #error ASYNC_HOST_NOTIFY requires DISPLAY_REV_THREAD
+ #endif
++#ifndef FINE_TRACK_RAW_INPUT
++#define FINE_TRACK_RAW_INPUT 0
++#endif
+ #ifndef FINE_INPUT_CONTINUOUS
+ #define FINE_INPUT_CONTINUOUS 0
+ #endif
+@@ -216,6 +219,15 @@
+ static uint64_t monotonic_ns(void) { struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000000000u+t.tv_nsec; }
+ static int graph_quiet(wrap_t *w) {
+     return GRAPH_UPDATE_IDLE_MS<=0 || monotonic_ns()-__atomic_load_n(&w->last_input_ns,__ATOMIC_ACQUIRE)>=(uint64_t)GRAPH_UPDATE_IDLE_MS*1000000u;
++}
++static __thread wrap_t *reporting_instance;
++static __thread int reporting_index;
++static __thread float reporting_value;
++static void report_value(wrap_t *w,int i,float value) {
++    wrap_t *saved=reporting_instance;int saved_i=reporting_index;float saved_value=reporting_value;
++    reporting_instance=w;reporting_index=i;reporting_value=value;
++    w->master(&w->fx,audioMasterAutomate,i,0,0,value);
++    reporting_instance=saved;reporting_index=saved_i;reporting_value=saved_value;
+ }
+ static const mpc_engine_t *g_api;
+ 
+@@ -299,7 +311,7 @@
+     return dir > 0 ? ceilf(pos - 0.001f) : floorf(pos + 0.001f);
+ }
+ 
+-static void set_param_now(AEffect *e, int32_t i, float n) {
++static void set_param_now_unlocked(AEffect *e, int32_t i, float n) {
+     wrap_t *w = e->object;
+     TRACE(0, i, n);
+     char buf[64];
+@@ -395,6 +407,23 @@
+          * move that lands on the minimum or maximum from within that distance is a tick too, not a jump to the end. */
+         float span = p->max - p->min, pos = clamp01(n) * span, cur = get_norm(w, i) * span, steps;
+         float tickmax = p->nudge_pct > 0 ? fmaxf(0.5f, span * p->nudge_pct / 100.0f) : 0.5f;
++        if(FINE_TRACK_RAW_INPUT && p->nudge_pct>0) {
++            /* MPC can accumulate raw wheel/Q-Link positions without rebasing
++             * to our accepted one-step value. Follow consecutive input deltas,
++             * not their growing distance to the engine value. */
++            float last=w->last_pos[i],event=last>=0?pos-last:pos-cur;
++            int endpoint=pos<0.001f || pos>span-0.001f;
++            if(absolute_set)steps=roundf(pos);
++            else if(last>=0 && fabsf(event)>0.001f && fabsf(event)<0.5f)
++                steps=settle(pos,cur,last);
++            else {
++                float d=(last>=0 && fabsf(event)>=0.5f && fabsf(event)<tickmax)?event:pos-cur;
++                if(last>=0 && fabsf(event)<=0.001f && endpoint)d=pos>span*0.5f?1:-1;
++                if(fabsf(d)>=0.5f && fabsf(d)<tickmax)steps=roundf(cur)+(d>0?1:-1);
++                else steps=settle(pos,cur,last);
++            }
++            w->last_pos[i]=pos;
++        } else {
+         int edge = (pos < 0.001f || pos > span - 0.001f) && fabsf(pos - cur) >= 0.5f;
+         /* Fine sub-step gestures must use settle()'s direction history. Counting
+          * them against cur instead makes a rising drag reverse after rounding. */
+@@ -417,6 +446,7 @@
+             steps = settle(pos, cur, w->last_pos[i]);
+             w->last_pos[i] = pos;
+         }
++        }
+         n = clamp01(steps / span);
+     }
+     /* List tiles: housekeeping pushes "<key>_on" with audioMasterAutomate, and MPC calls
+@@ -447,6 +477,13 @@
+     TRACE(2, i, get_norm(w,i)); /* optional dev trace: accepted value */
+ }
+ 
++static void set_param_now(AEffect *e,int32_t i,float n) {
++    wrap_t *w=e->object;
++    if(FINE_TRACK_RAW_INPUT)pthread_mutex_lock(&w->lock);
++    set_param_now_unlocked(e,i,n);
++    if(FINE_TRACK_RAW_INPUT)pthread_mutex_unlock(&w->lock);
++}
++
+ /* MPC's plugin host (JUCE) sets parameter 0 to the far end of its range and straight back whenever it gets ready to play:
+  * on insert and on every STOP ("a dodgy hack to force some plugins to initialise the sample rate", for plugins without an
+  * editor; seen in a Live II trace, 2026-10-10). Applied as they come, the two sets load a preset twice when parameter 0
+@@ -462,9 +499,10 @@
+     if (fabsf(to - from) > 1e-6f) set_param_now(e, 0, to);
+ }
+ 
+-static void setParameter(AEffect *e, int32_t i, float n) {
++static void setParameter_locked(AEffect *e, int32_t i, float n) {
+     wrap_t *w = e->object;
+     if(live_readonly(i))return;
++    if(FINE_TRACK_RAW_INPUT && reporting_instance==w && reporting_index==i && fabsf(n-reporting_value)<1e-6f)return;
+     /* An acknowledgement of our accepted stepped value is not a new turn.
+      * Feeding it into settle() overwrites the fractional gesture history and
+      * reverses the next absolute knob event. Track only values actually reported
+@@ -484,6 +522,13 @@
+     }
+     flush_pend0(e);
+     set_param_now(e, i, n);
++}
++
++static void setParameter(AEffect *e,int32_t i,float n) {
++    wrap_t *w=e->object;
++    if(FINE_TRACK_RAW_INPUT)pthread_mutex_lock(&w->lock);
++    setParameter_locked(e,i,n);
++    if(FINE_TRACK_RAW_INPUT)pthread_mutex_unlock(&w->lock);
+ }
+ 
+ static float getParameter(AEffect *e, int32_t i) {
+@@ -595,7 +640,7 @@
+ static void notify_value(wrap_t *w, int i, float value) {
+     if(GRAPH_INVALIDATION_ONLY && graph_param(i))return;
+     if (ASYNC_HOST_NOTIFY) __atomic_store_n(&w->notify_pending[i], 1, __ATOMIC_RELEASE);
+-    else w->master(&w->fx, audioMasterAutomate, i, 0, 0, value);
++    else report_value(w,i,value);
+ }
+ static void notify_display(wrap_t *w) {
+     if (ASYNC_HOST_NOTIFY) __atomic_store_n(&w->notify_update, 1, __ATOMIC_RELEASE);
+@@ -646,7 +691,7 @@
+                     __atomic_store(&w->stepped_echo_value[i], &value, __ATOMIC_RELAXED);
+                     __atomic_store_n(&w->stepped_echo_pending[i], 1, __ATOMIC_RELEASE);
+                 }
+-                w->master(&w->fx, audioMasterAutomate, i, 0, 0, value);
++                report_value(w,i,value);
+                 if(GRAPH_REBIND_ON_REFRESH && !strcmp(PARAMS[i].key,"graph_revision")) {
+                     /* One host rebind after quiet, never a column event burst.
+                      * Some MPC bindings cache values despite bounds invalidation. */

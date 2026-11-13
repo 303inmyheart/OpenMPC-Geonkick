@@ -116,3 +116,10 @@ its device test. Thin slider artwork remains unchanged. Transparent padding
 expands the native Knob gesture bounds above/below it where space allows;
 captions remain in their original global positions and no new touch overlaps
 are allowed. The padded Knob sits above its own captions to receive gestures.
+
+## 0.0.10 control stream
+
+The user has confirmed that 0.0.9 redraws and the tested redraw actions no longer
+crackle. That drawing/rebind path and padded touch geometry are unchanged.
+Fine input now follows accumulated raw deltas rather than their distance to an
+accepted one-step value. The native widgets do not change their geometry/ranges.

@@ -38,6 +38,21 @@ int main(void) {
         }
         for(int step=1;step<=6;step++) { e->set(e,fine,e->get(e,fine)-1.f/128);block(e);assert(fabsf(hz(e,original)-55*exp2f((6-step)/240.f))<0.003f); }
         assert(fabsf(hz(e,original)-55)<0.003f);
+        /* MPC keeps accumulating raw input independently of our accepted
+         * fine value. Reproduce both event rates, reversals and clamped tails. */
+        float span=PARAMS[fine].max-PARAMS[fine].min;
+        for(int mode=0;mode<2;mode++) {
+            float raw=e->get(e,fine),start=raw*span,rate=mode?1.f/128:0.01f;
+            for(int k=1;k<=90;k++) {
+                raw=fminf(1,raw+rate);e->set(e,fine,raw);block(e);
+                if(fabsf(e->get(e,fine)*span-start-k)>=0.02f)fprintf(stderr,"raw regression osc=%d mode=%d k=%d raw=%g actual=%g expected=%g\n",oscillator,mode,k,raw,e->get(e,fine)*span,start+k);
+                assert(fabsf(e->get(e,fine)*span-start-k)<0.02f);
+            }
+            for(int k=1;k<=90;k++) {
+                raw=fmaxf(0,raw-rate);e->set(e,fine,raw);block(e);
+                assert(fabsf(e->get(e,fine)*span-start-(90-k))<0.02f);
+            }
+        }
         e->set(e,fine,0);block(e);assert(fabsf(hz(e,original)-20)<0.01f);
         e->set(e,fine,1);block(e);assert(fabsf(hz(e,original)-12000)<0.02f);
         /* Existing linear-Hz automation retains its exact physical meaning. */
@@ -60,6 +75,6 @@ int main(void) {
     }
     puts("Rounded small gestures across the complete pitch range and exact-grid ms nudges: one step, no integer-boundary jumps PASS");
     atomic_store(&echo_index,-1);assert(atomic_load(&echoes)>0);
-    printf("9 oscillator controls: fine wheel and Q-Link steps, echoes, edges and old automation PASS; max bass step %.4f Hz\n",largest);
+    printf("9 oscillator controls: accumulated raw wheel/Q-Link streams, reversals, fine steps, echoes, edges and old automation PASS; max bass step %.4f Hz\n",largest);
     e->dispatch(e,1,0,0,NULL,0);return 0;
 }

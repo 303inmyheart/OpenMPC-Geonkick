@@ -27,7 +27,7 @@ void wrap_trace(int kind,int index,float value){
  atomic_store_explicit(&e->value,value,memory_order_relaxed);atomic_store_explicit(&e->seq,n+1,memory_order_release);
 }
 static void *write_events(void *unused){
- (void)unused;pthread_setname_np(pthread_self(),"gk-input-log");char path[160];snprintf(path,sizeof path,"/tmp/geonkick-input-009-%ld-%llu.tsv",(long)getpid(),(unsigned long long)clock_ns());
+ (void)unused;pthread_setname_np(pthread_self(),"gk-input-log");char path[160];snprintf(path,sizeof path,"/tmp/geonkick-input-010-%ld-%llu.tsv",(long)getpid(),(unsigned long long)clock_ns());
  FILE *f=fopen(path,"wx");if(!f)return NULL;
  fprintf(f,"ns\ttid\tkind\tindex\tkey\tnormalized\n");uint64_t next=0;size_t bytes=0;
  while(atomic_load(&running) && bytes<1024*1024){

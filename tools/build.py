@@ -33,6 +33,7 @@ def prepare():
     if 'LIVE_PARAMS_READONLY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-display-parameter-budget.patch first.')
     if 'GRAPH_INVALIDATION_ONLY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-coalesced-graph-and-fine-input.patch first.')
     if 'GRAPH_REBIND_ON_REFRESH' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-graph-rebind-and-input-observation.patch first.')
+    if 'FINE_TRACK_RAW_INPUT' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-accumulated-fine-input.patch first.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()
