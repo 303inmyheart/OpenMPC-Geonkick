@@ -32,6 +32,10 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
      deferred during gestures, synthesis requests coalesced and intermediate
      results published. Native/ARM64 regression tests pass. Verify graph repaint
      and real edit-time CPU/audio before claiming the issue fixed.
+   - **0.0.8 candidate:** rounded fine-input boundary fix and shared graph
+     invalidation replacing column notifications. Native/ARM64 checks pass;
+     actual MPC redraw, hidden-page behavior and page return are experimental
+     until tested. No reliable native current-tab callback is established.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
    graphical point editing and preview/export. Evaluate native envelope editing first.

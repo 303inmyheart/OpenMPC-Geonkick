@@ -184,3 +184,36 @@ establish that all MPC-app crackles or CPU peaks are fixed. Required acceptance:
 real MPC host must still draw non-automatable graph values after a gesture,
 maintain Q-Link sync, and improve CPU/audio during the same editing actions.
 0.0.7 is local only; installed version stays 0.0.6 until explicit new approval.
+
+## 0.0.8 — rounded fine input and shared graph invalidation candidate
+
+The user reports 0.0.7 is much better, but redraws still crackle and fine moves
+can jump on data wheel, Q-Links and touch. A local reproduction quantizing
+small normalized requests to 0.001 caused 22–23 pitch-step jumps at 14 positions
+in the 0.0.7 range. The integer-nudge branch treated exact-position requests as
+absolute jumps. This reproduces a concrete fragile input case; it is not a
+capture proving that the MPC uses precisely this rounding or that every reported
+jump shares this cause.
+
+- Native ASan/UBSan/leaks and actual ARM64 VST/engine suites under QEMU pass.
+- Rounded small requests across the complete pitch range now move one step;
+  millisecond integer-boundary nudges, immediate host echoes, old Hz automation,
+  endpoints, continuous sweeps and reversals still pass.
+- All 1298 graph/view values are non-automatable. No per-column host feedback is
+  sent. A shared graph revision is deferred during edits, then notified; the
+  fixture directly queries actual column values on that signal. This models a
+  visible UI re-read; it is not a native MPC renderer test.
+- All 5184 plot widget instances across the four SYNTH subpages have the shared
+  invalidation handle. Final skin check has no findings. The default wrapper
+  compilation and dependency reverse-patch check pass.
+- Actual-value offline SYNTH/tone/noise previews render the compiled VST state.
+  The preview asserts a revision notification and no column notifications.
+- Original 1529 VST entries retain their indices and ranges; the one revision
+  parameter is appended. The 186-value GKMP3 project format is unchanged.
+
+No reliable native-tab notification was established. Current-tab guessing from
+getParameter reads is deliberately avoided. This candidate relies on MPC's own
+handling of invalidation and hidden components; redraw/page-return behavior and
+redraw-time audio still require hardware acceptance. Nothing new was installed
+or restarted. Device screenshots, stock-skin references and any diagnostic data
+remain private ignored artifacts.

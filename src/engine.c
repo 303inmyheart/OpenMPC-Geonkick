@@ -330,6 +330,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     /* Wrapper serializes this call with MIDI/render. The display thread can
      * adopt a completed sound even while the host isn't processing audio. */
     if(!strcmp(key,"display_rev")) { adopt(e);return snprintf(buf,len,"%u",e->display_revision); }
+    if(!strcmp(key,"graph_revision"))return snprintf(buf,len,"%u",e->display_revision%1024);
     if(!strcmp(key,"ui_env_focus")) {
         int focus=(int)at(e,"plot_osc");char wave[32];snprintf(wave,sizeof wave,"o%d_wave",focus+1);
         return snprintf(buf,len,"%d",2*focus+(at(e,wave)>=4));

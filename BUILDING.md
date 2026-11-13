@@ -8,7 +8,8 @@ Build dependency: neighbouring open-mpc/mpc-vst-plugins at
 `ef05a26c6e59f1bfd3ef2023e6a9d8b371b61310`, with
 patches/mpc-float32.patch, patches/mpc-fine-int-sweep.patch and
 patches/mpc-async-host-notify.patch, then
-patches/mpc-display-parameter-budget.patch applied, in that order. The wrapper is not copied into this repository.
+patches/mpc-display-parameter-budget.patch and
+patches/mpc-coalesced-graph-and-fine-input.patch applied, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `a2dd2b78a19c4cd46257c09eb9a485a155ab2968` in the neighbouring
 mpc-vst-plugins-release-tools checkout.
@@ -106,3 +107,29 @@ even if a newer edit arrives, then handles the newer state on the next job.
 This avoids perpetual cancellation during a continuous gesture. render_pending
 remains true until the current audio/view generations catch up. No state or
 parameter indices changed. No candidate was installed without new approval.
+
+0.0.8 enables FINE_INPUT_CONTINUOUS for nudge_pct integer controls. A small
+non-absolute input no longer becomes an absolute position merely because its
+floating value lands on an integer. Explicit MIDI/NRPN absolute writes and the
+original physical-Hz parameter retain their previous meaning. Touch/wheel fine
+controls disableCoarseDataWheel in their native definition. Existing continuous
+sweep and boundary tests remain; new rounded-input tests cover the full pitch
+range plus exact-grid millisecond controls.
+
+GRAPH_INVALIDATION_ONLY skips viz_* host notifications entirely. A new appended
+readonly graph_revision (index 1529, modulo 1024) changes when a completed cache
+is adopted. SYNTH plot widgets bind their additionalInvalidatingHandles to that
+shared parameter. The existing quiet interval also defers its notification.
+The test host checks the signal, directly reads actual per-column values and
+asserts that no per-column callback occurs. It cannot validate the proprietary
+MPC skin invalidation implementation. Pending device checks: redraw after an
+edit, no repaint of hidden pages, current graph on page return, and audible
+redraw-time glitches. This is experimental; do not claim automatic page tracking.
+
+No verified current-tab callback was found in the VST wrapper or the 110
+read-only stock-skin references. EffEditOpen/Close describes custom editors,
+not the native MPC tab. The design avoids guessing visibility from parameter
+reads. JUCE 7's VSTParameter::getValue directly queries the loaded plugin
+(https://github.com/juce-framework/JUCE/blob/7.0.12/modules/juce_audio_processors/format_types/juce_VSTPluginFormat.cpp);
+using a shared invalidation handle is our MPC-specific hypothesis, not a
+behavior guaranteed by JUCE. Stored state remains 186 values; 1530 VST entries.

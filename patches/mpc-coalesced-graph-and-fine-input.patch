@@ -1,0 +1,59 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -186,6 +186,12 @@
+ #if ASYNC_HOST_NOTIFY && !defined(DISPLAY_REV_THREAD)
+ #error ASYNC_HOST_NOTIFY requires DISPLAY_REV_THREAD
+ #endif
++#ifndef FINE_INPUT_CONTINUOUS
++#define FINE_INPUT_CONTINUOUS 0
++#endif
++#ifndef GRAPH_INVALIDATION_ONLY
++#define GRAPH_INVALIDATION_ONLY 0
++#endif
+ #ifndef LIVE_PARAMS_READONLY
+ #define LIVE_PARAMS_READONLY 0
+ #endif
+@@ -203,6 +209,7 @@
+ #endif
+ }
+ static int graph_param(int i) { return i>=0 && i<NPARAMS && !strncmp(PARAMS[i].key,"viz_",4); }
++static int graph_feedback(int i) { return graph_param(i) || (GRAPH_INVALIDATION_ONLY && i>=0 && i<NPARAMS && !strcmp(PARAMS[i].key,"graph_revision")); }
+ static uint64_t monotonic_ns(void) { struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000000000u+t.tv_nsec; }
+ static int graph_quiet(wrap_t *w) {
+     return GRAPH_UPDATE_IDLE_MS<=0 || monotonic_ns()-__atomic_load_n(&w->last_input_ns,__ATOMIC_ACQUIRE)>=(uint64_t)GRAPH_UPDATE_IDLE_MS*1000000u;
+@@ -392,7 +399,7 @@
+             (p->nudge_pct == 0 || (fabsf(pos - cur) >= 0.5f &&
+              !(w->last_pos[i] >= 0 && fabsf(pos - w->last_pos[i]) > 0.001f &&
+                fabsf(pos - w->last_pos[i]) < 0.5f))) &&
+-            (fabsf(pos - roundf(pos)) > 0.001f || edge) && fabsf(pos - cur) < tickmax) {
++            ((FINE_INPUT_CONTINUOUS && p->nudge_pct>0 && !absolute_set) || fabsf(pos - roundf(pos)) > 0.001f || edge) && fabsf(pos - cur) < tickmax) {
+             float d = pos - cur;
+             w->last_pos[i] = pos;
+             if (p->qlink_ticks > 1) {
+@@ -582,6 +589,7 @@
+ /* ASYNC_HOST_NOTIFY: audio-side housekeeping only posts a bounded flag.
+  * Host UI callbacks may block; the display thread delivers the latest value. */
+ static void notify_value(wrap_t *w, int i, float value) {
++    if(GRAPH_INVALIDATION_ONLY && graph_param(i))return;
+     if (ASYNC_HOST_NOTIFY) __atomic_store_n(&w->notify_pending[i], 1, __ATOMIC_RELEASE);
+     else w->master(&w->fx, audioMasterAutomate, i, 0, 0, value);
+ }
+@@ -604,7 +612,8 @@
+         w->graph_deferred=0;
+         for (int i = 0; i < NPARAMS; i++) {
+             if (PARAMS[i].momentary || popup_is(i) || PARAMS[i].string_display) continue;
+-            if(graph_param(i) && !quiet) { w->graph_deferred=1;continue; }
++            if(GRAPH_INVALIDATION_ONLY && graph_param(i))continue;
++            if(graph_feedback(i) && !quiet) { w->graph_deferred=1;continue; }
+             float v = get_norm(w, i);
+             if (fabsf(v - w->last_norm[i]) > 1e-4f) { w->last_norm[i] = v; notify_value(w, i, v); }
+         }
+@@ -626,7 +635,7 @@
+             for (int k = 0; k < NPARAMS; k++) {
+                 if (__atomic_load_n(&w->rev_stop, __ATOMIC_ACQUIRE)) break;
+                 int i = w->notify_cursor; w->notify_cursor = (i + 1) % NPARAMS;
+-                if(graph_param(i) && !graph_quiet(w))continue;
++                if(graph_feedback(i) && !graph_quiet(w))continue;
+                 if (!__atomic_exchange_n(&w->notify_pending[i], 0, __ATOMIC_ACQ_REL)) continue;
+                 float value = get_norm(w, i);
+                 if (PARAMS[i].nopts > 1 || PARAMS[i].int_display) {

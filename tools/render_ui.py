@@ -43,7 +43,8 @@ try:
     call(e,0,0,0,None,0)
     set_value('o1_attack',0.035);set_value('o1_decay',0.45);settle()
     # The actual wrapper's dedicated UI reporter must notify a host of the plot.
-    assert ids['viz_e_0'] in reported,'Plot was never reported to the VST host'
+    assert ids['graph_revision'] in reported,'Shared graph invalidation was never reported to the VST host'
+    assert not any(ids[p['key']] in reported for p in params if p['key'].startswith('viz_')),'Unexpected per-column graph feedback'
     osc_tab=next(t for t in page['tabs'] if t['fnKeyIndex']==1 and t['fnKeySubIndex']==0)
     for filename,tab,wave in [('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4)]:
         if wave:set_value('o1_wave',wave);settle()

@@ -83,6 +83,7 @@ for original in list(params[:CONTROL_COUNT]):
         alias=key+'_pct';p(alias,original['name'],1,100,100,display='int',nudge_pct=10,unit='%');ALIASES.append((alias,key,2))
     if key.endswith('_freq'):original['legacy']=True
 opt('ui_env_focus','Envelope Context',[f'{o}-{mode}' for o in range(9) for mode in ('tone','noise')],live=True,legacy=True)
+p('graph_revision','Graph Refresh',0,1023,1,live=True,legacy=True,display='int')
 
 def generate():
     (ROOT/'params.json').write_text(json.dumps(dict(name='Geonkick MPC',params=params),indent=2)+'\n')

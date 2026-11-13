@@ -1,13 +1,14 @@
 # Geonkick MPC
 
 The MPC adapter, build scripts and interface are AI-generated. The user has tested early builds on Live III and reported interface and control
-problems. The user still reported crackles and high edit-time CPU in 0.0.6. Version 0.0.7
-targets graph/automation feedback and excessive synthesis requests; its MPC-app
-CPU, graph visibility and listening tests are **pending**. The original Geonkick DSP is the
+problems. The user reports a clear improvement in 0.0.7, but redraw-time crackles and
+sporadic control jumps remain. Version 0.0.8 fixes a reproduced rounded-input
+case and experiments with shared graph invalidation. Its real MPC repaint,
+page-return behavior and audio acceptance tests are **pending**. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.7 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.8 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -38,9 +39,14 @@ Implemented:
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The palette follows the original gray/green design.
-- Versioned project state with 186 stored controls, plus 1296 derived read-only
-  display channels. Original indices stay unchanged. 0.0.1 and 0.0.2 chunks
+- Versioned project state with 186 stored controls, plus derived read-only
+  graph/view channels. Original indices stay unchanged. 0.0.1 and 0.0.2 chunks
   load with the appended controls at neutral/default values.
+- Graph refresh uses one derived revision signal instead of per-column host
+  notifications; the skin binds each graph widget to that invalidation handle.
+  This is an experimental MPC repaint path, not yet hardware-verified.
+- Rounded small movements remain one fine step even at exact integer boundaries;
+  fine unit controls disable the native coarse-wheel mode.
 - Derived graph/view values are non-automatable. Curve feedback waits until
   180 ms after the last parameter edit; normal control feedback stays active.
   Synthesis requests are coalesced to about 30 starts/second, with completed

@@ -45,6 +45,20 @@ int main(void) {
         e->set(e,fine,e->get(e,fine));block(e);
         usleep(250000);block(e);assert(fabsf(hz(e,original)-6010)<0.02f);
     }
+    atomic_store(&echo_index,-1);
+    int fine=find("o1_freq_fine"),original=find("o1_freq");
+    float span=PARAMS[fine].max-PARAMS[fine].min;
+    for(int position=30;position<(int)span-30;position++) {
+        float physical=55*exp2f((position+PARAMS[fine].min)/240.f);
+        e->set(e,original,(physical-20)/11980);float before=e->get(e,fine)*span;
+        float request=roundf((e->get(e,fine)+0.01f)*1000)/1000;
+        e->set(e,fine,request);assert(fabsf(e->get(e,fine)*span-before-1)<0.01f);
+    }
+    for(int i=0;i<NPARAMS;i++)if(PARAMS[i].nudge_pct>0 && !strcmp(PARAMS[i].unit,"ms")) {
+        e->set(e,i,0.5f);float before=e->get(e,i);float range=PARAMS[i].max-PARAMS[i].min;
+        e->set(e,i,before+0.01f);assert(fabsf((e->get(e,i)-before)*range-1)<0.01f);
+    }
+    puts("Rounded small gestures across the complete pitch range and exact-grid ms nudges: one step, no integer-boundary jumps PASS");
     atomic_store(&echo_index,-1);assert(atomic_load(&echoes)>0);
     printf("9 oscillator controls: fine wheel and Q-Link steps, echoes, edges and old automation PASS; max bass step %.4f Hz\n",largest);
     e->dispatch(e,1,0,0,NULL,0);return 0;

@@ -88,7 +88,9 @@ for tab in page['tabs']:
     children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'plot_grid.png'},shadow_skin._bounds(70,122,920,220),'Plot background'))
     for column in range(PLOT_COLUMNS):
         for channel,height,y in [('p',96,145),('n',96,241),('e',192,145)]:
-            children.append(shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_{channel}_{column}'],100+column*PLOT_WIDTH,y+86,PLOT_WIDTH,height,focus='No'))
+            child=shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_{channel}_{column}'],100+column*PLOT_WIDTH,y+86,PLOT_WIDTH,height,focus='No')
+            child['bounds']['additionalInvalidatingHandles'].append('Parameter '+str(ids['graph_revision']))
+            children.append(child)
 # Keep each caption INSIDE its native control so conditional visibility remains
 # attached to the same widget. Full-page text overlays produced ghost labels.
 for definition in page['componentDefinitions']['localComponentDefinitions']:
@@ -120,6 +122,8 @@ for tab in page['tabs']:
                 parts.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':filename},deepcopy(sub['bounds']),'Caption'))
             clone['componentsData']=parts;defs[key]=clone
             page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
+        if any(m.get('value')=='Parameter '+str(ids[k]) for k in ids if k.endswith(('_freq_fine','_ms','_pct')) for m in child.get('handle remapping',{}).get('map',[])):
+            defs[key]['disableCoarseDataWheel']=True
         child['componentData']['type']=key
 path.write_text(json.dumps(d,indent=2)+'\n')
 # Browser tile launches the real Init sound and presents the same name.

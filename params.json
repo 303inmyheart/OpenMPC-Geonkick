@@ -13971,6 +13971,16 @@
       ],
       "live": true,
       "legacy": true
+    },
+    {
+      "key": "graph_revision",
+      "name": "Graph Refresh",
+      "min": 0,
+      "max": 1023,
+      "default": 1,
+      "live": true,
+      "legacy": true,
+      "display": "int"
     }
   ]
 }

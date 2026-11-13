@@ -96,3 +96,13 @@ release (plus the normal display poll/queue interval). Normal knob readouts and
 stepped-control feedback remain active. Graph values and the derived visibility
 selector are not automation inputs; their VST indices remain stable. Real MPC
 acceptance must verify that readonly graph notifications still repaint the skin.
+
+## 0.0.8 experimental shared invalidation
+
+Each plot widget still reads its original column parameter. A shared readonly
+graph_revision handle invalidates the plot instead of broadcasting all columns.
+The intended result is one host event per published graph and native repaint
+only for components the MPC is showing. No native page callback is known, and
+this intended visibility behavior has not been verified on hardware. The quiet
+interval remains. Offline previews show actual data, but cannot prove native
+repaint or page-return behavior. Fine controls also disable coarse wheel mode.

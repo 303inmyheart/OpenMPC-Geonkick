@@ -15,10 +15,15 @@ struct Effect { int32_t magic;intptr_t(*dispatch)(Effect*,int32_t,int32_t,intptr
 extern Effect *VSTPluginMain(Callback);
 static atomic_int graph_reports,control_reports;
 static int fine;
+static atomic_int column_reports;
 static intptr_t host(Effect *e,int32_t op,int32_t i,intptr_t v,void *p,float o) {
  (void)v;(void)p;
  if(op==0 && i>=0 && i<NPARAMS) {
-  if(!strncmp(PARAMS[i].key,"viz_",4)) { assert(e->dispatch(e,26,i,0,NULL,0)==0);atomic_fetch_add(&graph_reports,1);e->set(e,i,o); }
+  if(!strncmp(PARAMS[i].key,"viz_",4)) { atomic_fetch_add(&column_reports,1);e->set(e,i,o); }
+  else if(!strcmp(PARAMS[i].key,"graph_revision")) { assert(e->dispatch(e,26,i,0,NULL,0)==0);atomic_fetch_add(&graph_reports,1);
+   /* Model a visible graph's re-read after its shared invalidation handle. */
+   for(int j=0;j<NPARAMS;j++)if(!strncmp(PARAMS[j].key,"viz_",4)) { float value=e->get(e,j);assert(value>=0 && value<=1); }
+  }
   else { atomic_fetch_add(&control_reports,1);if(i==fine)e->set(e,i,o); }
  }
  return op==1?2400:0;
@@ -27,10 +32,10 @@ static int find(const char *key) { for(int i=0;i<NPARAMS;i++)if(!strcmp(key,PARA
 static void block(Effect *e) { float l[128],r[128],*out[]={l,r};e->render(e,NULL,out,128); }
 int main(void) {
  fine=find("o1_freq_fine");Effect *e=VSTPluginMain(host);assert(e);int derived=0;
- for(int i=0;i<NPARAMS;i++)if(!strncmp(PARAMS[i].key,"viz_",4)||!strcmp(PARAMS[i].key,"ui_env_focus")) {
+ for(int i=0;i<NPARAMS;i++)if(!strncmp(PARAMS[i].key,"viz_",4)||!strcmp(PARAMS[i].key,"ui_env_focus")||!strcmp(PARAMS[i].key,"graph_revision")) {
   assert(e->dispatch(e,26,i,0,NULL,0)==0);derived++;
  }
- assert(derived==1297);assert(e->dispatch(e,26,fine,0,NULL,0)==1);
+ assert(derived==1298);assert(e->dispatch(e,26,fine,0,NULL,0)==1);
  assert(e->dispatch(e,26,find("o1_freq"),0,NULL,0)==1);
  usleep(250000);atomic_store(&graph_reports,0);
  for(int k=0;k<90;k++) {
@@ -39,7 +44,7 @@ int main(void) {
  }
  assert(atomic_load(&control_reports)>0);float final=e->get(e,fine);
  for(int k=0;k<250 && !atomic_load(&graph_reports);k++) { block(e);usleep(10000); }
- assert(atomic_load(&graph_reports)>0);assert(fabsf(e->get(e,fine)-final)<1e-6f);
- printf("1297 display values non-automatable; zero graph callbacks during 90 edits; final graph refresh and frequency echoes PASS\n");
+ assert(atomic_load(&graph_reports)>0);assert(atomic_load(&column_reports)==0);assert(fabsf(e->get(e,fine)-final)<1e-6f);
+ printf("1298 display values non-automatable; zero column callbacks; shared refresh after gesture, direct value reads and frequency echoes PASS\n");
  e->dispatch(e,1,0,0,NULL,0);return 0;
 }
