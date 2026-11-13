@@ -4,11 +4,11 @@ The MPC adapter, build scripts and interface are AI-generated. The user has test
 problems. The user confirmed the real value jumps are resolved in 0.0.10; a brief
 visual knob rebound remained. Version 0.0.11 separates direct continuous Touch
 handles from fine Q-Link/data-wheel handles on the same physical parameter.
-Native touch feel and visual stability still require device acceptance. The original Geonkick DSP is the
+The user confirmed the 0.0.11 changes work. Version 0.0.12 adds a native fixed-point Amp/Pitch envelope editor; this new editor has not been hardware-tested. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.11 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.12 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -39,15 +39,21 @@ Implemented:
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The palette follows the original gray/green design.
-- Versioned project state with 186 stored controls, plus derived read-only
+- Versioned project state with 385 stored controls, plus derived read-only
   graph/view channels. Original indices stay unchanged. 0.0.1 and 0.0.2 chunks
-  load with the appended controls at neutral/default values.
+  load with the appended controls at neutral/default values. GKMP3 states
+  retain their simple envelopes when migrated to GKMP4.
 - Graph refresh uses one derived revision signal instead of per-column host
   notifications; the skin binds each graph widget to that invalidation handle.
   The native repaint path remains experimental: a post-gesture host rebind now
   follows that signal. No column callback burst is reintroduced.
 - Thin sliders retain their original visible pixels with transparent padded
   native hit areas (64 pixels high for the main envelope sliders).
+- Native ENVELOPE page: five linear points for Amp and Pitch on each of the
+  nine oscillators, 36-pixel touch handles, fine selected-point Q-Link controls,
+  Simple/Points modes and Copy Simple. First activation copies the existing curve.
+  Custom points and mode are saved per oscillator/envelope. Hardware acceptance
+  of native curve geometry and gestures is pending.
 - Touch gestures use independent continuous handles for all 46 fine controls.
   Q-Link/data-wheel selection and mapping stay fine; both routes share saved
   physical values. The visible knob follows the direct Touch value, avoiding
@@ -72,6 +78,11 @@ Implemented:
 
 Offline preview of the built skin with values queried from the compiled native
 VST (edited Init, 35 ms attack). This is not a device screenshot.
+![Five-point Amp editor, offline layout preview](docs/screenshots/envelope-amp.png)
+
+Point-editor layout preview uses actual VST values with an approximation of
+the native Envelope geometry. Hardware gestures and geometry remain untested.
+
 See [BEDIENUNG.md](BEDIENUNG.md) for a German control guide and
 [UI-DESIGN.md](UI-DESIGN.md) for the visualization and editing limits.
 
@@ -84,8 +95,9 @@ the selected preset; selecting the same preset value alone does not reload it.
 
 First-prototype limits: one drum per instance and stereo output, no 16-drum kit
 editor, sample import, arbitrary graphical envelope editor or humanizer.
-Amp and pitch envelopes are generated from attack/decay and pitch-time controls.
-The graph is a display, not a draggable point editor. It depicts the completed
+Simple Amp and Pitch envelopes use attack/decay and pitch-time controls.
+The SYNTH graph displays the completed sound; the separate ENVELOPE page edits
+five fixed linear points. Free insertion/deletion and Bezier handles are pending. It depicts the completed
 single-hit buffer before output gain, not a real-time oscilloscope of playing
 voices; the gray envelope is normalized independently to 0–1. The view updates
 after synthesis completes, with host notifications on a separate 100 ms display

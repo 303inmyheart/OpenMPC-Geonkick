@@ -173,13 +173,52 @@ for tab in page['tabs']:
         if not original or not any(p['componentData']['type']=='Knob' for p in original.get('componentsData',[])):continue
         key=child['componentData']['type']+'_touchInput'
         if key not in defs:
-            clone=deepcopy(original)
+            clone=deepcopy(original);clone['disableCoarseDataWheel']=True
             for part in clone['componentsData']:
                 cd=part['componentData']
                 if cd['type']=='Knob' and cd['data'].get('handleName')=='Data':cd['data']['handleName']='Touch'
             defs[key]=clone;page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
         mapping.append({'key':'Touch','value':'Parameter '+str(ids[TOUCH_BINDINGS[fine]])})
         child['componentData']['type']=key
+# Public native Envelope schema. Five linear points / four duration weights.
+# Geometry and gestures need hardware acceptance; all parameter wiring is tested offline.
+envelope_data={
+    'version':1,'envelopeType':'Pitch','envelopeStyle':'WithoutHeader','envelopeName':'',
+    'backgroundColour':'00000000','scaleColour':'ff464d45','lineColour':'ffb3df75',
+    'fillColour':'00000000','highlightColour':'208bb85c','lineWidth':3,
+    'handleWidth':36,'handleHeight':36,'handleShape':'Circle','handleLineWidth':2,
+    'handleLineColour':'ffb3df75','handleFillColour':'ff20291d','handleTextColour':'00000000',
+    'handleLineWidthOnPressed':3,'handleLineColourOnPressed':'ffffffff',
+    'handleFillColourOnPressed':'ff91b958','handleTextColourOnPressed':'00000000',
+    'handleArrowLineColourOnPressed':'ffffffff','handleArrowFillColourOnPressed':'ff91b958',
+    'pitchEnvelopeLevel1Handle':'Level0','pitchEnvelopeDelayHandle':'Time1',
+    'pitchEnvelopeLevel2Handle':'Level1','pitchEnvelopeAttackHandle':'Time2',
+    'pitchEnvelopeLevel3Handle':'Level2','pitchEnvelopeDecayHandle':'Time3',
+    'pitchEnvelopeSustainHandle':'Level3','pitchEnvelopeReleaseHandle':'Time4',
+    'pitchEnvelopeLevel5Handle':'Level4',
+    'forceHideShapeHandles':True,'forceCurveShape':0.5,'curveType':'Quadratic'
+}
+item=shadow_skin._local('gkPointEnvelope',[],[shadow_skin._sub('Envelope',envelope_data,shadow_skin._bounds(0,0,1100,170),'Curve')])
+page['componentDefinitions']['localComponentDefinitions'].append(item)
+message=Image.new('RGBA',(1100,210),(0,0,0,0));draw=ImageDraw.Draw(message)
+font=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),24)
+for y,text in [(62,'SIMPLE ENVELOPE ACTIVE'),(108,'Choose POINTS to edit the existing curve.'),(149,'COPY SIMPLE replaces the five points with the current Amp / Pitch settings.')]:
+    draw.text((550,y),text,font=font,anchor='mm',fill='#d7e0d1')
+message.save(path.parent/'point-simple.png')
+for tab in page['tabs']:
+    if tab['fnKeyIndex']!=6:continue
+    children=defs[tab['componentName']]['componentsData']
+    note=shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-simple.png'},shadow_skin._bounds(90,264,1100,210),'Simple envelope')
+    note['bounds']['additionalInvalidatingHandles']=['IndexedEnabling/0/2/Parameter '+str(ids['ui_point_mode'])]
+    children.append(note)
+    for osc in range(1,10):
+        for kind in ('a','p'):
+            prefix=f'o{osc}_{kind}_';target=(osc-1)*2+(kind=='p')
+            mapping={f'Level{j}':ids[prefix+f'l{j}'] for j in range(5)}
+            mapping.update({f'Time{j}':ids[prefix+f't{j}'] for j in range(1,5)})
+            child=shadow_skin._placed('gkPointEnvelope',f'Osc {osc} '+('AMP' if kind=='a' else 'PITCH'),ids[prefix+'mode'],90,380,1100,170,focus='No',extra=mapping)
+            child['bounds']['additionalInvalidatingHandles']=[f'IndexedEnabling/{target}/18/Parameter '+str(ids['ui_point_target']),'IndexedEnabling/1/2/Parameter '+str(ids[prefix+'mode'])]
+            children.append(child)
 path.write_text(json.dumps(d,indent=2)+'\n')
 # Browser tile launches the real Init sound and presents the same name.
 import xml.etree.ElementTree as ET

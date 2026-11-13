@@ -43,5 +43,14 @@ int main(void){
   for(int j=0;j<2;j++){e->set(e,i,goals[j]);block(e);assert(fabsf(e->get(e,i)-goals[j])<2e-6f);assert(fabsf(e->get(e,original)-goals[j])<2e-6f);}
  }
  assert(touch_count==46);puts("46 continuous touch controls: direct motion, display readback, preserved fractions, fine Q-Link handover and legacy Hz echoes PASS");
+ /* Selected point fine entry must survive asynchronous counterpart feedback. */
+ int mode=find("o1_a_mode"),select=find("point_select"),fine=find("point_level_fine"),drag=find("point_level_drag");
+ e->set(e,mode,1);e->set(e,select,0.5f);e->set(e,drag,0.432123f);block(e);usleep(50000);
+ assert(fabsf(e->get(e,drag)-0.432123f)<2e-6f);
+ float raw=e->get(e,fine);int start=roundf(raw*10000);
+ for(int j=0;j<12;j++){raw+=1.f/128;e->set(e,fine,raw);block(e);usleep(20000);assert(roundf(e->get(e,fine)*10000)==start+j+1);}
+ assert(fabsf(e->get(e,drag)-(start+12)/10000.f)<2e-6f);
+ e->set(e,select,1);block(e);usleep(50000);assert(e->get(e,drag)<1e-6f);
+ puts("Point editor continuous touch, accumulated fine Q-Link motion and context handover PASS");
  e->dispatch(e,1,0,0,NULL,0);return 0;
 }

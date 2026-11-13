@@ -44,7 +44,11 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
      and synchronous self-echo ignored. 0.0.9 graph/audio improvement confirmed
      by user; fine-control acceptance for 0.0.10 remains pending.
    - **0.0.11 candidate:** direct continuous touch handles, fine Q-Links/wheel
-     and shared physical values; native visual/focus acceptance pending.
+     and shared physical values; user confirmed the changes work.
+   - **0.0.12 prepared locally:** native five-point Amp/Pitch editor for all nine
+     oscillators, Simple/Points modes, curve copying, fine/direct point entry and
+     GKMP4 state. Not installed at the user’s request; native gesture/geometry
+     acceptance remains pending.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
    graphical point editing and preview/export. First prototype: native fixed

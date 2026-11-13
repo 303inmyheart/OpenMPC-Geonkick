@@ -195,3 +195,12 @@ separate point-editor investigation; it is not part of this implementation.
 
 Installer output stays under build/releases by default; no Desktop copy.
 The --desktop option is an explicit opt-in for a later user request.
+
+
+0.0.12 adds src/point_editor.h and 199 stored fields, preserving all earlier VST
+indices. GKMP4 migrates GKMP1/2/3 as simple envelopes. The ENVELOPE native Pitch
+component uses five level/four duration handles for both Amp and Pitch; schema
+provenance, scaling and limits are documented in docs/ENVELOPE-EDITOR.md.
+The temporary WRAP_TRACE/input_trace.c diagnostic is no longer compiled.
+Tests include point-envelope DSP, state migration and actual-VST fine/direct
+input feedback. Native geometry/gestures remain a hardware acceptance gate.

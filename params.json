@@ -14441,6 +14441,1843 @@
       "legacy": true,
       "dynamic_display": true,
       "unit": "ms"
+    },
+    {
+      "key": "o1_a_mode",
+      "name": "O1 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o1_a_seen",
+      "name": "O1 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_l0",
+      "name": "O1 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_l1",
+      "name": "O1 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_l2",
+      "name": "O1 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_l3",
+      "name": "O1 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_l4",
+      "name": "O1 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_t1",
+      "name": "O1 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_t2",
+      "name": "O1 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_t3",
+      "name": "O1 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_a_t4",
+      "name": "O1 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_mode",
+      "name": "O1 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o1_p_seen",
+      "name": "O1 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_l0",
+      "name": "O1 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_l1",
+      "name": "O1 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_l2",
+      "name": "O1 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_l3",
+      "name": "O1 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_l4",
+      "name": "O1 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_t1",
+      "name": "O1 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_t2",
+      "name": "O1 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_t3",
+      "name": "O1 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o1_p_t4",
+      "name": "O1 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_mode",
+      "name": "O2 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o2_a_seen",
+      "name": "O2 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_l0",
+      "name": "O2 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_l1",
+      "name": "O2 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_l2",
+      "name": "O2 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_l3",
+      "name": "O2 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_l4",
+      "name": "O2 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_t1",
+      "name": "O2 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_t2",
+      "name": "O2 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_t3",
+      "name": "O2 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_a_t4",
+      "name": "O2 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_mode",
+      "name": "O2 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o2_p_seen",
+      "name": "O2 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_l0",
+      "name": "O2 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_l1",
+      "name": "O2 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_l2",
+      "name": "O2 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_l3",
+      "name": "O2 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_l4",
+      "name": "O2 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_t1",
+      "name": "O2 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_t2",
+      "name": "O2 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_t3",
+      "name": "O2 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o2_p_t4",
+      "name": "O2 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_mode",
+      "name": "O3 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o3_a_seen",
+      "name": "O3 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_l0",
+      "name": "O3 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_l1",
+      "name": "O3 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_l2",
+      "name": "O3 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_l3",
+      "name": "O3 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_l4",
+      "name": "O3 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_t1",
+      "name": "O3 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_t2",
+      "name": "O3 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_t3",
+      "name": "O3 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_a_t4",
+      "name": "O3 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_mode",
+      "name": "O3 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o3_p_seen",
+      "name": "O3 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_l0",
+      "name": "O3 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_l1",
+      "name": "O3 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_l2",
+      "name": "O3 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_l3",
+      "name": "O3 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_l4",
+      "name": "O3 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_t1",
+      "name": "O3 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_t2",
+      "name": "O3 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_t3",
+      "name": "O3 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o3_p_t4",
+      "name": "O3 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_mode",
+      "name": "O4 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o4_a_seen",
+      "name": "O4 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_l0",
+      "name": "O4 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_l1",
+      "name": "O4 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_l2",
+      "name": "O4 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_l3",
+      "name": "O4 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_l4",
+      "name": "O4 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_t1",
+      "name": "O4 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_t2",
+      "name": "O4 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_t3",
+      "name": "O4 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_a_t4",
+      "name": "O4 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_mode",
+      "name": "O4 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o4_p_seen",
+      "name": "O4 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_l0",
+      "name": "O4 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_l1",
+      "name": "O4 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_l2",
+      "name": "O4 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_l3",
+      "name": "O4 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_l4",
+      "name": "O4 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_t1",
+      "name": "O4 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_t2",
+      "name": "O4 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_t3",
+      "name": "O4 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o4_p_t4",
+      "name": "O4 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_mode",
+      "name": "O5 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o5_a_seen",
+      "name": "O5 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_l0",
+      "name": "O5 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_l1",
+      "name": "O5 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_l2",
+      "name": "O5 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_l3",
+      "name": "O5 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_l4",
+      "name": "O5 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_t1",
+      "name": "O5 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_t2",
+      "name": "O5 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_t3",
+      "name": "O5 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_a_t4",
+      "name": "O5 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_mode",
+      "name": "O5 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o5_p_seen",
+      "name": "O5 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_l0",
+      "name": "O5 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_l1",
+      "name": "O5 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_l2",
+      "name": "O5 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_l3",
+      "name": "O5 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_l4",
+      "name": "O5 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_t1",
+      "name": "O5 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_t2",
+      "name": "O5 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_t3",
+      "name": "O5 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o5_p_t4",
+      "name": "O5 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_mode",
+      "name": "O6 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o6_a_seen",
+      "name": "O6 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_l0",
+      "name": "O6 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_l1",
+      "name": "O6 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_l2",
+      "name": "O6 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_l3",
+      "name": "O6 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_l4",
+      "name": "O6 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_t1",
+      "name": "O6 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_t2",
+      "name": "O6 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_t3",
+      "name": "O6 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_a_t4",
+      "name": "O6 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_mode",
+      "name": "O6 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o6_p_seen",
+      "name": "O6 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_l0",
+      "name": "O6 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_l1",
+      "name": "O6 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_l2",
+      "name": "O6 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_l3",
+      "name": "O6 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_l4",
+      "name": "O6 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_t1",
+      "name": "O6 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_t2",
+      "name": "O6 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_t3",
+      "name": "O6 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o6_p_t4",
+      "name": "O6 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_mode",
+      "name": "O7 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o7_a_seen",
+      "name": "O7 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_l0",
+      "name": "O7 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_l1",
+      "name": "O7 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_l2",
+      "name": "O7 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_l3",
+      "name": "O7 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_l4",
+      "name": "O7 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_t1",
+      "name": "O7 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_t2",
+      "name": "O7 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_t3",
+      "name": "O7 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_a_t4",
+      "name": "O7 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_mode",
+      "name": "O7 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o7_p_seen",
+      "name": "O7 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_l0",
+      "name": "O7 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_l1",
+      "name": "O7 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_l2",
+      "name": "O7 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_l3",
+      "name": "O7 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_l4",
+      "name": "O7 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_t1",
+      "name": "O7 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_t2",
+      "name": "O7 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_t3",
+      "name": "O7 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o7_p_t4",
+      "name": "O7 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_mode",
+      "name": "O8 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o8_a_seen",
+      "name": "O8 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_l0",
+      "name": "O8 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_l1",
+      "name": "O8 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_l2",
+      "name": "O8 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_l3",
+      "name": "O8 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_l4",
+      "name": "O8 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_t1",
+      "name": "O8 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_t2",
+      "name": "O8 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_t3",
+      "name": "O8 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_a_t4",
+      "name": "O8 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_mode",
+      "name": "O8 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o8_p_seen",
+      "name": "O8 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_l0",
+      "name": "O8 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_l1",
+      "name": "O8 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_l2",
+      "name": "O8 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_l3",
+      "name": "O8 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_l4",
+      "name": "O8 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_t1",
+      "name": "O8 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_t2",
+      "name": "O8 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_t3",
+      "name": "O8 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o8_p_t4",
+      "name": "O8 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_mode",
+      "name": "O9 Amp Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o9_a_seen",
+      "name": "O9 a Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_l0",
+      "name": "O9 a Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 1.0,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_l1",
+      "name": "O9 a Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.75,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_l2",
+      "name": "O9 a Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.5,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_l3",
+      "name": "O9 a Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_l4",
+      "name": "O9 a Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.0,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_t1",
+      "name": "O9 a Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_t2",
+      "name": "O9 a Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_t3",
+      "name": "O9 a Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_a_t4",
+      "name": "O9 a Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_mode",
+      "name": "O9 Pitch Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ]
+    },
+    {
+      "key": "o9_p_seen",
+      "name": "O9 p Stored Points",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "No",
+        "Yes"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_l0",
+      "name": "O9 p Point 1",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_l1",
+      "name": "O9 p Point 2",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_l2",
+      "name": "O9 p Point 3",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_l3",
+      "name": "O9 p Point 4",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_l4",
+      "name": "O9 p Point 5",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_t1",
+      "name": "O9 p Segment 1",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_t2",
+      "name": "O9 p Segment 2",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_t3",
+      "name": "O9 p Segment 3",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "o9_p_t4",
+      "name": "O9 p Segment 4",
+      "min": 0.0001,
+      "max": 1,
+      "default": 0.25,
+      "legacy": true
+    },
+    {
+      "key": "point_select",
+      "name": "Selected Point",
+      "min": 0,
+      "max": 4,
+      "default": 0,
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    {
+      "key": "ui_point_target",
+      "name": "Point Editor Target",
+      "min": 0,
+      "max": 17,
+      "default": 0,
+      "options": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "ui_point_mode",
+      "name": "Point Editor Mode",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Simple",
+        "Points"
+      ],
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_level_fine",
+      "name": "Point Value",
+      "min": 0,
+      "max": 10000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "point_level_drag",
+      "name": "Point Value Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "point_time_fine",
+      "name": "Segment Time",
+      "min": 0,
+      "max": 10000,
+      "default": 2500,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "point_time_drag",
+      "name": "Segment Time Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0.25,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "point_copy",
+      "name": "Copy Simple Envelope",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "Copy"
+      ],
+      "momentary": true,
+      "debounce_ms": 150
     }
   ]
 }

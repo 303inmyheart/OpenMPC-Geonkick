@@ -46,7 +46,11 @@ try:
     assert ids['graph_revision'] in reported,'Shared graph invalidation was never reported to the VST host'
     assert not any(ids[p['key']] in reported for p in params if p['key'].startswith('viz_')),'Unexpected per-column graph feedback'
     osc_tab=next(t for t in page['tabs'] if t['fnKeyIndex']==1 and t['fnKeySubIndex']==0)
-    for filename,tab,wave in [('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4)]:
+    env_tab=next(t for t in page['tabs'] if t['fnKeyIndex']==6)
+    for filename,tab,wave in [('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0)]:
+        if filename=='envelope-simple':set_value('reset',1);settle()
+        if filename=='envelope-amp':set_value('o1_a_mode',1);settle()
+        if filename=='envelope-pitch':set_value('o1_p_mode',1);settle()
         if wave:set_value('o1_wave',wave);settle()
         values={i:get(e,i) for i in range(len(params))}
         state={i:round(values[i]*(len(p['options'])-1)) for i,p in enumerate(params) if p.get('options')}
@@ -70,6 +74,18 @@ try:
                 elif sd['type']=='Button':
                     count=data['numButtonsInGroup'];on=value>=0.5 if count==1 else round(value*(count-1))==data['buttonId']
                     im.alpha_composite(Image.open(skin/data['onImage' if on else 'offImage']).convert('RGBA'),(x+sx,y+sy))
+                elif sd['type']=='Envelope':
+                    # Approximate native widget geometry for layout review only.
+                    levels=[values[mapping[f'Level{j}']] for j in range(5)]
+                    times=[params[mapping[f'Time{j}']]['min']+values[mapping[f'Time{j}']]*(params[mapping[f'Time{j}']]['max']-params[mapping[f'Time{j}']]['min']) for j in range(1,5)]
+                    total=sum(times);pos=0;coords=[]
+                    for j,level in enumerate(levels):
+                        if j:pos+=times[j-1]/total
+                        coords.append((x+sx+18+(w-36)*pos,y+sy+18+(h-36)*(1-level)))
+                    for j in range(5):
+                        gy=y+sy+18+j*(h-36)/4;dr.line((x+sx+18,gy,x+sx+w-18,gy),fill='#464d45')
+                    dr.line(coords,fill='#b3df75',width=3)
+                    for px,py in coords:dr.ellipse((px-18,py-18,px+18,py+18),fill='#20291d',outline='#b3df75',width=2)
                 elif sd['type']=='Label':
                     style=data['textStyle'];caption=cd['name'] if data.get('type')=='Name' else display(i)
                     height=style['font']['height']/(1.6 if data.get('type')=='Value' else 1)

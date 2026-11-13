@@ -132,3 +132,17 @@ handle, whose normalized coordinate directly represents the same physical
 value. The knob no longer paints the unaccepted fine-control input and then
 snaps to a correction. Geometry, transparent touch padding and graph updates
 stay unchanged. This native multi-handle behavior needs device verification.
+
+## 0.0.12 — native fixed-point editing
+
+ENVELOPE adds a dedicated five-point Amp/Pitch view with 36-pixel circles,
+oscillator/curve/mode selection, Copy Simple and precise selected-point controls.
+The native Pitch Envelope schema supplies five level and four time handles for
+both curve kinds. Points are linear; positive duration weights prevent crossing
+and zero-length segments. Existing SYNTH waveform pixels and refresh remain
+unchanged. All 18 custom curves are stored independently. See
+[editor controls and constraints](docs/ENVELOPE-EDITOR.md).
+
+Offline composites approximate the host-rendered native Envelope geometry.
+Real MPC touch and curve alignment require later hardware acceptance. This
+build is not installed, per the user's explicit one-build instruction.

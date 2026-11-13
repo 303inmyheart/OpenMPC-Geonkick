@@ -1,6 +1,7 @@
 /* MPC adapter, GPL-3.0-or-later. Original synthesis lives in src/dsp.
  * Only the worker touches the DSP. Audio uses fixed buffers and reference counts;
  * it never waits for synthesis, allocates, locks a mutex, or touches a file. */
+#define _GNU_SOURCE
 #include "params.h"
 #include "engine.h"
 #include "param_defs.h"
@@ -33,6 +34,7 @@ typedef struct {
     unsigned age;
     unsigned display_revision;
     float output_gain;
+    unsigned point_dirty,point_origin;
     unsigned char dirty[GP_COUNT],dirty_alias[G_ALIAS_COUNT];
 } Engine;
 
@@ -69,6 +71,9 @@ static void envelope(struct gkick_envelope *env,float x1,float y0,float y1,float
     gkick_envelope_set_points(env,pts,3);
 }
 static float clampf(float v,float lo,float hi) { return fminf(hi,fmaxf(lo,v)); }
+
+static void set_param(void *inst,const char *key,const char *text);
+#include "point_editor.h"
 
 /* Worker-owned DSP setup. All allocations and upstream mutexes remain here. */
 static void configure(Engine *e,const float *p) {
@@ -108,6 +113,9 @@ static void configure(Engine *e,const float *p) {
             gkick_envelope_set_points(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],pitch,2);
         }
         gkick_envelope_set_apply_type(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],GEONKICK_ENVELOPE_APPLY_LINEAR);
+        if(point_value(p,i,0,"mode")>0)point_apply(p,i,0,o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],1);
+        if(point_value(p,i,1,"mode")>0){o->frequency=point_upper(base);point_apply(p,i,1,o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],o->frequency);}
+
         o->filter_enabled=OVAL("filter_on")>0;
         gkick_filter_set_type(o->filter,(int)OVAL("filter_type"));
         gkick_filter_set_cutoff_freq(o->filter,OVAL("cutoff"));
@@ -156,6 +164,8 @@ static void make_plot(Engine *e,Cache *c,const float *p) {
         c->plot[0][column]=(unsigned char)roundf(clampf(positive,0,1)*(PLOT_WAVE_LEVELS-1));
         c->plot[1][column]=(unsigned char)roundf(clampf(negative,0,1)*(PLOT_WAVE_LEVELS-1));
         float shape=gkick_envelope_get_value(env,(column+0.5f)/PLOT_COLUMNS);
+        if(value(p,"plot_env")>0 && point_value(p,osc,1,"mode")>0)shape=(shape*selected->frequency-20)/(selected->frequency-20);
+
         c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*(PLOT_ENV_LEVELS-1));
     }
 }
@@ -223,7 +233,7 @@ static void preset(Engine *e,int which) {
         put(e,"o2_on",1); put(e,"o2_freq",541); put(e,"o2_sweep",0); put(e,"o2_decay",0.45); break;
     case 7: put(e,"o1_freq",115); put(e,"length",0.6); put(e,"o1_sweep",7); put(e,"o1_sweep_time",0.12); break;
     }
-    memset(e->dirty,1,sizeof e->dirty);
+    memset(e->dirty,1,sizeof e->dirty);e->point_dirty|=POINT_ALL;
 }
 static void *create(const char *dir) {
     (void)dir;
@@ -269,6 +279,7 @@ static void midi(void *inst,const uint8_t *msg,int len) {
 }
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
+    if(point_virtual_set(e,key,text))return;
     int alias=alias_of(key);
     if(alias>=0) {
         char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return;
@@ -288,7 +299,8 @@ static void set_param(void *inst,const char *key,const char *text) {
         int count;
         if(!strncmp(text,"GKMP1 ",6))count=103;
         else if(!strncmp(text,"GKMP2 ",6))count=184;
-        else if(!strncmp(text,"GKMP3 ",6))count=GP_COUNT;
+        else if(!strncmp(text,"GKMP3 ",6))count=LEGACY_GP_COUNT;
+        else if(!strncmp(text,"GKMP4 ",6))count=GP_COUNT;
         else return;
         float p[GP_COUNT];const char *s=text+6;char *end;
         for(int i=0;i<GP_COUNT;i++)p[i]=gparams[i].def;
@@ -297,7 +309,7 @@ static void set_param(void *inst,const char *key,const char *text) {
         if(*s)return;
         atomic_fetch_add(&e->revision,1);
         for(int i=0;i<GP_COUNT;i++)atomic_store(&e->values[i],gparams[i].discrete?roundf(p[i]):p[i]);
-        atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); stop_all(e); memset(e->dirty,1,sizeof e->dirty); return;
+        atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); stop_all(e); memset(e->dirty,1,sizeof e->dirty);e->point_dirty|=POINT_ALL; return;
     }
     int i=index_of(key); if(i<0)return;
     char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return;
@@ -307,28 +319,35 @@ static void set_param(void *inst,const char *key,const char *text) {
         if(v>0) { atomic_fetch_add(&e->revision,1);preset(e,0);atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); }
         return;
     }
+    PointKey point;int point_key_changed=point_decode(key,&point);if(point_key_changed && point.field=='s')return;
     if(v==atomic_load(&e->values[i]))return;
     atomic_fetch_add(&e->revision,1);
     if(!strcmp(key,"preset"))preset(e,(int)v);
     else {
+        if(point_key_changed)point_prepare(e,&point,v);
         atomic_store(&e->values[i],v);
         e->dirty[i]=1;
+        if(point_key_changed)point_changed(e,&point);
+        if(!strcmp(key,"plot_osc") || !strcmp(key,"plot_env") || !strcmp(key,"point_select"))e->point_dirty|=POINT_ALL;
         int oscillator=0;char suffix[32];
         if(sscanf(key,"o%d_%31s",&oscillator,suffix)==2 && oscillator>=1 && oscillator<=9) {
             int focus=index_of("plot_osc");
-            if(atomic_load(&e->values[focus])!=oscillator-1) { atomic_store(&e->values[focus],oscillator-1);e->dirty[focus]=1; }
+            if(atomic_load(&e->values[focus])!=oscillator-1) { atomic_store(&e->values[focus],oscillator-1);e->dirty[focus]=1;e->point_dirty|=POINT_ALL; }
+            if(!strcmp(suffix,"attack") || !strcmp(suffix,"decay")){point_store(e,oscillator-1,0,"mode",0);e->point_dirty|=POINT_ALL;}
+            if(!strcmp(suffix,"sweep") || !strcmp(suffix,"sweep_time")){point_store(e,oscillator-1,1,"mode",0);e->point_dirty|=POINT_ALL;}
             if(!strcmp(suffix,"attack") || !strcmp(suffix,"decay")) {
                 char other[32];snprintf(other,sizeof other,"o%d_%s",oscillator,!strcmp(suffix,"attack")?"decay":"attack");
                 float needed=fminf(4,v+at(e,other));int length=index_of("length");
                 if(needed>atomic_load(&e->values[length])) { atomic_store(&e->values[length],needed);e->dirty[length]=1; }
             }
+            if(!strcmp(suffix,"freq"))e->point_dirty|=3;
             int env=index_of("plot_env"),mode=-1;
             if(!strcmp(suffix,"attack") || !strcmp(suffix,"decay") || !strcmp(suffix,"density"))mode=0;
             if(!strcmp(suffix,"sweep") || !strcmp(suffix,"sweep_time"))mode=1;
             if(mode>=0 && atomic_load(&e->values[env])!=mode) { atomic_store(&e->values[env],mode);e->dirty[env]=1; }
         }
     }
-    bool view_only=!strcmp(key,"plot_osc") || !strcmp(key,"plot_env");
+    bool view_only=!strcmp(key,"plot_osc") || !strcmp(key,"plot_env") || !strcmp(key,"point_select");
     bool playback_only=!strcmp(key,"volume") || !strcmp(key,"tune") || !strcmp(key,"keytrack") || !strcmp(key,"playback");
     if(view_only)atomic_fetch_add(&e->view_revision,1);
     else if(!playback_only)atomic_fetch_add(&e->audio_revision,1);
@@ -338,6 +357,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
     /* Wrapper serializes this call with MIDI/render. The display thread can
      * adopt a completed sound even while the host isn't processing audio. */
+    int point_result=point_virtual_get(e,key,buf,len);if(point_result>0)return point_result;
     if(!strcmp(key,"display_rev")) { adopt(e);return snprintf(buf,len,"%u",e->display_revision); }
     if(!strcmp(key,"graph_revision"))return snprintf(buf,len,"%u",e->display_revision%1024);
     if(!strcmp(key,"ui_env_focus")) {
@@ -373,7 +393,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     if(!strcmp(key,"synthesis_count"))return snprintf(buf,len,"%u",atomic_load(&e->synthesis_count));
     if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",(e->slots[e->current].revision!=atomic_load(&e->audio_revision) || e->slots[e->current].view_revision!=atomic_load(&e->view_revision)));
     if(!strcmp(key,"state")) {
-        int n=snprintf(buf,len,"GKMP3");
+        int n=snprintf(buf,len,"GKMP4");
         for(int i=0;i<GP_COUNT && n<len;i++)n+=snprintf(buf+n,len-n," %.9g",atomic_load(&e->values[i]));
         return n<len?n:0;
     }
@@ -388,7 +408,9 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
     Engine *e=inst;for(int i=0;i<GP_COUNT;i++)if(e->dirty[i]) { e->dirty[i]=0;snprintf(key,len,"%s",gparams[i].key);return 1; }
-    for(int i=0;i<G_ALIAS_COUNT;i++)if(e->dirty_alias[i]) { e->dirty_alias[i]=0;snprintf(key,len,"%s",galiases[i].key);return 1; }return 0;
+    for(int i=0;i<G_ALIAS_COUNT;i++)if(e->dirty_alias[i]) { e->dirty_alias[i]=0;snprintf(key,len,"%s",galiases[i].key);return 1; }
+    for(int i=0;i<6;i++)if(e->point_dirty&(1u<<i)){e->point_dirty&=~(1u<<i);snprintf(key,len,"%s",point_notifications[i]);return 1;}
+    return 0;
 }
 static void render(void *inst,mpc_sample_t *out,int frames) {
     Engine *e=inst;adopt(e);float volume=at(e,"volume");

@@ -297,3 +297,41 @@ The native MPC must still verify that child Touch handles receive dragging,
 parent Data keeps Q-Link/wheel focus fine, and the cosmetic rebound is gone.
 Point-envelope editing was investigated in the original source and documented;
 no editor/state-format change is included in this build.
+
+## 0.0.12 — fixed-point Amp/Pitch editor, local build only
+
+The user confirmed the 0.0.11 Touch/Q-Link changes work. For 0.0.12 the user
+explicitly requested no installation or MPC restart. No device writes or device
+interaction are part of this build's validation.
+
+- Native ASan/UBSan/leak and actual ARM64 shared-library / engine suites under
+  QEMU pass. The independent original Init audio oracle still passes.
+- Converting a nontrivial simple Amp and Pitch envelope to five linear points
+  preserves the full captured audio exactly in the fixture (maximum error 0).
+- All 18 oscillator/envelope contexts, positive segment times, dynamic fine /
+  continuous point controls, first-point fixed time, custom silent amplitude,
+  alternating extreme pitch/time values and finite audible synthesis pass.
+- Custom curves and fractional values round-trip in GKMP4; 186-value GKMP3
+  chunks load with Simple curves. Truncated/non-finite states are rejected
+  without partial mutation. Switching mode preserves custom edits; Copy Simple
+  replaces them; editing legacy attack switches the Amp curve back to Simple.
+- Actual VST fixture covers direct fractional point touch, twelve accumulated
+  Q-Link events with asynchronous feedback, and changing selected point.
+- All previous 1576 VST parameter definitions remain identical. The new total
+  is 1782, with 385 stored values. Structural skin checks cover 18 native
+  Envelope instances, their 162 point/time bindings, conditional modes, and
+  separate fine Data / continuous Touch point knobs.
+- The existing shared graph refresh and zero audio-thread UI callback tests
+  remain passing. Temporary input tracing is disabled in this build.
+
+Native Envelope geometry and gesture interpretation are not verified by QEMU
+or an offline image. Those require a later MPC test. Offline point-editor
+previews approximate the native widget with actual compiled VST values; they
+are layout checks, not device screenshots or proof of hardware performance.
+
+Final skin was regenerated from the scripts and matched the reviewed TUI
+byte-for-byte; final native skin checks report no findings. Official portable
+OpenMPC catalog/package validation reports zero warnings. Installer file hashes,
+mandatory scripts, exact tested-library receipts and a scan for private local
+paths/device details/input logger strings pass. The installer remains under
+build/releases only; no Desktop copy, installation or MPC restart was performed.
