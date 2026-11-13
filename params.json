@@ -1,0 +1,947 @@
+{
+  "name": "Geonkick MPC",
+  "params": [
+    {
+      "key": "volume",
+      "name": "Output",
+      "min": 0,
+      "max": 1,
+      "default": 0.7
+    },
+    {
+      "key": "length",
+      "name": "Length",
+      "min": 0.03,
+      "max": 4,
+      "default": 0.6,
+      "unit": "s"
+    },
+    {
+      "key": "tune",
+      "name": "Tune",
+      "min": -24,
+      "max": 24,
+      "default": 0,
+      "unit": "st"
+    },
+    {
+      "key": "keytrack",
+      "name": "Key Track",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "playback",
+      "name": "Playback",
+      "min": 0,
+      "max": 2,
+      "default": 0,
+      "options": [
+        "Poly",
+        "Cut",
+        "Gate"
+      ]
+    },
+    {
+      "key": "layer1",
+      "name": "Layer 1",
+      "min": 0,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "layer2",
+      "name": "Layer 2",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "layer3",
+      "name": "Layer 3",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "preset",
+      "name": "Preset",
+      "min": 0,
+      "max": 7,
+      "default": 0,
+      "options": [
+        "Init",
+        "Deep Kick",
+        "Tight Kick",
+        "Snare",
+        "Closed Hat",
+        "Open Hat",
+        "Metal",
+        "Tom"
+      ],
+      "refresh_display": true
+    },
+    {
+      "key": "audition",
+      "name": "Audition",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "Hit"
+      ],
+      "momentary": true,
+      "debounce_ms": 150
+    },
+    {
+      "key": "o1_on",
+      "name": "O1 On",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o1_wave",
+      "name": "O1 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o1_freq",
+      "name": "O1 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o1_level",
+      "name": "O1 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o1_decay",
+      "name": "O1 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o1_sweep",
+      "name": "O1 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o1_sweep_time",
+      "name": "O1 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o1_phase",
+      "name": "O1 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o1_density",
+      "name": "O1 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o1_fm",
+      "name": "O1 FM",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "o2_on",
+      "name": "O2 On",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o2_wave",
+      "name": "O2 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o2_freq",
+      "name": "O2 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o2_level",
+      "name": "O2 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o2_decay",
+      "name": "O2 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o2_sweep",
+      "name": "O2 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o2_sweep_time",
+      "name": "O2 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o2_phase",
+      "name": "O2 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o2_density",
+      "name": "O2 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o3_on",
+      "name": "O3 On",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o3_wave",
+      "name": "O3 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o3_freq",
+      "name": "O3 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o3_level",
+      "name": "O3 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o3_decay",
+      "name": "O3 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o3_sweep",
+      "name": "O3 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o3_sweep_time",
+      "name": "O3 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o3_phase",
+      "name": "O3 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o3_density",
+      "name": "O3 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o4_on",
+      "name": "O4 On",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o4_wave",
+      "name": "O4 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o4_freq",
+      "name": "O4 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o4_level",
+      "name": "O4 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o4_decay",
+      "name": "O4 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o4_sweep",
+      "name": "O4 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o4_sweep_time",
+      "name": "O4 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o4_phase",
+      "name": "O4 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o4_density",
+      "name": "O4 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o4_fm",
+      "name": "O4 FM",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "o5_on",
+      "name": "O5 On",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o5_wave",
+      "name": "O5 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o5_freq",
+      "name": "O5 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o5_level",
+      "name": "O5 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o5_decay",
+      "name": "O5 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o5_sweep",
+      "name": "O5 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o5_sweep_time",
+      "name": "O5 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o5_phase",
+      "name": "O5 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o5_density",
+      "name": "O5 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o6_on",
+      "name": "O6 On",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o6_wave",
+      "name": "O6 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o6_freq",
+      "name": "O6 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o6_level",
+      "name": "O6 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o6_decay",
+      "name": "O6 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o6_sweep",
+      "name": "O6 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o6_sweep_time",
+      "name": "O6 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o6_phase",
+      "name": "O6 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o6_density",
+      "name": "O6 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o7_on",
+      "name": "O7 On",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o7_wave",
+      "name": "O7 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o7_freq",
+      "name": "O7 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o7_level",
+      "name": "O7 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o7_decay",
+      "name": "O7 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o7_sweep",
+      "name": "O7 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o7_sweep_time",
+      "name": "O7 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o7_phase",
+      "name": "O7 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o7_density",
+      "name": "O7 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o7_fm",
+      "name": "O7 FM",
+      "min": 0,
+      "max": 1,
+      "default": 0
+    },
+    {
+      "key": "o8_on",
+      "name": "O8 On",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o8_wave",
+      "name": "O8 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o8_freq",
+      "name": "O8 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o8_level",
+      "name": "O8 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o8_decay",
+      "name": "O8 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o8_sweep",
+      "name": "O8 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o8_sweep_time",
+      "name": "O8 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o8_phase",
+      "name": "O8 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o8_density",
+      "name": "O8 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "o9_on",
+      "name": "O9 On",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "o9_wave",
+      "name": "O9 Wave",
+      "min": 0,
+      "max": 5,
+      "default": 0,
+      "options": [
+        "Sine",
+        "Square",
+        "Triangle",
+        "Saw",
+        "White",
+        "Brown"
+      ]
+    },
+    {
+      "key": "o9_freq",
+      "name": "O9 Freq",
+      "min": 20,
+      "max": 12000,
+      "default": 55,
+      "unit": "Hz",
+      "log": true
+    },
+    {
+      "key": "o9_level",
+      "name": "O9 Level",
+      "min": 0,
+      "max": 1,
+      "default": 0.8
+    },
+    {
+      "key": "o9_decay",
+      "name": "O9 Decay",
+      "min": 0.005,
+      "max": 4,
+      "default": 0.5,
+      "unit": "s"
+    },
+    {
+      "key": "o9_sweep",
+      "name": "O9 Sweep",
+      "min": 0,
+      "max": 48,
+      "default": 24,
+      "unit": "st"
+    },
+    {
+      "key": "o9_sweep_time",
+      "name": "O9 Pitch Time",
+      "min": 0.001,
+      "max": 1,
+      "default": 0.04,
+      "unit": "s"
+    },
+    {
+      "key": "o9_phase",
+      "name": "O9 Phase",
+      "min": 0,
+      "max": 360,
+      "default": 0,
+      "unit": "deg"
+    },
+    {
+      "key": "o9_density",
+      "name": "O9 Density",
+      "min": 0.01,
+      "max": 1,
+      "default": 1
+    },
+    {
+      "key": "filter_on",
+      "name": "Filter",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "filter_type",
+      "name": "Filter Type",
+      "min": 0,
+      "max": 2,
+      "default": 0,
+      "options": [
+        "Low Pass",
+        "High Pass",
+        "Band Pass"
+      ]
+    },
+    {
+      "key": "cutoff",
+      "name": "Cutoff",
+      "min": 30,
+      "max": 8000,
+      "default": 8000,
+      "unit": "Hz"
+    },
+    {
+      "key": "q",
+      "name": "Resonance",
+      "min": 10,
+      "max": 1000,
+      "default": 10
+    },
+    {
+      "key": "drive_on",
+      "name": "Drive",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "On"
+      ]
+    },
+    {
+      "key": "drive_type",
+      "name": "Drive Type",
+      "min": 0,
+      "max": 8,
+      "default": 1,
+      "options": [
+        "Hard",
+        "Tanh",
+        "Arctan",
+        "Exp",
+        "Poly",
+        "Log",
+        "Fold",
+        "Half",
+        "Full"
+      ]
+    },
+    {
+      "key": "drive",
+      "name": "Drive Amount",
+      "min": 1,
+      "max": 20,
+      "default": 2
+    },
+    {
+      "key": "drive_out",
+      "name": "Drive Output",
+      "min": 0,
+      "max": 1,
+      "default": 0.7
+    },
+    {
+      "key": "reset",
+      "name": "Reset Init",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "Reset"
+      ],
+      "momentary": true,
+      "refresh_display": true
+    }
+  ]
+}

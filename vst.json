@@ -1,0 +1,20 @@
+{
+  "name": "Geonkick MPC",
+  "vendor": "OpenMPC",
+  "uid": "GkM3",
+  "version": 1,
+  "so": "geonkick_mpc.so",
+  "params": "params.json",
+  "layout": "layout.conf",
+  "targets": ["aarch64"],
+  "defines": {"ENGINE_FLOAT32": 1, "SAMPLE_ACCURATE": 1},
+  "programs": {"param": "preset"},
+  "title_font": "art/DejaVuSans.ttf",
+  "tile": "art/browser-tile.png",
+  "build": {
+    "root": ".",
+    "sources": ["src/engine.c", "src/dsp/synthesizer.c", "src/dsp/oscillator.c", "src/dsp/envelope.c", "src/dsp/filter.c", "src/dsp/distortion.c", "src/dsp/gkick_buffer.c", "src/dsp/gkick_log.c", "src/dsp/audio_output.c", "src/dsp/ring_buffer.c", "src/dsp/humanizer.c"],
+    "cflags": ["-std=gnu11", "-Isrc/dsp", "-Isrc/dsp/quamplex_dsp_tools", "-DGEONKICK_VERSION_HEX=0x030900", "-DGEONKICK_OS_GNU"],
+    "libs": ["-lm", "-lpthread"]
+  }
+}

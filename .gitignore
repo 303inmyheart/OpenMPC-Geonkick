@@ -1,0 +1,7 @@
+/build/
+/.tools/
+__pycache__/
+/AGENTS.md
+.env*
+*.key
+*.pem
