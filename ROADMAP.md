@@ -9,8 +9,12 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Hardware tests: none yet.
    subpages, wheel and Q-Link synchronization, preset browser, Sounds tile,
    project save/reload, multiple instances. Measure live worker CPU during real
    time parameter edits, as well as the official audio-thread benchmark.
-3. **Sound editing parity** — original arbitrary and Bezier envelopes, per-osc
-   effects, full useful filter range, sample loading, external preset import,
+   - **0.0.2 implemented offline:** independent original filter and drive per
+     oscillator, amp attack controls, nine FX subpages, 184 append-only
+     parameters and migration of 0.0.1 project chunks. Native sanitizers and
+     ARM64 shared-library/engine tests pass. No hardware claim yet.
+3. **Sound editing parity** — original arbitrary and Bezier envelopes,
+   full useful filter range, sample loading, external preset import,
    waveform display and preview/export. Evaluate native envelope editing first.
 4. **Kit architecture** — sixteen independent drums, pad/key/channel mapping,
    per-drum choke/mute/solo, kit persistence, practical navigation. Decide output

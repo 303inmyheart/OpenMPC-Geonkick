@@ -1,0 +1,17 @@
+{
+  "id": "geonkick-mpc",
+  "name": "GeonKick",
+  "author": "303inmyheart",
+  "repo": "303inmyheart/OpenMPC-Geonkick",
+  "kind": "instrument",
+  "license": "GPL-3.0-or-later",
+  "summary": "Layered percussion synthesis for Gen2 MPCs with native controls. Development prototype; hardware testing pending.",
+  "style": "synth",
+  "tags": [
+    "drums",
+    "percussion",
+    "gen2"
+  ],
+  "tier": "experimental",
+  "asset_pattern": "Geonkick-MPC-*-mpc-aarch64.zip"
+}

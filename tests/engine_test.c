@@ -44,9 +44,14 @@ int main(void) {
     set(a,"playback","2");note(a,0x91,62,127);note(a,0x80,62,0);api->render(a,out,128);assert(energy(out,256)>0.01);
     note(a,0x81,62,0);api->render(a,out,128);assert(energy(out,256)==0);
     /* Exact round trip includes edits across every layer, not only the selected page. */
-    set(a,"layer3","0.32");set(a,"o9_wave","5");set(a,"o9_on","1");
+    set(a,"layer3","0.32");set(a,"o9_wave","5");set(a,"o9_on","1");set(a,"o9_drive","7");set(a,"o9_attack","0.1");
     char state[8192],again[8192];assert(api->get_param(a,"state",state,sizeof state)>0);
     set(b,"state",state);assert(api->get_param(b,"state",again,sizeof again)>0);assert(!strcmp(state,again));
+    /* A genuine 0.0.1-shaped chunk contains exactly the first 103 values.
+     * Loading it preserves those and supplies defaults for every appended key. */
+    char legacy[8192];strcpy(legacy,state);memcpy(legacy,"GKMP1",5);
+    char *end=legacy+6;for(int i=0;i<103;i++)strtof(end,&end);*end=0;
+    set(b,"state",legacy);assert(get(b,"o9_wave")==5);assert(get(b,"o9_drive")==2);assert(get(b,"o9_attack")==0);
     set(b,"state","GKMP1 nan");assert(get(b,"layer3")==get(a,"layer3"));
     set(b,"o9_level","nan");assert(get(b,"o9_level")==0.8f);
     /* Presets all produce audio; no voices/worker/global state leak into another instance. */
@@ -57,6 +62,24 @@ int main(void) {
         float en=energy(out,256);fprintf(stderr,"preset %d first-block energy %.9g\n",k,en);assert(en>0.00001);
     }
     assert(get(b,"o9_wave")==5);
+    /* Each of the nine original oscillator effect paths is independently wired. */
+    set(a,"reset","1");
+    for(int osc=1;osc<=9;osc++) {
+        char key[40];
+        for(int j=1;j<=9;j++) { snprintf(key,sizeof key,"o%d_on",j);set(a,key,j==osc?"1":"0"); }
+        for(int j=1;j<=3;j++) { snprintf(key,sizeof key,"layer%d",j);set(a,key,(osc-1)/3==j-1?"1":"0"); }
+        wait_ready(a);note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,other,128);assert(energy(other,256)>0.001);
+        snprintf(key,sizeof key,"o%d_filter_on",osc);set(a,key,"1");
+        snprintf(key,sizeof key,"o%d_cutoff",osc);set(a,key,"200");
+        wait_ready(a);note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,out,128);
+        float delta=0;for(int i=0;i<256;i++)delta+=fabsf(out[i]-other[i]);assert(delta>0.001);
+        snprintf(key,sizeof key,"o%d_drive_on",osc);set(a,key,"1");
+        snprintf(key,sizeof key,"o%d_drive_out",osc);set(a,key,"0");
+        wait_ready(a);note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,out,128);assert(energy(out,256)==0);
+    }
+    set(a,"reset","1");set(a,"o1_attack","0.1");wait_ready(a);
+    note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,out,128);assert(energy(out,256)<0.02);
+    set(a,"reset","1");wait_ready(a);
     /* Old sounds retain their buffers while rapid edits and notes recycle other slots. */
     for(int k=0;k<80;k++) {
         char v[32];snprintf(v,sizeof v,"%g",45+(k%20)*10.0);set(a,"o1_freq",v);

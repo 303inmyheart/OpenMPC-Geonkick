@@ -40,6 +40,18 @@ opt('drive_type','Drive Type',['Hard','Tanh','Arctan','Exp','Poly','Log','Fold',
 p('drive','Drive Amount',1,20,2)
 p('drive_out','Drive Output',0,1,0.7)
 opt('reset','Reset Init',['Off','Reset'],momentary=True,refresh_display=True)
+# Append-only extension: the first 103 parameters retain their 0.0.1 indices.
+for o in range(9):
+    k=f'o{o+1}_'
+    p(k+'attack',f'O{o+1} Attack',0,1,0,unit='s')
+    opt(k+'filter_on',f'O{o+1} Filter',['Off','On'])
+    opt(k+'filter_type',f'O{o+1} Filter Type',['Low Pass','High Pass','Band Pass'])
+    p(k+'cutoff',f'O{o+1} Cutoff',30,8000,8000,unit='Hz')
+    p(k+'q',f'O{o+1} Resonance',10,1000,10)
+    opt(k+'drive_on',f'O{o+1} Drive',['Off','On'])
+    opt(k+'drive_type',f'O{o+1} Drive Type',['Hard','Tanh','Arctan','Exp','Poly','Log','Fold','Half','Full'],1)
+    p(k+'drive',f'O{o+1} Drive Amount',1,20,2)
+    p(k+'drive_out',f'O{o+1} Drive Output',0,1,0.7)
 
 def generate():
     (ROOT/'params.json').write_text(json.dumps(dict(name='Geonkick MPC',params=params),indent=2)+'\n')
@@ -87,12 +99,22 @@ qlink_bounds=column
             ix=l*3+o+1;k=f'o{ix}_';bank=f'OSC {o+1}';b=f' banks="{bank}"'
             lines.append(f'frame x=24 y=104 w=1230 h=590 title="LAYER {l+1} / OSCILLATOR {o+1}"'+b)
             lines.append(f'enum_h cx=178 cy=220 sw=90 sh=34 label="OSCILLATOR" key={k}on'+b)
+            knob(k+'attack','AMP ATTACK',476,205,b)
             lines.append(f'enum_h cx=1072 cy=205 sw=90 sh=32 rows=3 label="WAVE" key={k}wave'+b)
             controls=[('freq','FREQUENCY'),('level','LEVEL'),('decay','AMP DECAY'),('sweep','PITCH DROP'),('sweep_time','PITCH TIME'),('phase','PHASE'),('density','NOISE DENSITY'),('fm','FM TO NEXT OSC')]
             for i,(s,label) in enumerate(controls):
                 if s!='fm' or o==0:knob(k+s,label,178+(i%4)*298,370+(i//4)*200,b)
             fm=k+'fm' if o==0 else '-'
-            lines.append(f'qlinks "{bank}" = {k}freq,{k}sweep_time,{k}on,-,{k}level,{k}phase,-,-,{k}decay,{k}density,-,-,{k}sweep,{fm},{k}wave,-')
+            lines.append(f'qlinks "{bank}" = {k}freq,{k}sweep_time,{k}on,-,{k}level,{k}phase,{k}attack,-,{k}decay,{k}density,-,-,{k}sweep,{fm},{k}wave,-')
+        for o in range(3):
+            ix=l*3+o+1;k=f'o{ix}_';bank=f'FX {o+1}';b=f' banks="{bank}"'
+            lines += [f'frame x=24 y=104 w=1230 h=590 title="LAYER {l+1} / OSCILLATOR {o+1} EFFECTS"'+b,
+                      f'enum_h cx=178 cy=235 sw=88 sh=34 label="OSC FILTER" key={k}filter_on'+b,
+                      f'enum_h cx=476 cy=235 sw=90 sh=34 rows=3 label="FILTER TYPE" key={k}filter_type'+b,
+                      f'enum_h cx=178 cy=470 sw=88 sh=34 label="OSC DRIVE" key={k}drive_on'+b,
+                      f'enum_h cx=476 cy=470 sw=78 sh=34 rows=3 label="DRIVE TYPE" key={k}drive_type'+b]
+            for suffix,label,x,y in [('cutoff','CUTOFF',774,235),('q','RESONANCE',1072,235),('drive','DRIVE',774,470),('drive_out','DRIVE OUTPUT',1072,470)]:knob(k+suffix,label,x,y,b)
+            lines.append(f'qlinks "{bank}" = {k}filter_on,{k}drive_on,-,-,{k}filter_type,{k}drive_type,-,-,{k}cutoff,{k}drive,-,-,{k}q,{k}drive_out,-,-')
     lines += ['\n[tab EFFECTS]','frame x=24 y=104 w=1230 h=590 title="GEONKICK / FILTER + DRIVE"',
               'enum_h cx=178 cy=235 sw=88 sh=34 label="FILTER" key=filter_on',
               'enum_h cx=476 cy=235 sw=90 sh=34 rows=3 label="FILTER TYPE" key=filter_type',

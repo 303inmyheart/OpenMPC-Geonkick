@@ -76,11 +76,24 @@ static void configure(Engine *e,const float *p) {
         o->is_fm=(i%3==0 && OVAL("fm")>0);
         o->fm_k=1;
         if(i%3==1) { snprintf(key,sizeof key,"o%d_fm",i); o->fm_k=value(p,key)*8; }
-        float decay=clampf(OVAL("decay")/s->length,0.0001f,0.9999f);
-        envelope(o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],decay,1,0,0);
+        float attack=OVAL("attack"),decay=OVAL("decay");
+        if(attack>0) {
+            float end=clampf((attack+decay)/s->length,0.0002f,0.9999f);
+            float peak=clampf(attack/s->length,0.0001f,end-0.0001f);
+            struct gkick_envelope_point_info pts[]={{0,0,false},{peak,1,false},{end,0,false},{1,0,false}};
+            gkick_envelope_set_points(o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],pts,4);
+        } else envelope(o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],clampf(decay/s->length,0.0001f,0.9999f),1,0,0);
         float pt=clampf(OVAL("sweep_time")/s->length,0.0001f,0.9999f);
         envelope(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],pt,1,base/start,base/start);
         gkick_envelope_set_apply_type(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],GEONKICK_ENVELOPE_APPLY_LINEAR);
+        o->filter_enabled=OVAL("filter_on")>0;
+        gkick_filter_set_type(o->filter,(int)OVAL("filter_type"));
+        gkick_filter_set_cutoff_freq(o->filter,OVAL("cutoff"));
+        gkick_filter_set_factor(o->filter,OVAL("q"));
+        o->distortion->enabled=OVAL("drive_on")>0;
+        o->distortion->type=(int)OVAL("drive_type");
+        o->distortion->drive=OVAL("drive");
+        o->distortion->out_limiter=OVAL("drive_out");
 #undef OVAL
     }
     s->filter_enabled=value(p,"filter_on")>0;
@@ -202,9 +215,13 @@ static void midi(void *inst,const uint8_t *msg,int len) {
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
     if(!strcmp(key,"state")) {
-        if(strncmp(text,"GKMP1 ",6))return;
+        int count;
+        if(!strncmp(text,"GKMP1 ",6))count=103;
+        else if(!strncmp(text,"GKMP2 ",6))count=GP_COUNT;
+        else return;
         float p[GP_COUNT];const char *s=text+6;char *end;
-        for(int i=0;i<GP_COUNT;i++) { p[i]=strtof(s,&end); if(end==s||!isfinite(p[i])||p[i]<gparams[i].lo||p[i]>gparams[i].hi)return; s=end; }
+        for(int i=0;i<GP_COUNT;i++)p[i]=gparams[i].def;
+        for(int i=0;i<count;i++) { p[i]=strtof(s,&end); if(end==s||!isfinite(p[i])||p[i]<gparams[i].lo||p[i]>gparams[i].hi)return; s=end; }
         while(*s==' ')s++;
         if(*s)return;
         atomic_fetch_add(&e->revision,1);
@@ -228,7 +245,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
     if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",e->slots[e->current].revision!=atomic_load(&e->revision));
     if(!strcmp(key,"state")) {
-        int n=snprintf(buf,len,"GKMP1");
+        int n=snprintf(buf,len,"GKMP2");
         for(int i=0;i<GP_COUNT && n<len;i++)n+=snprintf(buf+n,len-n," %.9g",atomic_load(&e->values[i]));
         return n<len?n:0;
     }

@@ -1,27 +1,30 @@
-# OpenMPC Geonkick
+# Geonkick MPC
 
 The MPC adapter, build scripts and interface are AI-generated. Hardware testing
 of this new port has **not yet taken place**. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.1 is a first playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.2 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
 
 - Three synthesis layers, three oscillators per layer; independent oscillator
-  enable, waveform, frequency, level, phase, noise density and decay.
+  enable, waveform, frequency, level, phase, noise density, attack and decay.
 - Sine, square, triangle, saw, white noise and Brownian noise.
 - Pitch-drop amount and time; first-oscillator FM into the second per layer,
   matching the original engine's routing.
-- Global low/high/band-pass filter and nine original distortion modes.
+- Global and per-oscillator low/high/band-pass filters and nine original
+  distortion modes. Each oscillator has an independent drive/output stage.
 - Eight voices, velocity, optional note tracking, tuning, poly/cut/gate playback.
 - Eight starting sounds: Init, Deep Kick, Tight Kick, Snare, Closed Hat,
   Open Hat, Metal and Tom. Native VST program bank for MPC's preset browser.
 - Native MPC pages and Q-Links, per-layer oscillator subpages, Sounds-browser
   artwork and an Init .xpl. Frames include complete label and value bounds.
-- Versioned project-state serialization covering all 103 parameters.
+- Versioned project-state serialization covering all 184 parameters. The first
+  103 indices stay unchanged, and 0.0.1 project chunks load with new controls at
+  their defaults.
 - Per-instance worker generates sound buffers; audio playback neither allocates
   nor waits for synthesis. Existing hits retain their old sound during edits.
 
@@ -33,9 +36,9 @@ zero gain. On the PRESETS page, RESET INIT restores Init even if Init is already
 the selected preset; selecting the same preset value alone does not reload it.
 
 First-prototype limits: one drum per instance and stereo output, no 16-drum kit
-editor, sample import, arbitrary graphical envelope editor, per-oscillator
-filter/distortion UI or humanizer. Amp and pitch envelopes are generated from
-the decay and pitch-time controls. Pink noise is omitted because the pinned
+editor, sample import, arbitrary graphical envelope editor or humanizer.
+Amp and pitch envelopes are generated from attack/decay and pitch-time controls.
+Pink noise is omitted because the pinned
 upstream implementation returns zero. The original state-variable filter is
 restricted to 30–8000 Hz and resonance 10–1000 to keep its discrete-time update
 stable at the MPC engine's 44.1 kHz. This needs revisiting for full parity.
@@ -44,6 +47,7 @@ See [LICENSE-AUDIT.md](LICENSE-AUDIT.md), [BUILDING.md](BUILDING.md), [TESTING.m
 [ROADMAP.md](ROADMAP.md) and [source provenance](src/VENDORED.md).
 Installer ZIPs are local development artifacts; no public GitHub repository,
 release or store listing has been created for this port yet.
+Product name: **Geonkick MPC**; the prepared catalog JSON uses **GeonKick**.
 
 License: **GPL-3.0-or-later**, including vendored Geonkick and Quamplex DSP Tools.
 The external OpenMPC wrapper is MIT; the bundled DejaVu font has its own notice

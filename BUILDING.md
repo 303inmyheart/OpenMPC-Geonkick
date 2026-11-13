@@ -29,6 +29,8 @@ The native tests load the actual VST shared library under ASan/UBSan/leak
 detection, then check the engine against an independent signal oracle and
 exercise asynchronous rendering. ARM64 runs the shared-library host and engine
 tests under QEMU. QEMU is not a hardware test or CPU benchmark.
+Version 0.0.2 adds 81 controls after the frozen original 103. GKMP2 chunks
+save all values; loading GKMP1 supplies neutral defaults for the extension.
 
 tools/spec.py generates params.json, src/param_defs.h and layout.conf. Indices in
 params.lock are frozen from 0.0.1 onward; append new parameters. An edit to

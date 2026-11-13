@@ -29,7 +29,7 @@ strip=shutil.which('aarch64-linux-gnu-strip') or str(build.LOCAL/'bin/aarch64-li
 build.run([strip,'--strip-unneeded',binary])
 notice=stage/'LICENSES.txt'
 notice.write_text('\n\n'.join([
-    'OpenMPC Geonkick 0.0.1 DEVELOPMENT PROTOTYPE — GPL-3.0-or-later\nBased on Geonkick 3.9.0, Iurie Nistor and contributors.\nUpstream: https://github.com/quamplex/geonkick\nNo hardware validation yet. Public adapted-source publication is pending;\nthe source_repo manifest URL is reserved for a future public fork.\nLocal corresponding source and build scripts are supplied in the project.',
+    f'Geonkick MPC {cfg["version"]} DEVELOPMENT PROTOTYPE — GPL-3.0-or-later\nBased on Geonkick 3.9.0, Iurie Nistor and contributors.\nUpstream: https://github.com/quamplex/geonkick\nNo hardware validation yet. Public adapted-source publication is pending;\nthe source_repo manifest URL is reserved for a future public fork.\nLocal corresponding source and build scripts are supplied in the project.',
     (root/'LICENSE').read_text(),
     'OpenMPC VST wrapper — MIT\n'+(build.MPC/'LICENSE').read_text(),
     'Artwork rendered using DejaVu Sans:\n'+(root/'art/FONT-LICENSE.txt').read_text(),
@@ -55,6 +55,6 @@ digest=hashlib.sha256(archive.read_bytes()).hexdigest()
 print('Validated local development package:',archive,'SHA256:',digest)
 if not args.no_desktop:
     desktop=Path.home()/'Schreibtisch';desktop.mkdir(exist_ok=True)
-    out=desktop/'Geonkick-MPC-Gen2-0.0.1-dev1-OpenMPC.zip'
+    out=desktop/f'Geonkick-MPC-Gen2-{cfg["version"]}-dev1.zip'
     if out.exists():raise SystemExit('Refusing to overwrite '+str(out))
     shutil.copy2(archive,out);print('Installer:',out)

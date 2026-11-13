@@ -12,8 +12,14 @@ Offline only:
   starting sounds, instance isolation and rapid cache changes with active voices.
 - ARM64 actual shared object loaded by the host under QEMU, plus the same
   behavioural suite compiled for ARM64. No emulator timing is a CPU claim.
+- 0.0.2: all nine individual oscillator filter paths change captured audio;
+  with each oscillator soloed, its drive output at zero produces silence.
+  Attack softens the initial hit. These tests pass natively and on ARM64 under QEMU.
+- 0.0.1-shaped 103-value chunks load with the 81 appended controls at defaults;
+  0.0.2 states round-trip edited values across the original and appended fields.
 - Native pages rendered offline and visually inspected. Q-Link bounds include
-  complete controls. All twelve generated subpages exist; no popup overlays.
+  complete controls. All 21 generated subpages exist; no popup overlays or
+  skin-check overlap/edge warnings.
 - Official release.py development installer generated; catalog_check.py with
   --catalog --require-portable passes with zero warnings. ZIP checksums and
   mandatory installer files verified. This checks package format, not public
