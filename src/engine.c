@@ -43,6 +43,10 @@ static int index_of(const char *key) {
     for(int i=0;i<GP_COUNT;i++) if(!strcmp(key,gparams[i].key)) return i;
     return -1;
 }
+static int alias_of(const char *key) {
+    for(int i=0;i<G_ALIAS_COUNT;i++)if(!strcmp(key,galiases[i].key))return i;
+    return -1;
+}
 static float at(Engine *e,const char *key) { int i=index_of(key); return i<0?0:atomic_load(&e->values[i]); }
 static float value(const float *p,const char *key) { int i=index_of(key); return i<0?0:p[i]; }
 static void put(Engine *e,const char *key,float v) { int i=index_of(key); if(i>=0) atomic_store(&e->values[i],v); }
@@ -77,18 +81,25 @@ static void configure(Engine *e,const float *p) {
         o->initial_phase=OVAL("phase")*(float)M_PI/180;
         o->noise_density=OVAL("density");
         o->seed=100u+37u*(unsigned)i; o->brownian=0;
-        o->is_fm=(i%3==0 && OVAL("fm")>0);
+        bool target_on=false;
+        if(i%3==0) { snprintf(key,sizeof key,"o%d_on",i+2);target_on=value(p,key)>0; }
+        o->is_fm=(i%3==0 && OVAL("fm")>0 && target_on);
         o->fm_k=1;
         if(i%3==1) { snprintf(key,sizeof key,"o%d_fm",i); o->fm_k=value(p,key)*8; }
         float attack=OVAL("attack"),decay=OVAL("decay");
-        if(attack>0) {
-            float end=clampf((attack+decay)/s->length,0.0002f,0.9999f);
-            float peak=clampf(attack/s->length,0.0001f,end-0.0001f);
-            struct gkick_envelope_point_info pts[]={{0,0,false},{peak,1,false},{end,0,false},{1,0,false}};
-            gkick_envelope_set_points(o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],pts,4);
-        } else envelope(o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],clampf(decay/s->length,0.0001f,0.9999f),1,0,0);
-        float pt=clampf(OVAL("sweep_time")/s->length,0.0001f,0.9999f);
-        envelope(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],pt,1,base/start,base/start);
+        struct gkick_envelope_point_info pts[4];int n=0;
+        pts[n++]=(struct gkick_envelope_point_info){0,attack>0?0:1,false};
+        if(attack>0 && attack<s->length)pts[n++]=(struct gkick_envelope_point_info){attack/s->length,1,false};
+        if(attack+decay<s->length)pts[n++]=(struct gkick_envelope_point_info){(attack+decay)/s->length,0,false};
+        float endlevel=attack>=s->length?s->length/attack:clampf(1-(s->length-attack)/decay,0,1);
+        pts[n++]=(struct gkick_envelope_point_info){1,endlevel,false};
+        gkick_envelope_set_points(o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],pts,n);
+        float pitch_time=OVAL("sweep_time");
+        if(pitch_time<s->length)envelope(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],pitch_time/s->length,1,base/start,base/start);
+        else {
+            struct gkick_envelope_point_info pitch[]={{0,1,false},{1,1-(1-base/start)*s->length/pitch_time,false}};
+            gkick_envelope_set_points(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],pitch,2);
+        }
         gkick_envelope_set_apply_type(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],GEONKICK_ENVELOPE_APPLY_LINEAR);
         o->filter_enabled=OVAL("filter_on")>0;
         gkick_filter_set_type(o->filter,(int)OVAL("filter_type"));
@@ -231,6 +242,18 @@ static void midi(void *inst,const uint8_t *msg,int len) {
 }
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
+    int alias=alias_of(key);
+    if(alias>=0) {
+        char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return;
+        /* A host echo of an adapter's rounded display coordinate must not
+         * quantize physical values restored from old projects/automation. */
+        float current=at(e,galiases[alias].target);
+        float coordinate=galiases[alias].kind==1?roundf(current*1000):galiases[alias].kind==2?roundf(current*100):current<=20?FREQ_FINE_MIN:current>=12000?FREQ_FINE_MAX:roundf(240*log2f(current/55.f));
+        if(v==coordinate)return;
+        float physical=galiases[alias].kind==1?v/1000.f:galiases[alias].kind==2?v/100.f:clampf(55.f*exp2f(v/240.f),20,12000);
+        char value[48];snprintf(value,sizeof value,"%.9g",physical);
+        set_param(e,galiases[alias].target,value);return;
+    }
     if(!strcmp(key,"state")) {
         int count;
         if(!strncmp(text,"GKMP1 ",6))count=103;
@@ -259,10 +282,20 @@ static void set_param(void *inst,const char *key,const char *text) {
     if(!strcmp(key,"preset"))preset(e,(int)v);
     else {
         atomic_store(&e->values[i],v);
+        e->dirty[i]=1;
         int oscillator=0;char suffix[32];
         if(sscanf(key,"o%d_%31s",&oscillator,suffix)==2 && oscillator>=1 && oscillator<=9) {
             int focus=index_of("plot_osc");
             if(atomic_load(&e->values[focus])!=oscillator-1) { atomic_store(&e->values[focus],oscillator-1);e->dirty[focus]=1; }
+            if(!strcmp(suffix,"attack") || !strcmp(suffix,"decay")) {
+                char other[32];snprintf(other,sizeof other,"o%d_%s",oscillator,!strcmp(suffix,"attack")?"decay":"attack");
+                float needed=fminf(4,v+at(e,other));int length=index_of("length");
+                if(needed>atomic_load(&e->values[length])) { atomic_store(&e->values[length],needed);e->dirty[length]=1; }
+            }
+            int env=index_of("plot_env"),mode=-1;
+            if(!strcmp(suffix,"attack") || !strcmp(suffix,"decay") || !strcmp(suffix,"density"))mode=0;
+            if(!strcmp(suffix,"sweep") || !strcmp(suffix,"sweep_time"))mode=1;
+            if(mode>=0 && atomic_load(&e->values[env])!=mode) { atomic_store(&e->values[env],mode);e->dirty[env]=1; }
         }
     }
     atomic_fetch_add(&e->revision,1);
@@ -272,10 +305,27 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     /* Wrapper serializes this call with MIDI/render. The display thread can
      * adopt a completed sound even while the host isn't processing audio. */
     if(!strcmp(key,"display_rev")) { adopt(e);return snprintf(buf,len,"%u",e->display_revision); }
+    if(!strcmp(key,"ui_env_focus")) {
+        int focus=(int)at(e,"plot_osc");char wave[32];snprintf(wave,sizeof wave,"o%d_wave",focus+1);
+        return snprintf(buf,len,"%d",2*focus+(at(e,wave)>=4));
+    }
     size_t key_len=strlen(key);
     if(key_len>8 && !strcmp(key+key_len-8,"_display")) {
         char original[64];if(key_len-8>=sizeof original)return 0;
         memcpy(original,key,key_len-8);original[key_len-8]=0;
+        int alias=alias_of(original);
+        if(alias>=0) {
+            float physical=at(e,galiases[alias].target);
+            if(galiases[alias].kind==0) {
+                int osc;char wave[32];
+                if(sscanf(galiases[alias].target,"o%d_freq",&osc)==1) {
+                    snprintf(wave,sizeof wave,"o%d_wave",osc);
+                    if(at(e,wave)>=4)return snprintf(buf,len,"NO PITCH");
+                }
+            }
+            float displayed=galiases[alias].kind==1?physical*1000:galiases[alias].kind==2?physical*100:physical;
+            return snprintf(buf,len,galiases[alias].kind?"%.0f":"%.2f",displayed);
+        }
         int i=index_of(original);if(i<0)return 0;
         return snprintf(buf,len,"%.3f",atomic_load(&e->values[i]));
     }
@@ -290,6 +340,12 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         int n=snprintf(buf,len,"GKMP3");
         for(int i=0;i<GP_COUNT && n<len;i++)n+=snprintf(buf+n,len-n," %.9g",atomic_load(&e->values[i]));
         return n<len?n:0;
+    }
+    int alias=alias_of(key);
+    if(alias>=0) {
+        float physical=at(e,galiases[alias].target);
+        float v=galiases[alias].kind==1?roundf(physical*1000):galiases[alias].kind==2?roundf(physical*100):physical<=20?FREQ_FINE_MIN:physical>=12000?FREQ_FINE_MAX:roundf(240*log2f(physical/55.f));
+        return snprintf(buf,len,"%.9g",v);
     }
     int i=index_of(key);if(i<0)return 0;
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));

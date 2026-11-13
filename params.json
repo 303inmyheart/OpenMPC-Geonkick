@@ -133,7 +133,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o1_level",
@@ -223,7 +224,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o2_level",
@@ -306,7 +308,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o3_level",
@@ -389,7 +392,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o4_level",
@@ -479,7 +483,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o5_level",
@@ -562,7 +567,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o6_level",
@@ -645,7 +651,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o7_level",
@@ -735,7 +742,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o8_level",
@@ -818,7 +826,8 @@
       "max": 12000,
       "default": 55,
       "unit": "Hz",
-      "log": true
+      "log": true,
+      "legacy": true
     },
     {
       "key": "o9_level",
@@ -13464,6 +13473,504 @@
       "min": 0,
       "max": 1,
       "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "o1_freq_fine",
+      "name": "O1 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o2_freq_fine",
+      "name": "O2 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o3_freq_fine",
+      "name": "O3 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o4_freq_fine",
+      "name": "O4 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o5_freq_fine",
+      "name": "O5 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o6_freq_fine",
+      "name": "O6 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o7_freq_fine",
+      "name": "O7 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o8_freq_fine",
+      "name": "O8 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "o9_freq_fine",
+      "name": "O9 Frequency",
+      "min": -351,
+      "max": 1865,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "unit": "Hz"
+    },
+    {
+      "key": "length_ms",
+      "name": "Length",
+      "min": 30,
+      "max": 4000,
+      "default": 600,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o1_decay_ms",
+      "name": "O1 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o1_sweep_time_ms",
+      "name": "O1 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o1_density_pct",
+      "name": "O1 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o2_decay_ms",
+      "name": "O2 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o2_sweep_time_ms",
+      "name": "O2 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o2_density_pct",
+      "name": "O2 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o3_decay_ms",
+      "name": "O3 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o3_sweep_time_ms",
+      "name": "O3 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o3_density_pct",
+      "name": "O3 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o4_decay_ms",
+      "name": "O4 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o4_sweep_time_ms",
+      "name": "O4 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o4_density_pct",
+      "name": "O4 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o5_decay_ms",
+      "name": "O5 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o5_sweep_time_ms",
+      "name": "O5 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o5_density_pct",
+      "name": "O5 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o6_decay_ms",
+      "name": "O6 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o6_sweep_time_ms",
+      "name": "O6 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o6_density_pct",
+      "name": "O6 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o7_decay_ms",
+      "name": "O7 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o7_sweep_time_ms",
+      "name": "O7 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o7_density_pct",
+      "name": "O7 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o8_decay_ms",
+      "name": "O8 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o8_sweep_time_ms",
+      "name": "O8 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o8_density_pct",
+      "name": "O8 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o9_decay_ms",
+      "name": "O9 Decay",
+      "min": 5,
+      "max": 4000,
+      "default": 500,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o9_sweep_time_ms",
+      "name": "O9 Pitch Time",
+      "min": 1,
+      "max": 1000,
+      "default": 40,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o9_density_pct",
+      "name": "O9 Density",
+      "min": 1,
+      "max": 100,
+      "default": 100,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "%"
+    },
+    {
+      "key": "o1_attack_ms",
+      "name": "O1 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o2_attack_ms",
+      "name": "O2 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o3_attack_ms",
+      "name": "O3 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o4_attack_ms",
+      "name": "O4 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o5_attack_ms",
+      "name": "O5 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o6_attack_ms",
+      "name": "O6 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o7_attack_ms",
+      "name": "O7 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o8_attack_ms",
+      "name": "O8 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "o9_attack_ms",
+      "name": "O9 Attack",
+      "min": 0,
+      "max": 1000,
+      "default": 0,
+      "display": "int",
+      "nudge_pct": 10,
+      "unit": "ms"
+    },
+    {
+      "key": "ui_env_focus",
+      "name": "Envelope Context",
+      "min": 0,
+      "max": 17,
+      "default": 0,
+      "options": [
+        "0-tone",
+        "0-noise",
+        "1-tone",
+        "1-noise",
+        "2-tone",
+        "2-noise",
+        "3-tone",
+        "3-noise",
+        "4-tone",
+        "4-noise",
+        "5-tone",
+        "5-noise",
+        "6-tone",
+        "6-noise",
+        "7-tone",
+        "7-noise",
+        "8-tone",
+        "8-noise"
+      ],
       "live": true,
       "legacy": true
     }

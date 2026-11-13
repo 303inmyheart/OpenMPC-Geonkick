@@ -1,0 +1,47 @@
+# Geonkick MPC bedienen — 0.0.5
+
+Ein Plugin erzeugt einen Drum-Sound aus drei Layern mit je drei Oszillatoren.
+Für eine Kick genügt zunächst Layer 1, OSC 1. Layer 2 und 3 starten stumm;
+auf ihrer OSC-Seite zuerst LAYER LEVEL anheben, wenn sie hörbar werden sollen.
+
+| Regler | Wirkung |
+|---|---|
+| FREQUENCY (Hz) | Grundton des Oszillators. Ein Wheel-/Q-Link-Schritt entspricht 5 Cent: bei 55 Hz rund 0,16 Hz, bei 110 Hz rund 0,32 Hz. |
+| LEVEL | Lautstärke dieses Oszillators im Layer. |
+| LAYER LEVEL | Gemeinsame Lautstärke aller drei Oszillatoren des Layers. |
+| ATTACK (ms) | Zeit vom Anschlag bis zur vollen Lautstärke; größer macht den Anfang weicher. |
+| DECAY (ms) | Zeit nach dem Attack bis zur Stille; größer lässt den Sound länger ausklingen. |
+| PITCH DROP (st) | Startton über dem Grundton in Halbtönen: 12 = eine Oktave. 0 schaltet den Tonhöhenabfall aus. |
+| PITCH TIME (ms) | Zeit für den Abfall vom Startton zur FREQUENCY. Kurz erzeugt einen Klick/Punch, lang einen hörbaren Sweep. |
+| PHASE | Startposition der periodischen Welle in Grad; beeinflusst den Anschlag und das Zusammenspiel mit anderen Oszillatoren. |
+| NOISE DENSITY (%) | Dichte des Rauschens; kleinere Werte machen es lückiger. Nur bei WHITE/BROWN sichtbar. |
+| FM → OSC 2 | OSC 1 moduliert die Tonhöhe von OSC 2; erst mit eingeschaltetem OSC 2 verfügbar. OSC 1 ist dann Modulationsquelle statt direktem Audiosignal. |
+| LENGTH (ms) | Maximale Länge des gerenderten Sounds. Attack-/Decay-Änderungen verlängern sie bei Bedarf bis 4000 ms. Manuelles Verkürzen schneidet den Ausklang bewusst ab. |
+| OUTPUT | Ausgangslautstärke des ganzen Plugins. |
+
+SIN/SINE = weich; SQR/SQUARE = Rechteck; TRI/TRIANGLE = Dreieck;
+SAW = Sägezahn; WHT/WHITE und BRN/BROWN = Rauschen.
+Bei Rauschen haben Grundfrequenz und Pitch-Sweep keine Funktion; die Detailseite
+zeigt dafür NOISE DENSITY. Auf SYNTH steht am Frequenzregler dann NO PITCH.
+
+Auf SYNTH zeigt Grün den fertig berechneten Sound vor OUTPUT, Grau die Hüllkurve
+des unter ENVELOPE FOCUS gewählten Oszillators. Attack/Decay wechseln zur
+Amplitude, Pitch-Regler zur Pitch-Kurve. Ein anderer Layer/OSC kann auch direkt
+oben ausgewählt werden. Die Kurve ist noch kein Editor zum Ziehen von Punkten.
+
+Zum Einstieg: RESET INIT, OSC 1 an, SINE, FREQUENCY etwa 55 Hz, ATTACK 0 ms,
+DECAY 300 ms, PITCH DROP 24 st, PITCH TIME 40 ms. Beim Ändern entsteht der neue
+Sound im Hintergrund; frisch angeschlagene Noten verwenden den zuletzt fertig
+berechneten Stand. Bereits laufende Schläge behalten ihren bisherigen Klang.
+
+L1 OSC1 bezeichnet Layer 1 / Oszillator 1, L1 FX1 dessen Filter und Verzerrer.
+OSC FILTER/OSC DRIVE müssen eingeschaltet sein, damit deren Regler hörbar wirken.
+CUTOFF bestimmt die Filtergrenze, RESONANCE die Betonung am Filterpunkt. DRIVE
+verändert die Verzerrungsstärke, DRIVE OUTPUT deren Ausgangspegel. EFFECTS wirkt
+auf die Summe der Layer; die FX-Seiten wirken jeweils nur auf einen Oszillator.
+
+![OSC-Seite für periodische Wellen](docs/screenshots/osc-tone.png)
+
+![OSC-Seite für Rauschen](docs/screenshots/osc-noise.png)
+
+Offline-Vorschauen mit echten Plugin-Werten; keine MPC-Geräteaufnahmen.

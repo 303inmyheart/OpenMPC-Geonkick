@@ -1,12 +1,11 @@
 # Geonkick MPC
 
-The MPC adapter, build scripts and interface are AI-generated. Hands-on GUI/audio testing
-of this new port is **still pending**. The updated 0.0.3 VST was initialized by
-the real MPC host after the approved application restart. The original Geonkick DSP is the
+The MPC adapter, build scripts and interface are AI-generated. The user has tested early builds on Live III and reported interface and control
+problems. Version 0.0.5 addresses these offline; its hardware test is **pending**. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.4 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.5 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -14,6 +13,13 @@ Implemented:
 - Three synthesis layers, three oscillators per layer; independent oscillator
   enable, waveform, frequency, level, phase, noise density, attack and decay.
 - Sine, square, triangle, saw, white noise and Brownian noise.
+- Fine frequency control in 5-cent wheel/Q-Link steps (about 0.16 Hz at 55 Hz),
+  with physical Hz displayed to two decimals. Existing saved Hz values and
+  linear-frequency automation retain their meaning.
+- Explicit millisecond timing; changing attack/decay extends sound length when
+  required. Deliberately cropped long envelopes keep their correct slopes.
+- Conditional noise/tone controls, visible layer level on oscillator pages and
+  captions contained inside their controls to prevent duplicate/ghost text.
 - Pitch-drop amount and time; first-oscillator FM into the second per layer,
   matching the original engine's routing.
 - Global and per-oscillator low/high/band-pass filters and nine original
@@ -40,7 +46,8 @@ Implemented:
 
 Offline preview of the built skin with values queried from the compiled native
 VST (edited Init, 35 ms attack). This is not a device screenshot.
-See [UI-DESIGN.md](UI-DESIGN.md) for the visualization and editing limits.
+See [BEDIENUNG.md](BEDIENUNG.md) for a German control guide and
+[UI-DESIGN.md](UI-DESIGN.md) for the visualization and editing limits.
 
 Editing a sound is asynchronous: new notes use the latest **completed** sound.
 During rapid changes they may briefly use the preceding one. Output, tuning,

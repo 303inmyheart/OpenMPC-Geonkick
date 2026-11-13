@@ -77,7 +77,8 @@ int main(void) {
     char *end=legacy+6;for(int i=0;i<103;i++)strtof(end,&end);*end=0;
     set(b,"state",legacy);assert(get(b,"o9_wave")==5);assert(get(b,"o9_drive")==2);assert(get(b,"o9_attack")==0);
     strcpy(legacy,state);memcpy(legacy,"GKMP2",5);end=legacy+6;
-    for(int i=0;i<184;i++)strtof(end,&end);*end=0;
+    for(int i=0;i<184;i++)strtof(end,&end);
+    *end=0;
     set(b,"state",legacy);assert(get(b,"o9_drive")==7);assert(get(b,"plot_env")==0);assert(get(b,"plot_osc")==0);
     set(b,"state","GKMP1 nan");assert(get(b,"layer3")==get(a,"layer3"));
     set(b,"o9_level","nan");assert(get(b,"o9_level")==0.8f);
@@ -106,6 +107,28 @@ int main(void) {
     }
     set(a,"reset","1");set(a,"o1_attack","0.1");wait_ready(a);
     note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,out,128);assert(energy(out,256)<0.02);
+    set(a,"reset","1");wait_ready(a);
+    /* Real seconds must survive deliberate short-length cropping: long decay
+     * and pitch envelopes must not all collapse to the same 30 ms curve. */
+    set(a,"o1_decay","0.04");set(a,"length","0.03");wait_ready(a);
+    float short_decay=get(a,"viz_e_431");
+    set(a,"o1_decay_ms","500");assert(fabsf(get(a,"length")-0.5f)<0.00001f);
+    assert(get(a,"plot_env")==0);assert(get(a,"o1_decay")==0.5f);
+    set(a,"length_ms","30");wait_ready(a);
+    assert(get(a,"viz_e_431")>short_decay+0.6f);
+    set(a,"o1_sweep_time_ms","39");set(a,"o1_sweep_time_ms","40");assert(get(a,"plot_env")==1);wait_ready(a);
+    float short_pitch=get(a,"viz_e_431");
+    set(a,"o1_sweep_time_ms","200");wait_ready(a);
+    assert(get(a,"viz_e_431")>short_pitch+0.4f);
+    set(a,"o1_density_pct","37");assert(fabsf(get(a,"o1_density")-0.37f)<0.00001f);
+    assert(get(a,"plot_env")==0);
+    set(a,"o1_wave","4");assert(get(a,"ui_env_focus")==1);
+    set(a,"o4_wave","0");set(a,"plot_osc","3");assert(get(a,"ui_env_focus")==6);
+    set(a,"reset","1");set(a,"o1_fm","0.5");wait_ready(a);
+    assert(get(a,"o2_on")==0);
+    note(a,0xb0,120,0);note(a,0x90,60,127);api->render(a,out,128);
+    assert(energy(out,256)>0.01f);
+    puts("Cropped decay/pitch remain distinct; ms/percent adapters, length extension, context and disabled FM target pass");
     set(a,"reset","1");wait_ready(a);
     /* Old sounds retain their buffers while rapid edits and notes recycle other slots. */
     for(int k=0;k<80;k++) {

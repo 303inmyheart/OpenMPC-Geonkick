@@ -11,7 +11,7 @@ page follows that hierarchy in an original gray/green layout.
   85 levels; each shared strip stays under the 16384-pixel image-height limit.
 - Gray: the selected oscillator's amplitude or frequency-envelope shape,
   independently normalized to 0–1, from Geonkick's envelope evaluator.
-- X-axis: the complete sound duration, shown by DURATION in seconds.
+- X-axis: the complete sound duration, shown by LENGTH in milliseconds.
 - Attack, decay, pitch drop and pitch time are editable below the graph.
 - The lower row shows three oscillator modules. SYNTH subpages select layers
   1–3 and expose their layer gain; MIX contains other global controls.
@@ -67,3 +67,13 @@ The app returned to its track-type selector, so an after-update capture could
 verify that it was running but could not verify the new plugin screen. No UI
 input or project/instrument selection was performed to obtain a screenshot.
 Device captures and old-plugin backups remain private, ignored build artifacts.
+
+## 0.0.5 editing correction
+
+Every selector now has size- and text-specific artwork. Captions are native-size
+images inside each control definition, following its conditional visibility.
+Tone/noise detail pages expose applicable controls, layer level is explicit,
+and bank labels include layer identity. Fine Hz and millisecond adapters do not
+change original project values or old parameter indices. The graph retains its
+432-column resolution; this version does not claim an additional waveform
+resolution increase. Actual-value previews cover SYNTH, tone OSC and noise OSC.

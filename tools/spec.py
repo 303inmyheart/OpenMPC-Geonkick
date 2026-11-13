@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Generate the initial frozen parameter table, C defaults and MPC layout."""
-import json
+import json,math
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -66,6 +66,23 @@ for channel in ('p','n','e'):
 for channel in ('p','n','e'):
     for i in range(96,PLOT_COLUMNS):
         p(f'viz_{channel}_{i}',f'Graph {channel} {i}',0,1,0,live=True,legacy=True)
+ALIASES=[]
+FREQ_FINE_MIN=math.floor(math.log2(20/55)*240)
+FREQ_FINE_MAX=math.ceil(math.log2(12000/55)*240)
+for o in range(9):
+    key=f'o{o+1}_freq_fine';target=f'o{o+1}_freq'
+    p(key,f'O{o+1} Frequency',FREQ_FINE_MIN,FREQ_FINE_MAX,0,display='int',nudge_pct=10,dynamic_display=True,unit='Hz')
+    ALIASES.append((key,target,0))
+for original in list(params[:CONTROL_COUNT]):
+    key=original['key']
+    if key=='length' or key.endswith(('_attack','_decay','_sweep_time')):
+        alias=key+'_ms'
+        p(alias,original['name'],round(original['min']*1000),round(original['max']*1000),round(original['default']*1000),display='int',nudge_pct=10,unit='ms')
+        ALIASES.append((alias,key,1))
+    elif key.endswith('_density'):
+        alias=key+'_pct';p(alias,original['name'],1,100,100,display='int',nudge_pct=10,unit='%');ALIASES.append((alias,key,2))
+    if key.endswith('_freq'):original['legacy']=True
+opt('ui_env_focus','Envelope Context',[f'{o}-{mode}' for o in range(9) for mode in ('tone','noise')],live=True,legacy=True)
 
 def generate():
     (ROOT/'params.json').write_text(json.dumps(dict(name='Geonkick MPC',params=params),indent=2)+'\n')
@@ -77,6 +94,10 @@ def generate():
         h.append('    {"%s", %sf, %sf, %sf, %d},'%(x['key'],float(x['min']),float(x['max']),float(x['default']),bool(x.get('options'))))
     h+=['};',f'#define GP_COUNT {CONTROL_COUNT}',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
         f'#define PLOT_WAVE_LEVELS {PLOT_WAVE_LEVELS}',f'#define PLOT_ENV_LEVELS {PLOT_ENV_LEVELS}']
+    h+=['typedef struct { const char *key,*target; int kind; } GAlias;',
+        'static const GAlias galiases[] = {']
+    h += ['    {"%s", "%s", %d},'%a for a in ALIASES]
+    h += ['};',f'#define G_ALIAS_COUNT {len(ALIASES)}',f'#define FREQ_FINE_MIN {FREQ_FINE_MIN}',f'#define FREQ_FINE_MAX {FREQ_FINE_MAX}']
     (ROOT/'src/param_defs.h').write_text('\n'.join(h)+'\n')
     theme='''style=dark
 font_label=art/DejaVuSans.ttf
@@ -112,7 +133,9 @@ qlink_bounds=column
     for o in range(9):
         k=f'o{o+1}_';when=f' when=plot_osc:{o}'
         for suffix,label,x in [('attack','ATTACK',178),('decay','DECAY',476),('sweep','PITCH DROP',774),('sweep_time','PITCH TIME',1072)]:
-            lines.append(f'slider_h cx={x} cy=440 w=210 h=16 ns=13 vs=17 label="{label}" key={k}{suffix}'+when)
+            condition=when if suffix in ('attack','decay') else f' when=ui_env_focus:{o*2}'
+            lines.append(f'slider_h cx={x} cy=440 w=210 h=16 ns=13 vs=17 label="{label}" key={k}{suffix}'+condition)
+        lines.append(f'slider_h cx=774 cy=440 w=210 h=16 ns=13 vs=17 label="NOISE DENSITY" key={k}density when=ui_env_focus:{o*2+1}')
     for l in range(3):
         bank=f'LAYER {l+1}';b=f' banks="{bank}"'
         lines.append(f'slider_h cx=1126 cy=513 w=180 h=16 ns=12 vs=16 label="LAYER {l+1} GAIN" key=layer{l+1}'+b)
@@ -138,18 +161,25 @@ qlink_bounds=column
     for l in range(3):
         lines += [f'\n[tab LAYER {l+1}]']
         for o in range(3):
-            ix=l*3+o+1;k=f'o{ix}_';bank=f'OSC {o+1}';b=f' banks="{bank}"'
+            ix=l*3+o+1;k=f'o{ix}_';bank=f'L{l+1} OSC{o+1}';b=f' banks="{bank}"'
             lines.append(f'frame x=24 y=104 w=1230 h=590 title="LAYER {l+1} / OSCILLATOR {o+1}"'+b)
             lines.append(f'enum_h cx=178 cy=220 sw=90 sh=34 label="OSCILLATOR" key={k}on'+b)
             knob(k+'attack','AMP ATTACK',476,205,b)
+            knob(f'layer{l+1}','LAYER LEVEL',774,205,b)
             lines.append(f'enum_h cx=1072 cy=205 sw=90 sh=32 rows=3 label="WAVE" key={k}wave'+b)
             controls=[('freq','FREQUENCY'),('level','LEVEL'),('decay','AMP DECAY'),('sweep','PITCH DROP'),('sweep_time','PITCH TIME'),('phase','PHASE'),('density','NOISE DENSITY'),('fm','FM TO NEXT OSC')]
             for i,(s,label) in enumerate(controls):
-                if s!='fm' or o==0:knob(k+s,label,178+(i%4)*298,370+(i//4)*200,b)
-            fm=k+'fm' if o==0 else '-'
-            lines.append(f'qlinks "{bank}" = {k}freq,{k}sweep_time,{k}on,-,{k}level,{k}phase,{k}attack,-,{k}decay,{k}density,-,-,{k}sweep,{fm},{k}wave,-')
+                x,y=178+(i%4)*298,370+(i//4)*200
+                if s=='fm':
+                    if o==0:knob(k+s,'FM -> OSC 2',x,y,b+f' when=o{ix+1}_on:1')
+                elif s=='density':
+                    for mode in (4,5):knob(k+s,label,178,370,b+f' when={k}wave:{mode}')
+                elif s in ('freq','sweep','sweep_time','phase'):
+                    for mode in range(4):knob(k+s,label,x,y,b+f' when={k}wave:{mode}')
+                else:knob(k+s,label,x,y,b)
+            lines.append(f'qlinks "{bank}" = {k}freq,{k}level,-,-,{k}attack,{k}decay,-,-,layer{l+1},{k}wave,-,-,{k}on,-,-,-')
         for o in range(3):
-            ix=l*3+o+1;k=f'o{ix}_';bank=f'FX {o+1}';b=f' banks="{bank}"'
+            ix=l*3+o+1;k=f'o{ix}_';bank=f'L{l+1} FX{o+1}';b=f' banks="{bank}"'
             lines += [f'frame x=24 y=104 w=1230 h=590 title="LAYER {l+1} / OSCILLATOR {o+1} EFFECTS"'+b,
                       f'enum_h cx=178 cy=235 sw=88 sh=34 label="OSC FILTER" key={k}filter_on'+b,
                       f'enum_h cx=476 cy=235 sw=90 sh=34 rows=3 label="FILTER TYPE" key={k}filter_type'+b,
@@ -168,6 +198,17 @@ qlink_bounds=column
               'enum_h cx=640 cy=405 sw=470 sh=64 rows=4 label="PRESETS" key=preset',
               'toggle cx=1090 cy=672 bw=210 label="RESET INIT" key=reset',
               'qlinks "PRESETS" = preset,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-']
+    # The physical Hz/seconds controls remain for state/old automation. Visible
+    # controls use appended fine pitch and millisecond adapters, never reindexing.
+    import re
+    replacements={target:key for key,target,_ in ALIASES}
+    def replace_token(match):return replacements.get(match.group(),match.group())
+    lines=[re.sub(r'\b(?:length|o\d+_(?:freq|attack|decay|sweep_time|density))\b',replace_token,line) for line in lines]
+    lines=[line.replace('label="FREQUENCY"','label="FREQUENCY (Hz)"').replace('label="DURATION"','label="LENGTH (ms)"')
+           .replace('label="AMP ATTACK"','label="ATTACK (ms)"').replace('label="AMP DECAY"','label="DECAY (ms)"')
+           .replace('label="ATTACK"','label="ATTACK (ms)"').replace('label="DECAY"','label="DECAY (ms)"')
+           .replace('label="PITCH TIME"','label="PITCH TIME (ms)"').replace('label="PITCH DROP"','label="PITCH DROP (st)"') for line in lines]
+    lines=[line.replace('label="NOISE DENSITY"','label="NOISE DENSITY (%)"') for line in lines]
     (ROOT/'layout.conf').write_text('\n'.join(lines)+'\n')
 
 if __name__=='__main__':generate()

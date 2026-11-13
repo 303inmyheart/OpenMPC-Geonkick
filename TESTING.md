@@ -78,3 +78,28 @@ The actual installed 0.0.4 shared library also passed the isolated framework VST
 host suite on Live III from a temporary low-priority analysis process. This is
 a binary/host test, not a graphical MPC-app test or real-time CPU benchmark.
 The temporary helper was removed.
+
+## 0.0.5 — fine controls and editing correction
+
+- Native ASan/UBSan/leak and ARM64 QEMU actual VST/engine tests pass.
+- All nine frequency adapters pass six forward wheel steps, six backward
+  Q-Link steps, host automation echoes, 20/12000 Hz endpoints, and old linear
+  automation. At 55 Hz the largest step in the six-step test is 0.1614 Hz.
+  Explicit adapter echoes and delayed display-thread echoes preserve an old
+  6010 Hz automation value instead of snapping it to the new pitch grid.
+- Framework tests cover whole-range continuous integer sweeps in both
+  directions, reversals and repeated endpoint-clamped wheel/Q-Link events.
+- Independently checked shortened envelopes: decay 40/500 ms and pitch time
+  40/200 ms produce distinct slopes at length 30 ms. Decay edits extend length;
+  envelope context, milliseconds/percent adapters, noise visibility selector
+  and FM with a disabled destination are exercised.
+- All original 1482 parameter identities, ranges, defaults and option lists
+  remain intact. GKMP1/2/3 migration and round trip still pass.
+- Final skin check has no findings. Actual-value offline previews reviewed
+  for SYNTH, tone OSC and noise OSC; captions follow conditional controls.
+- New version is prepared locally only; installation, restart and hardware
+  acceptance of 0.0.5 have not been authorized or performed.
+
+The user reported confusing controls, missing/doubled text, coarse frequency
+and ineffective decay on 0.0.4. These reports supersede the earlier pending
+status for that early build; they do not establish a passing hardware test.

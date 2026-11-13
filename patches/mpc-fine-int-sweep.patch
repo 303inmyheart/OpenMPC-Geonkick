@@ -1,0 +1,17 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -357,7 +357,13 @@
+         float span = p->max - p->min, pos = clamp01(n) * span, cur = get_norm(w, i) * span, steps;
+         float tickmax = p->nudge_pct > 0 ? fmaxf(0.5f, span * p->nudge_pct / 100.0f) : 0.5f;
+         int edge = (pos < 0.001f || pos > span - 0.001f) && fabsf(pos - cur) >= 0.5f;
+-        if ((p->qlink_ticks > 1 || p->nudge_pct > 0) && (fabsf(pos - roundf(pos)) > 0.001f || edge) && fabsf(pos - cur) < tickmax) {
++        /* Fine sub-step gestures must use settle()'s direction history. Counting
++         * them against cur instead makes a rising drag reverse after rounding. */
++        if ((p->qlink_ticks > 1 || p->nudge_pct > 0) &&
++            (p->nudge_pct == 0 || (fabsf(pos - cur) >= 0.5f &&
++             !(w->last_pos[i] >= 0 && fabsf(pos - w->last_pos[i]) > 0.001f &&
++               fabsf(pos - w->last_pos[i]) < 0.5f))) &&
++            (fabsf(pos - roundf(pos)) > 0.001f || edge) && fabsf(pos - cur) < tickmax) {
+             float d = pos - cur;
+             w->last_pos[i] = pos;
+             if (p->qlink_ticks > 1) {

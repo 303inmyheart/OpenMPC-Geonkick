@@ -1,6 +1,6 @@
 # Geonkick MPC roadmap
 
-Target: Gen2 / aarch64, MPC OS 3.10.1+. Hardware tests: none yet.
+Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live III; new builds require separate validation.
 
 1. **0.0.1: first playable prototype** — original DSP isolated; nine oscillators,
    three layers, global filter/drive, eight starting sounds, eight-voice playback,
@@ -21,6 +21,9 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Hardware tests: none yet.
    - **0.0.4:** 432 two-pixel waveform columns, finer vertical levels and corrected
      native text/captions. Approved update and app restart completed; on-screen
      plugin review is pending because MPC restarted into the track-type selector.
+   - **0.0.5:** fine 5-cent frequency steps, millisecond timing, corrected cropped
+     envelopes/decay length, conditional OSC controls and scoped captions. Native
+     and ARM64 offline tests; hardware acceptance remains required.
 3. **Sound editing parity** — original arbitrary and Bezier envelopes,
    full useful filter range, sample loading, external preset import,
    graphical point editing and preview/export. Evaluate native envelope editing first.

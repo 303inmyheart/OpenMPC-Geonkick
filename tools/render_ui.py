@@ -44,9 +44,11 @@ try:
     set_value('o1_attack',0.035);set_value('o1_decay',0.45);settle()
     # The actual wrapper's dedicated UI reporter must notify a host of the plot.
     assert ids['viz_e_0'] in reported,'Plot was never reported to the VST host'
-    values={i:get(e,i) for i in range(len(params))}
-    state={i:round(values[i]*(len(p['options'])-1)) for i,p in enumerate(params) if p.get('options')}
-    for filename,tab in [('synth',page['tabs'][0])]:
+    osc_tab=next(t for t in page['tabs'] if t['fnKeyIndex']==1 and t['fnKeySubIndex']==0)
+    for filename,tab,wave in [('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4)]:
+        if wave:set_value('o1_wave',wave);settle()
+        values={i:get(e,i) for i in range(len(params))}
+        state={i:round(values[i]*(len(p['options'])-1)) for i,p in enumerate(params) if p.get('options')}
         im=Image.new('RGBA',(1280,628));dr=ImageDraw.Draw(im)
         for c in studio.tab_components(tab,defs):
             if not studio.shown(c,state):continue
@@ -57,7 +59,9 @@ try:
             for sub in defs[cd['type']]['componentsData']:
                 sd=sub['componentData'];data=sd['data'];sx,sy,w,h=rect(sub['bounds'])
                 i=mapping.get(data.get('handleName','Data'),mapping.get('Data',-1));value=values.get(i,0)
-                if sd['type']=='Knob':
+                if sd['type']=='Image':
+                    im.alpha_composite(Image.open(skin/data['image']).convert('RGBA'),(x+sx,y+sy))
+                elif sd['type']=='Knob':
                     strip=Image.open(skin/data['filmStrip']).convert('RGBA')
                     n=int(data.get('numFrames',128));n=n+1 if strip.height==(n+1)*strip.width else n
                     height=strip.height//n;k=max(0,min(n-1,round(value*(n-1))))

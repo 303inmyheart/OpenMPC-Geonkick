@@ -15,9 +15,9 @@ if target=='aarch64':
     sysroot=build.LOCAL/'aarch64-linux-gnu'
     if not sysroot.exists():sysroot=build.Path('/usr/aarch64-linux-gnu')
     prefix=[qemu,'-L',sysroot]
-for source,name in [(build.MPC/'tools/host_test.c','host_test'),(build.ROOT/'tests/engine_test.c','engine_test')]:
-    if name=='host_test':
-        obj=dest/'host_test.o'
+for source,name in [(build.MPC/'tools/host_test.c','host_test'),(build.ROOT/'tests/controls_test.c','controls_test'),(build.ROOT/'tests/engine_test.c','engine_test')]:
+    if name in ('host_test','controls_test'):
+        obj=dest/(name+'.o')
         build.run([cc,*f,'-Dmain=plugin_test_main','-c',source,'-o',obj])
         binary=dest/name
         build.run([cc,*f,obj,'tests/load_plugin.c','-ldl','-lpthread','-lm','-o',binary])
@@ -26,4 +26,4 @@ for source,name in [(build.MPC/'tools/host_test.c','host_test'),(build.ROOT/'tes
         binary=dest/name
         build.run([cc,*f,source,*objects,'-lpthread','-lm','-ldl','-Wl,--gc-sections','-o',binary])
         build.run([*prefix,binary])
-(dest/'tested.json').write_text(json.dumps({'sha256':hashlib.sha256((dest/build.CFG['so']).read_bytes()).hexdigest(),'environment':target+' offline'+(' ASan/UBSan/leaks' if san else ' QEMU; not a device benchmark'),'tests':['actual VST shared library host','independent DSP oracle','state, presets, voice/cache lifetime, multi-instance isolation']},indent=2)+'\n')
+(dest/'tested.json').write_text(json.dumps({'sha256':hashlib.sha256((dest/build.CFG['so']).read_bytes()).hexdigest(),'environment':target+' offline'+(' ASan/UBSan/leaks' if san else ' QEMU; not a device benchmark'),'tests':['actual VST shared library host','nine fine frequency adapters, wheel/Q-Link events, echoes and old automation','independent DSP oracle','state, presets, voice/cache lifetime, multi-instance isolation']},indent=2)+'\n')

@@ -6,7 +6,7 @@ Redkite and desktop-format dependencies; this C11 DSP-only port does not use it.
 
 Build dependency: neighbouring open-mpc/mpc-vst-plugins at
 `ef05a26c6e59f1bfd3ef2023e6a9d8b371b61310`, with
-patches/mpc-float32.patch applied. The wrapper is not copied into this repository.
+patches/mpc-float32.patch, then patches/mpc-fine-int-sweep.patch applied. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `a2dd2b78a19c4cd46257c09eb9a485a155ab2968` in the neighbouring
 mpc-vst-plugins-release-tools checkout.
@@ -58,3 +58,12 @@ Do not submit this prototype to the catalog or claim public source availability.
 (total 1482). The 186 stored controls and GKMP3 state are unchanged. Native
 caption pixels are generated per page; live numeric fonts use the MPC's observed
 font-height conversion. The offline renderer compensates for the same conversion.
+
+0.0.5 preserves all 1482 previously released VST indices and appends 46 unit
+adapters plus one derived visibility selector (1529 total). Fine frequency uses
+5-cent integer positions relative to 55 Hz, with physical endpoints 20/12000 Hz.
+Legacy linear Hz/seconds parameters and all 186 stored values remain unchanged.
+The second wrapper patch routes sub-step continuous drags through direction
+history instead of counting against the already-rounded value. Repeated clamped
+edge events still count individually. Tests cover both event rates, reversal,
+continuous sweeps, endpoint clamping, host echoes and old frequency automation.
