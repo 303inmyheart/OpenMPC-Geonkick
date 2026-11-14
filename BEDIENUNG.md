@@ -1,4 +1,4 @@
-# Geonkick MPC bedienen — 0.0.12
+# Geonkick MPC bedienen — 0.0.13
 
 Ein Plugin erzeugt einen Drum-Sound aus drei Layern mit je drei Oszillatoren.
 Für eine Kick genügt zunächst Layer 1, OSC 1. Layer 2 und 3 starten stumm;
@@ -86,7 +86,7 @@ implementiert; siehe [Machbarkeit](docs/ENVELOPE-EDITOR.md).
 Layer/Oszillator und AMP oder PITCH wählen, dann POINTS. Beim ersten Wechsel
 wird die bisherige einfache Kurve übernommen. Die fünf Kreise lassen sich per
 Touch verschieben; alternativ POINT 1–5 auswählen und POINT VALUE bzw.
-SEGMENT TIME verwenden. Q-Links und Datenrad arbeiten fein, Touch direkt.
+SEGMENT TIME verwenden. Die Punktbearbeitung läuft nur per Touch, ohne Q-Link-Zuweisungen.
 Punkt 1 bleibt bei Zeit null, Punkt 5 am Klangende. LENGTH bestimmt die Gesamtlänge.
 Die vier Abschnittszeiten sind relative Gewichte: Ein längerer Abschnitt verkürzt
 anteilig die anderen. Beim ersten Punkt zeigt die Zeit START / 0 ms.
@@ -98,4 +98,9 @@ den anderen Seiten aktivieren wieder SIMPLE für diese Kurve.
 Amp-Werte sind Prozent, Pitch-Werte Hz (20 Hz bis maximal 16 × Grundfrequenz,
 begrenzt auf 20 kHz). Die Grundfrequenz skaliert die eigene Pitch-Kurve mit.
 Punkte werden im Projekt gespeichert. Freies Hinzufügen/Löschen und Bezier
-folgen später. Der neue native Punkteditor ist noch nicht auf der MPC geprüft.
+folgen später. Das zweidimensionale Verschieben der Punkte wurde auf der MPC bestätigt.
+Ab 0.0.13 bleibt die Wellenform des gesamten gemischten Klangs direkt hinter
+den grünen Hüllkurvenpunkten sichtbar. Sie zeigt den zuletzt fertig berechneten
+Klang und aktualisiert sich nach einer kurzen Bedienpause. Die Kurve darüber
+gehört zum ausgewählten Oszillator (AMP/PITCH). Nur LENGTH behält auf diesem
+Reiter einen Q-Link; Punktwahl, Punktwerte und Copy Simple sind Touch-Bedienung.

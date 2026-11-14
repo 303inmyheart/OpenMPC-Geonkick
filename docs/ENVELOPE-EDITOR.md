@@ -1,4 +1,4 @@
-# Point-envelope editor — 0.0.12 prototype
+# Point-envelope editor — 0.0.13 prototype
 
 The pinned original Geonkick UI adds points in `src/envelope_draw_area.cpp`
 (double-click), moves selected points on mouse drag, and removes points through
@@ -14,8 +14,8 @@ Original source: [Geonkick envelope editing](https://github.com/quamplex/geonkic
 The MPC native Envelope component is documented in the local MPC porting
 reference as a draggable fixed five-level/four-time editor (Pitch type), tested
 on a Live III in another port. This is a promising native interaction route;
-0.0.12 implements its parameter bindings in Geonkick MPC, with hardware acceptance
-still pending. The regular
+0.0.12 implements its parameter bindings in Geonkick MPC, with two-dimensional dragging confirmed by the user on Live III.
+The waveform overlay added in 0.0.13 still needs acceptance. The regular
 VST skin does not currently give this adapter raw touch coordinates for a free
 custom drawing area.
 
@@ -23,7 +23,7 @@ The current local prototype:
 
 - Shows a selected oscillator's amplitude or pitch envelope on a separate ENVELOPE tab.
 - Uses the native fixed-point editor, with large touch handles and continuous
-  touch coordinates; keep Q-Link entry precise for the selected point.
+  touch coordinates; point editing is Touch-only from 0.0.13.
 - Adds explicit point-envelope storage and a versioned state migration, retaining
   the existing simple attack/decay mode and the eight starting sounds.
 - Maps and validates point order, segment time, levels and pitch scale; avoid
@@ -58,8 +58,9 @@ Segment Time readout is START / 0 ms and time edits there do nothing. The final
 point is at the end of the sound. There are no crossing or zero-length segments.
 
 Drag handles for direct entry, or choose POINT 1–5 and edit POINT VALUE /
-SEGMENT TIME. Touch knobs are continuous; Q-Links/data wheel step by 0.0001 of
-the stored level/weight. The curve uses the existing synthesis worker and shared
+SEGMENT TIME. Touch knobs are continuous. Point selection, values and Copy Simple have no
+Q-Link assignment or hardware focus from 0.0.13. Fine aliases remain internally
+for compatibility, not as current point-control Q-Link bindings. The curve uses the existing synthesis worker and shared
 quiet-time graph refresh. The native editor geometry is host-rendered; offline
 previews approximate it and cannot prove the actual touch behavior.
 
@@ -72,5 +73,11 @@ curves stay local to their oscillator and Amp/Pitch target.
 Native component schema reference:
 [MPC Plugin Builder SDK ui-reference.md](https://github.com/inmusic-software/mpc-plugin-builder-sdk/blob/febd2ca5bd9eb16c4a412837196e145566bc981b/docs/ui-reference.md#613-envelope-and-envelopeoverlay-advanced-test-on-hardware).
 No proprietary SDK or stock artwork is bundled. The temporary input diagnostic
-is disabled in 0.0.12. Per user instruction this build is prepared locally only;
-no installation, MPC restart or device interaction is part of its verification.
+is disabled in 0.0.12. 0.0.12 was initially prepared locally, then installed at the user’s request.
+The user confirmed point dragging works but requested simultaneous waveform
+visibility. 0.0.13 adds the same completed mixed-sound waveform behind the
+editable curve, using existing read-only columns and shared revision. Read-only
+waveform widgets ignore touch; the native Envelope sits above them. Simple mode
+also shows the waveform. Graph feedback still follows the 180 ms quiet interval.
+Waveform time positions follow the full current sound length; native Envelope
+geometry remains host-controlled and needs alignment checks on the device.

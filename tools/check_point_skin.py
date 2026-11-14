@@ -7,7 +7,7 @@ params=json.loads((root/'params.json').read_text())['params'];ids={p['key']:i fo
 page=json.loads(next((root/'build/skin').glob('*/Plugin Skins/TUI.json')).read_text())['pageData']
 defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
 assert len(params)==1782
-previous=json.loads(subprocess.check_output(['git','show','712500a:params.json'],cwd=root))['params']
+previous=json.loads(subprocess.check_output(['git','show','f3cd9a7:params.json'],cwd=root))['params']
 assert params[:len(previous)]==previous,'Changed previous VST identities/ranges/defaults'
 for tab in page['tabs']:
     if tab['fnKeyIndex']!=6:continue
@@ -27,3 +27,25 @@ for tab in page['tabs']:
         assert any(p['componentData']['type']=='Knob' and p['componentData']['data']['handleName']=='Touch' for p in d['componentsData'])
         assert {'key':'Touch','value':'Parameter '+str(ids[key.replace('_fine','_drag')])} in c['handle remapping']['map']
 print('1782 append-only VST parameters; 18 native envelopes / 162 point handles; conditional modes and fine/direct point knob bindings PASS')
+# Editor draws the same completed sound behind the draggable curve. No new
+# data channel or per-column host callback path is introduced by this skin.
+for tab in page['tabs']:
+    if tab['fnKeyIndex']!=6:continue
+    children=defs[tab['componentName']]['componentsData']
+    wave=[(i,c) for i,c in enumerate(children) if c['componentData']['type'].startswith('gkEditWave_')]
+    assert len(wave)==864
+    first_curve=min(i for i,c in enumerate(children) if c['componentData']['type']=='gkPointEnvelope')
+    assert max(i for i,c in wave)<first_curve
+    for _,c in wave:
+        assert c['bounds']['additionalInvalidatingHandles']==['Parameter '+str(ids['graph_revision'])]
+        assert defs[c['componentData']['type']]['ignoreMousePresses']
+    point_keys=['point_select','point_level_fine','point_time_fine','point_copy']
+    for c in children:
+        if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for k in point_keys for m in c.get('handle remapping',{}).get('map',[])):
+            assert c['bounds']['acceptsHWFocus']=='No'
+            assert not any(a.get('handler')=='Q-Link' for a in defs[c['componentData']['type']].get('actions',[]))
+q=json.loads(next((root/'build/skin').glob('*/Plugin Skins/Q-Links.json')).read_text())
+for m in q['Screen Mode Q-Links']['map']:
+    if m.get('Tab')==7:
+        assert all(v in (-1,ids['length_ms']) for v in m['Q-Links'].values())
+print('Rendered waveform below native point editor, shared quiet-time invalidation and touch-only point controls PASS')

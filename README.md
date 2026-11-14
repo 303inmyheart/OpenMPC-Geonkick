@@ -4,11 +4,13 @@ The MPC adapter, build scripts and interface are AI-generated. The user has test
 problems. The user confirmed the real value jumps are resolved in 0.0.10; a brief
 visual knob rebound remained. Version 0.0.11 separates direct continuous Touch
 handles from fine Q-Link/data-wheel handles on the same physical parameter.
-The user confirmed the 0.0.11 changes work. Version 0.0.12 adds a native fixed-point Amp/Pitch envelope editor; this new editor has not been hardware-tested. The original Geonkick DSP is the
+The user confirmed the 0.0.11 changes work. The user confirmed that 0.0.12 point handles can be dragged in two dimensions.
+Version 0.0.13 adds the completed sound waveform behind those handles and removes
+point-editing Q-Link assignments; the combined view still needs device acceptance. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.12 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.13 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Implemented:
@@ -50,10 +52,11 @@ Implemented:
 - Thin sliders retain their original visible pixels with transparent padded
   native hit areas (64 pixels high for the main envelope sliders).
 - Native ENVELOPE page: five linear points for Amp and Pitch on each of the
-  nine oscillators, 36-pixel touch handles, fine selected-point Q-Link controls,
+  nine oscillators, 36-pixel touch handles, touch-only selected-point controls,
   Simple/Points modes and Copy Simple. First activation copies the existing curve.
-  Custom points and mode are saved per oscillator/envelope. Hardware acceptance
-  of native curve geometry and gestures is pending.
+  Custom points and mode are saved per oscillator/envelope. The user confirmed dragging on MPC; waveform/curve alignment in the combined
+  view still requires acceptance. The waveform represents the complete mixed
+  hit, with the selected oscillator’s Amp/Pitch points above it.
 - Touch gestures use independent continuous handles for all 46 fine controls.
   Q-Link/data-wheel selection and mapping stay fine; both routes share saved
   physical values. The visible knob follows the direct Touch value, avoiding
@@ -81,7 +84,8 @@ VST (edited Init, 35 ms attack). This is not a device screenshot.
 ![Five-point Amp editor, offline layout preview](docs/screenshots/envelope-amp.png)
 
 Point-editor layout preview uses actual VST values with an approximation of
-the native Envelope geometry. Hardware gestures and geometry remain untested.
+the native Envelope geometry. The user confirmed dragging in 0.0.12; combined
+waveform/curve geometry and redraw performance still require acceptance.
 
 See [BEDIENUNG.md](BEDIENUNG.md) for a German control guide and
 [UI-DESIGN.md](UI-DESIGN.md) for the visualization and editing limits.

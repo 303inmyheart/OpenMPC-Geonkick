@@ -65,3 +65,11 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
 
 The remaining JC303 feature-parity items stay deferred. Following targets:
 Fire, Wolf Shaper, BYOD navigation feasibility review, then Surge.
+
+
+0.0.12 was subsequently installed on explicit request. User confirmed that the
+points can be moved in two dimensions. 0.0.13 keeps the rendered mixed-hit waveform
+visible behind the draggable envelope, removes point-editing Q-Link assignments
+and hardware focus, and retains the existing quiet-time graph refresh. Five fixed
+points remain; arbitrary insertion/deletion is a separate future task. Combined
+view alignment and redraw performance need device acceptance.

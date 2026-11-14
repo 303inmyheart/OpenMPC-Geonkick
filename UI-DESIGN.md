@@ -146,3 +146,20 @@ unchanged. All 18 custom curves are stored independently. See
 Offline composites approximate the host-rendered native Envelope geometry.
 Real MPC touch and curve alignment require later hardware acceptance. This
 build is not installed, per the user's explicit one-build instruction.
+
+
+## 0.0.13 — waveform and editable curve together
+
+The user confirmed native XY-like dragging in 0.0.12, but rejected editing without
+the waveform. ENVELOPE now draws the completed mixed-hit waveform in muted blue
+gray underneath the green point curve. The waveform remains visible in Simple
+mode too. Existing 432 read-only sound columns and graph_revision are reused;
+no new display-data parameters or per-column callbacks are introduced. Widths of
+2/3 pixels fill the editor region. Waveform components ignore touches and precede
+the native editable Envelope. Native geometry/alignment and the cost of another
+visible waveform view still need real MPC acceptance.
+
+Point selection/value/time/copy controls have no Q-Link assignments or hardware
+focus. Their local Q-Link actions are removed without changing other pages.
+Only Length remains mapped on ENVELOPE. The underlying parameters and fine aliases
+remain for saved projects and compatibility. Other tabs’ Q-Link maps stay intact.

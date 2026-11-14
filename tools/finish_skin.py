@@ -200,15 +200,47 @@ envelope_data={
 }
 item=shadow_skin._local('gkPointEnvelope',[],[shadow_skin._sub('Envelope',envelope_data,shadow_skin._bounds(0,0,1100,170),'Curve')])
 page['componentDefinitions']['localComponentDefinitions'].append(item)
-message=Image.new('RGBA',(1100,210),(0,0,0,0));draw=ImageDraw.Draw(message)
-font=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),24)
-for y,text in [(62,'SIMPLE ENVELOPE ACTIVE'),(108,'Choose POINTS to edit the existing curve.'),(149,'COPY SIMPLE replaces the five points with the current Amp / Pitch settings.')]:
-    draw.text((550,y),text,font=font,anchor='mm',fill='#d7e0d1')
+# Waveform is behind the native editor, so its touch handles remain on top.
+# Reuse the existing shared revision and read-only sound columns.
+for width in (2,3):
+    for channel in ('p','n'):
+        filename=f'plot_edit_{channel}_{width}.png';shutil.copy2(root/'art'/filename,path.parent/filename)
+        item=shadow_skin._local(f'gkEditWave_{channel}_{width}',[],[shadow_skin._sub('Knob',{
+            'version':5,'knobType':'FilmStrip','filmStrip':filename,'numFrames':PLOT_WAVE_LEVELS,
+            'invert':False,'dragOrientation':'Vertical','handleName':'Data'
+        },shadow_skin._bounds(0,0,width,67),'Waveform')])
+        item['value']['ignoreMousePresses']=True
+        page['componentDefinitions']['localComponentDefinitions'].append(item)
+background=Image.new('RGB',(1100,170),'#22292b');draw=ImageDraw.Draw(background)
+for j in range(9):
+    x=18+round(j*1064/8);draw.line((x,18,x,152),fill='#303c3f')
+draw.line((18,85,1082,85),fill='#61747b')
+background.save(path.parent/'point-wave-background.png')
+message=Image.new('RGBA',(1100,22),(0,0,0,0));draw=ImageDraw.Draw(message)
+font=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),14)
+draw.text((550,11),'SIMPLE ACTIVE / Choose POINTS to edit this envelope over the rendered sound.',font=font,anchor='mm',fill='#d7e0d1')
 message.save(path.parent/'point-simple.png')
 for tab in page['tabs']:
     if tab['fnKeyIndex']!=6:continue
     children=defs[tab['componentName']]['componentsData']
-    note=shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-simple.png'},shadow_skin._bounds(90,264,1100,210),'Simple envelope')
+    # Clone actions per placed control so other tabs keep their Q-Link behavior.
+    for child in children:
+        mapping=child.get('handle remapping',{}).get('map',[])
+        if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for k in ('point_select','point_level_fine','point_time_fine','point_copy') for m in mapping):
+            original=defs.get(child['componentData']['type'])
+            if original:
+                key=child['componentData']['type']+'_pointTouchOnly';clone=deepcopy(original)
+                clone['actions']=[a for a in clone.get('actions',[]) if a.get('handler')!='Q-Link']
+                defs[key]=clone;page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
+                child['componentData']['type']=key;child['bounds']['acceptsHWFocus']='No'
+    children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-wave-background.png'},shadow_skin._bounds(90,294,1100,170),'Waveform background'))
+    for column in range(PLOT_COLUMNS):
+        left=108+column*1064//PLOT_COLUMNS;right=108+(column+1)*1064//PLOT_COLUMNS
+        for channel,y in (('p',312),('n',379)):
+            child=shadow_skin._placed(f'gkEditWave_{channel}_{right-left}','Rendered sound',ids[f'viz_{channel}_{column}'],left,y+86,right-left,67,focus='No')
+            child['bounds']['additionalInvalidatingHandles']=['Parameter '+str(ids['graph_revision'])]
+            children.append(child)
+    note=shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-simple.png'},shadow_skin._bounds(90,466,1100,22),'Simple envelope')
     note['bounds']['additionalInvalidatingHandles']=['IndexedEnabling/0/2/Parameter '+str(ids['ui_point_mode'])]
     children.append(note)
     for osc in range(1,10):

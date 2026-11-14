@@ -335,3 +335,27 @@ OpenMPC catalog/package validation reports zero warnings. Installer file hashes,
 mandatory scripts, exact tested-library receipts and a scan for private local
 paths/device details/input logger strings pass. The installer remains under
 build/releases only; no Desktop copy, installation or MPC restart was performed.
+
+## 0.0.13 — simultaneous waveform and touch-only point editing
+
+User confirmed XY-like point dragging in 0.0.12 and requested seeing the waveform
+while editing. The 0.0.13 change is in native skin generation and version metadata;
+DSP and saved parameters remain unchanged.
+
+- Native ASan/UBSan/leaks and ARM64 QEMU actual-VST/engine suites pass, including
+  original audio oracle, custom envelope/state compatibility, quiet-time shared
+  refresh and zero audio-thread UI callbacks.
+- Actual-VST-value previews reviewed for Simple, Amp and Pitch. The mixed-hit
+  waveform stays visible behind the point curve. Its readonly components ignore
+  touches and are ordered below the native Envelope.
+- Structural checks verify all 1782 definitions unchanged, 18 native envelope
+  bindings, 864 waveform widgets reusing existing viz_p/viz_n and graph_revision,
+  no Q-Link action/hardware focus for point controls, and only Length mapped on
+  ENVELOPE. All Q-Link mappings outside that page match 0.0.12 exactly.
+- Final skin check has no findings. Portable OpenMPC installer validation passes
+  with zero warnings. No new synthesis pass, derived parameter, graph callback
+  burst or periodic polling path is added by the skin.
+
+Offline image geometry is an approximation. Native waveform/curve alignment and
+redraw performance require user acceptance on the MPC; the additional visible
+waveform widgets are not covered by an offline CPU/audio claim.

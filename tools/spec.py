@@ -238,7 +238,7 @@ qlink_bounds=column
               'enum_h cx=640 cy=185 sw=94 sh=34 label="SELECT LAYER / OSCILLATOR" key=plot_osc',
               'enum_h cx=210 cy=270 sw=120 sh=34 label="CURVE" key=plot_env options="AMP,PITCH"',
               'toggle cx=640 cy=270 bw=220 label="COPY SIMPLE" key=point_copy',
-              'frame x=70 y=330 w=1140 h=250 title="DRAG THE FIVE POINTS"',
+              'frame x=70 y=330 w=1140 h=250 title="WAVEFORM + ENVELOPE / DRAG THE POINTS"',
               'enum_h cx=205 cy=620 sw=52 sh=32 label="POINT" key=point_select',
               'knob cx=500 cy=600 r=28 bw=220 ns=15 vs=19 label="POINT VALUE" key=point_level_fine when=ui_point_mode:1',
               'knob cx=800 cy=600 r=28 bw=220 ns=15 vs=19 label="SEGMENT TIME" key=point_time_fine when=ui_point_mode:1',
@@ -247,7 +247,7 @@ qlink_bounds=column
         for mode,kind in enumerate(('a','p')):
             target=(osc-1)*2+mode
             lines.append(f'enum_h cx=1050 cy=270 sw=110 sh=34 label="MODE" key=o{osc}_{kind}_mode when=ui_point_target:{target}')
-    lines += ['qlinks "ENVELOPE" = point_select,plot_osc,-,-,point_level_fine,plot_env,-,-,point_time_fine,-,-,-,length_ms,point_copy,-,-']
+    lines += ['qlinks "ENVELOPE" = -,-,-,-,-,-,-,-,-,-,-,-,length_ms,-,-,-']
     # The physical Hz/seconds controls remain for state/old automation. Visible
     # controls use appended fine pitch and millisecond adapters, never reindexing.
     import re

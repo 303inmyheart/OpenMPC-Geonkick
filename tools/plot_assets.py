@@ -28,3 +28,14 @@ for i in range(9):
     x=30+i*108;d.line((x,23,x,214),fill='#3D4041',width=1)
 d.line((30,119,894,119),fill='#74797B',width=1)
 grid.save(root/'art/plot_grid.png')
+
+# The editor shares the existing 432 actual-sound columns. Only the painted
+# width/height/colour differs; no second sound or display-data path is added.
+for width in (2,3):
+    for channel in ('p','n'):
+        height=67;im=Image.new('RGBA',(width,height*PLOT_WAVE_LEVELS),(0,0,0,0));draw=ImageDraw.Draw(im)
+        for frame in range(1,PLOT_WAVE_LEVELS):
+            length=max(1,round(frame/(PLOT_WAVE_LEVELS-1)*height))
+            y=frame*height+(height-length if channel=='p' else 0)
+            draw.rectangle((0,y,width-1,y+length-1),fill=(111,158,177,200))
+        im.save(root/'art'/f'plot_edit_{channel}_{width}.png')
