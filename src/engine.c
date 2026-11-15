@@ -15,6 +15,7 @@
 #define RATE 44100
 #define MAX_SAMPLES (RATE*4)
 #define VOICES 8
+#define EDGE_SAMPLES 221 /* 5 ms, endpoints included at 44.1 kHz */
 #define SLOTS (VOICES+4)
 typedef struct {
     atomic_int refs; int size; float *data; unsigned revision,view_revision;
@@ -34,6 +35,8 @@ typedef struct {
     unsigned age;
     unsigned display_revision;
     float output_gain;
+    float cut_tail[EDGE_SAMPLES];
+    unsigned cut_pos;
     unsigned point_dirty,point_origin;
     unsigned char dirty[GP_COUNT],dirty_alias[G_ALIAS_COUNT];
 } Engine;
@@ -61,7 +64,29 @@ static float value(const float *p,const char *key) { int i=index_of(key); return
 static void put(Engine *e,const char *key,float v) { int i=index_of(key); if(i>=0) atomic_store(&e->values[i],v); }
 static void drop(Engine *e,int slot) { if(slot>=0) atomic_fetch_sub(&e->slots[slot].refs,1); }
 static void stop_voice(Engine *e,Voice *v) { drop(e,v->slot); v->slot=-1; }
-static void stop_all(Engine *e) { for(int i=0;i<VOICES;i++) stop_voice(e,&e->voices[i]); }
+static void stop_all(Engine *e) {
+    for(int i=0;i<VOICES;i++) stop_voice(e,&e->voices[i]);
+    memset(e->cut_tail,0,sizeof e->cut_tail);e->cut_pos=0;
+}
+/* C1-continuous endpoints: no sudden fade slope at either boundary. */
+static float edge_gain(float t) { t=fminf(1,fmaxf(0,t));return t*t*(3-2*t); }
+static float voice_sample(const Cache *c,double pos) {
+    int i=(int)pos;if(i>=c->size)return 0;
+    float a=c->data[i],b=i+1<c->size?c->data[i+1]:0;
+    return a+(b-a)*(float)(pos-i);
+}
+static void choke_voice(Engine *e,Voice *v) {
+    if(v->slot<0)return;
+    /* Fixed bounded work, no allocation/lock. Preserve existing short tails
+     * during rapid retriggers; do not replace them with a frozen DC sample. */
+    Cache *c=&e->slots[v->slot];unsigned target=e->cut_pos;
+    for(int n=0;n<EDGE_SAMPLES;n++) {
+        e->cut_tail[target]+=voice_sample(c,v->pos+n*v->step)*v->gain*
+            edge_gain((EDGE_SAMPLES-1-n)/(float)(EDGE_SAMPLES-1));
+        if(++target==EDGE_SAMPLES)target=0;
+    }
+    stop_voice(e,v);
+}
 static void adopt(Engine *e) {
     int s=atomic_exchange(&e->ready,-1);
     if(s>=0) { int old=e->current; e->current=s; drop(e,old); ++e->display_revision; }
@@ -147,7 +172,7 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
     for(int i=0;i<c->size;i++) {
         float x=gkick_synth_get_value(s,i*dt);
         x=isfinite(x)?clampf(x,-1,1):0;
-        float fade=fminf(1,fminf(i/32.f,(c->size-1-i)/64.f));
+        float fade=fminf(1,i/32.f)*edge_gain((c->size-1-i)/(float)(EDGE_SAMPLES-1));
         c->data[i]=x*fade;
     }
 }
@@ -268,10 +293,10 @@ static void midi(void *inst,const uint8_t *msg,int len) {
     }
     if(type!=0x90)return;
     adopt(e);
-    if(at(e,"playback")==1)stop_all(e);
+    if(at(e,"playback")==1)for(int i=0;i<VOICES;i++)choke_voice(e,&e->voices[i]);
     int v=0;
     for(int i=0;i<VOICES;i++) { if(e->voices[i].slot<0) { v=i;break; } if(e->voices[i].age<e->voices[v].age)v=i; }
-    stop_voice(e,&e->voices[v]);
+    choke_voice(e,&e->voices[v]);
     Voice *voice=&e->voices[v];
     voice->slot=e->current; atomic_fetch_add(&e->slots[voice->slot].refs,1);
     voice->pos=0; voice->gain=vel/127.f; voice->note=note; voice->channel=ch; voice->age=++e->age;
@@ -415,13 +440,13 @@ int mpc_engine_changed(void *inst,char *key,int len) {
 static void render(void *inst,mpc_sample_t *out,int frames) {
     Engine *e=inst;adopt(e);float volume=at(e,"volume");
     for(int n=0;n<frames;n++) {
-        float sum=0;
+        float sum=e->cut_tail[e->cut_pos];e->cut_tail[e->cut_pos]=0;
+        if(++e->cut_pos==EDGE_SAMPLES)e->cut_pos=0;
         for(int i=0;i<VOICES;i++) {
             Voice *v=&e->voices[i];if(v->slot<0)continue;
             Cache *c=&e->slots[v->slot];int at=(int)v->pos;
             if(at>=c->size) { stop_voice(e,v);continue; }
-            float a=c->data[at],b=at+1<c->size?c->data[at+1]:0;
-            sum+=(a+(b-a)*(float)(v->pos-at))*v->gain;v->pos+=v->step;
+            sum+=voice_sample(c,v->pos)*v->gain;v->pos+=v->step;
         }
         /* A 5 ms gain transition avoids block-boundary clicks when OUTPUT
          * changes; the initial value and unchanged gain remain exact. */

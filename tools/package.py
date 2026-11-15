@@ -6,7 +6,7 @@ import build
 root=build.ROOT
 ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--desktop',action='store_true',help='Explicitly copy installer to Desktop');ap.add_argument('--no-desktop',action='store_true',help=argparse.SUPPRESS);args=ap.parse_args()
 cfg=json.loads((root/'release.json').read_text())
-release_tools=Path(os.environ.get('MPC_RELEASE_TOOLS',root.parent/'mpc-vst-plugins-release-tools'))
+release_tools=Path(os.environ.get('MPC_RELEASE_TOOLS',root.parent/cfg.get('tools_dir','mpc-vst-plugins-release-tools')))
 ref=subprocess.check_output(['git','-C',str(release_tools),'rev-parse','HEAD'],text=True).strip()
 assert ref==cfg['tools_ref'],'Unexpected release tooling revision'
 for target in ('native-san','aarch64'):
@@ -49,6 +49,7 @@ with zipfile.ZipFile(archive) as z:
     for line in z.read(top+'/SHA256SUMS').decode().splitlines():
         sha,name=line.split('  ',1);assert hashlib.sha256(z.read(top+'/'+name)).hexdigest()==sha
     assert sum(n.endswith('.so') for n in z.namelist())==1
+    akai=json.loads(z.read(top+'/portable/'+folder+'/plugin.json'));assert akai['format']=='vst2' and akai['file64']==build.CFG['so']
     assert not any(n.endswith(('.c','.h','.o','.py','.log','.ttf')) for n in z.namelist())
 digest=hashlib.sha256(archive.read_bytes()).hexdigest()
 (dest/'SHA256SUMS').write_text(digest+'  '+archive.name+'\n')

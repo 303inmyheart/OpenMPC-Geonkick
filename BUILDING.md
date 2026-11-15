@@ -13,8 +13,11 @@ patches/mpc-coalesced-graph-and-fine-input.patch, then
 patches/mpc-graph-rebind-and-input-observation.patch and
 patches/mpc-accumulated-fine-input.patch applied, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
-`a2dd2b78a19c4cd46257c09eb9a485a155ab2968` in the neighbouring
-mpc-vst-plugins-release-tools checkout.
+`42420b6717b93e954ef3992d9a7aa0909f1e4bec` in the neighbouring
+`mpc-vst-plugins-release-tools-20261115` checkout. This revision includes explicit VST2 plugin
+format metadata and the current install/uninstall templates. The default
+release-tools directory and exact pin are recorded in release.json.
+`MPC_RELEASE_TOOLS` may select an equivalent checkout at that exact pin.
 
 Requires Python 3 with Pillow, gcc, aarch64-linux-gnu-gcc 13 and its matching
 ARM64 sysroot, binutils and qemu-aarch64. `MPC_VST`, `MPC_TOOLCHAIN` (the toolchain's
@@ -204,3 +207,14 @@ provenance, scaling and limits are documented in docs/ENVELOPE-EDITOR.md.
 The temporary WRAP_TRACE/input_trace.c diagnostic is no longer compiled.
 Tests include point-envelope DSP, state migration and actual-VST fine/direct
 input feedback. Native geometry/gestures remain a hardware acceptance gate.
+
+
+0.0.14 runs tools/navigation.py after skin finishing. It remaps the final native
+pages to six keys, alternates each oscillator/FX pair, rebuilds rotary-only
+RowTopDown Q-Link groups and complete focus bounds, and adds small title banners.
+Touch-only controls are cloned per placed control; shared knob definitions and
+the existing direct/fine handles remain intact. The layout's first qlinks seed
+is deliberately unchanged to preserve existing MIDI CC assignments. Do not edit
+only layout.conf: tools/spec.py regenerates it. check_navigation.py and
+check_point_skin.py run during skin builds; render_ui.py creates offline images.
+edge_test.c checks signal continuity/termination without relying on UI rendering.

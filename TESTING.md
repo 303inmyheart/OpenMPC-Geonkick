@@ -359,3 +359,50 @@ DSP and saved parameters remain unchanged.
 Offline image geometry is an approximation. Native waveform/curve alignment and
 redraw performance require user acceptance on the MPC; the additional visible
 waveform widgets are not covered by an offline CPU/audio claim.
+
+
+## 0.0.14 — six menu groups, rotary Q-Links and click boundaries
+
+Native ASan/UBSan/leak and actual ARM64 shared-object/QEMU suites pass. New
+signal-boundary regression also runs successfully in a private isolated engine
+helper on the real Live III: 30 ms kick final-boundary max adjacent-sample delta
+0.0018601; Cut retrigger's first sample matches continuous outgoing audio,
+max transition delta 0.0124840 in the defined low-frequency test; after the short
+fade it matches the immediately started new hit within 1e-6. Rapid retriggers
+remain finite and CC120/123 clear all queued tails. Temporary helper removed.
+This is an isolated signal test, not MPC-app listening acceptance or a CPU bench.
+
+Five-ms smoothstep endings replace the old 64-sample linear fade. A fixed 221-sample
+additive tail ring continues cut/stolen voices with a smooth fade while releasing
+their cache references. New hits start immediately. Existing pending tails are
+preserved during retriggers; panic/project restore clears the ring. No runtime
+allocation, lock, synthesis wait or UI callback is added to audio processing.
+Default chirp oracle max error 3.87430191e-7; existing Simple→Points conversion
+remains exact in its test. Independent cache/graph, fine/direct touch, MIDI CC20,
+NRPN, envelope/state/GKMP migration, per-oscillator FX and blocked-UI tests pass.
+
+All 25 pages are reachable on six main keys. Layer pages alternate OSC/FX pairs;
+Envelope moves onto key5; MASTER groups Mix/FX/Presets on key6. The first layout
+QLINK seed stays unchanged for CC compatibility. Final RowTopDown screen maps
+contain only actual rotary widgets; no point controls, switches, selectors or
+sliders. Per-control touch-only clones preserve native Button/Touch data handles.
+Native frame checks enclose full names/values; existing 18 native envelopes/162
+point handles and 864 mixed-waveform columns remain wired, quiet-time invalidation
+unchanged. Previews reviewed, including corrected banner/caption and mixer spacing.
+Geometry and fine/direct point wiring checks pass. Hardware UI acceptance pending.
+
+Packager uses current reviewed templates at 42420b6717b93e954ef3992d9a7aa0909f1e4bec; explicit
+plugin.json format:vst2 checked. Current catalog/portable/checksum/privacy checks
+pass, zero warnings. Installer SHA-256:`839b1a837cd422fe89bf37bc0df6589c6e395f6c78e548c476fa707b45a1a6cd`. No public fork/release or formal
+Store benchmark; no Desktop copy. Device deployment/acceptance recorded below
+once performed. See TESTPLAN-0.0.14-DE.md and QLINKS-0.0.14-DE.md.
+
+
+0.0.14 deployment under standing authorization completed: previous 0.0.13
+backed up locally, 1502 plugin files staged and hash-verified, settings unchanged
+during file replacement. MPC application restarted; active/running confirmed.
+Installed stripped SHA-256 matches the checked installer:
+`5bb0f649c0330c32aac8cd32d3bcc5c9277b3b6927d558b379177716f367a619`.
+Installed plugin.json explicitly reports format:vst2. No global settings/project/
+unrelated-plugin changes, full device reboot, Desktop copy or public release.
+Actual menu/touch/Q-Link and short-kick/Cut listening acceptance remains pending.

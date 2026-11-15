@@ -46,8 +46,10 @@ try:
     assert ids['graph_revision'] in reported,'Shared graph invalidation was never reported to the VST host'
     assert not any(ids[p['key']] in reported for p in params if p['key'].startswith('viz_')),'Unexpected per-column graph feedback'
     osc_tab=next(t for t in page['tabs'] if t['fnKeyIndex']==1 and t['fnKeySubIndex']==0)
-    env_tab=next(t for t in page['tabs'] if t['fnKeyIndex']==6)
-    for filename,tab,wave in [('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0)]:
+    env_tab=next(t for t in page['tabs'] if t['componentName']=='ENVELOPE|ENVELOPE')
+    mix_tab=next(t for t in page['tabs'] if t['componentName']=='SYNTH|MIX')
+    fx_tab=next(t for t in page['tabs'] if t['componentName']=='EFFECTS|EFFECTS')
+    for filename,tab,wave in [('mix',mix_tab,0),('master-fx',fx_tab,0),('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0)]:
         if filename=='envelope-simple':set_value('reset',1);settle()
         if filename=='envelope-amp':set_value('o1_a_mode',1);settle()
         if filename=='envelope-pitch':set_value('o1_p_mode',1);settle()

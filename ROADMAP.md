@@ -73,3 +73,27 @@ visible behind the draggable envelope, removes point-editing Q-Link assignments
 and hardware focus, and retains the existing quiet-time graph refresh. Five fixed
 points remain; arbitrary insertion/deletion is a separate future task. Combined
 view alignment and redraw performance need device acceptance.
+
+
+## Current 0.0.14 — menu/Q-Link redesign and signal boundaries
+
+- Six main keys: SOUND; LAYER1/2/3; ENVELOPE; MASTER. All 25 existing pages are
+  reachable; oscillator/FX pairs alternate within a layer. MASTER groups MIX,
+  global effects and presets. MIX now exposes all layer gains and Output,
+  plus Tune/Key Track/Playback/Audition; the waveform remains visible.
+- Q-Links only for rotary knobs, RowTopDown groups with full native caption/value
+  bounds. Switches/selectors/sliders and envelope-point controls are touch-only.
+- Conditional tone/noise/FM knobs keep stable positions; noise density now has
+  its own lower-row position instead of sharing the frequency knob's location.
+- Smooth 5 ms cached sound endings and bounded continuous 5 ms Cut/voice-steal tails;
+  new attacks start immediately, MIDI panic clears tails. No synthesis/UI work
+  moves onto the audio thread. Signal regressions pass natively, under ARM64/QEMU
+  and in a private isolated Live III engine test. Listening acceptance pending.
+- Current reviewed OpenMPC packaging pin, explicit plugin.json format:vst2 and
+  current installer templates; catalog/package checker zero warnings.
+
+Next: actual MPC menu/touch/Q-Link and short-hit/Cut listening validation. Then
+resume arbitrary point insertion/deletion/Bezier feasibility and the previously
+listed sound/kit tasks. Keep the existing quiet-time redraw, coarse direct touch,
+fine hardware input and waveform/point overlay; do not regress those to old paths.
+A formal store benchmark remains reserved for a final release binary.

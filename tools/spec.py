@@ -170,8 +170,8 @@ qlink_bounds=column
         k=f'o{o+1}_';when=f' when=plot_osc:{o}'
         for suffix,label,x in [('attack','ATTACK',178),('decay','DECAY',476),('sweep','PITCH DROP',774),('sweep_time','PITCH TIME',1072)]:
             condition=when if suffix in ('attack','decay') else f' when=ui_env_focus:{o*2}'
-            lines.append(f'slider_h cx={x} cy=440 w=210 h=16 ns=13 vs=17 label="{label}" key={k}{suffix}'+condition)
-        lines.append(f'slider_h cx=774 cy=440 w=210 h=16 ns=13 vs=17 label="NOISE DENSITY" key={k}density when=ui_env_focus:{o*2+1}')
+            lines.append(f'slider_h cx={x} cy=440 w=210 h=16 ns=13 vs=17 label="{label}" key={k}{suffix}'+condition+' banks="LAYER 1|LAYER 2|LAYER 3"')
+        lines.append(f'slider_h cx=774 cy=440 w=210 h=16 ns=13 vs=17 label="NOISE DENSITY" key={k}density when=ui_env_focus:{o*2+1}'+' banks="LAYER 1|LAYER 2|LAYER 3"')
     for l in range(3):
         bank=f'LAYER {l+1}';b=f' banks="{bank}"'
         lines.append(f'slider_h cx=1126 cy=513 w=180 h=16 ns=12 vs=16 label="LAYER {l+1} GAIN" key=layer{l+1}'+b)
@@ -183,16 +183,16 @@ qlink_bounds=column
             lines.append(f'knob cx={260+x} cy=615 r=24 bw=130 ns=14 vs=18 label="LEVEL" key={k}level'+b)
         first=l*3+1
         lines.append(f'qlinks "{bank}" = o{first}_freq,o{first}_level,-,-,o{first+1}_freq,o{first+1}_level,-,-,o{first+2}_freq,o{first+2}_level,-,-,length,volume,-,-')
-    # Keep mix/tuning/playback controls as a subpage, with the graph still visible.
-    # Their positions replace the lower oscillator strip only on this subpage.
-    for i,(key,label) in enumerate([('layer1','LAYER 1'),('layer2','LAYER 2'),('layer3','LAYER 3'),('tune','TUNE')]):
-        lines.append(f'knob cx={178+i*298} cy=545 r=28 bw=210 ns=15 vs=19 key={key} label="{label}" banks="MIX"')
-    # Output's shared bottom placement collides with MIX's tuning, so it is visible
-    # only on the oscillator banks. DURATION stays available on every subpage.
+    # MASTER/MIX has output and tuning together; quick envelope sliders stay
+    # on the SOUND overview pages. The first qlinks seed remains unchanged so
+    # previously published MIDI CC assignments are retained.
     lines=[line+' banks="LAYER 1|LAYER 2|LAYER 3"' if 'key=volume' in line else line for line in lines]
-    lines += ['enum_h cx=476 cy=672 sw=75 sh=25 label="" key=keytrack banks="MIX"',
-              'enum_h cx=774 cy=672 sw=70 sh=25 label="" key=playback banks="MIX"',
-              'enum_h cx=1072 cy=672 sw=75 sh=25 label="" key=audition banks="MIX"',
+    for i,(key,label) in enumerate([('layer1','LAYER 1'),('layer2','LAYER 2'),('layer3','LAYER 3'),('volume','OUTPUT')]):
+        lines.append(f'knob cx={178+i*298} cy=500 r=28 bw=210 ns=15 vs=19 key={key} label="{label}" banks="MIX"')
+    lines += ['knob cx=178 cy=620 r=24 bw=210 ns=15 vs=19 key=tune label="TUNE" banks="MIX"',
+              'enum_h cx=476 cy=640 sw=75 sh=30 label="KEY TRACK" key=keytrack banks="MIX"',
+              'enum_h cx=774 cy=640 sw=70 sh=30 label="PLAYBACK" key=playback banks="MIX"',
+              'enum_h cx=1072 cy=640 sw=75 sh=30 label="AUDITION" key=audition banks="MIX"',
               'qlinks "MIX" = layer1,-,-,-,layer2,keytrack,-,-,layer3,playback,-,-,tune,audition,length,-']
     for l in range(3):
         lines += [f'\n[tab LAYER {l+1}]']
@@ -209,7 +209,7 @@ qlink_bounds=column
                 if s=='fm':
                     if o==0:knob(k+s,'FM -> OSC 2',x,y,b+f' when=o{ix+1}_on:1')
                 elif s=='density':
-                    for mode in (4,5):knob(k+s,label,178,370,b+f' when={k}wave:{mode}')
+                    for mode in (4,5):knob(k+s,label,774,570,b+f' when={k}wave:{mode}')
                 elif s in ('freq','sweep','sweep_time','phase'):
                     for mode in range(4):knob(k+s,label,x,y,b+f' when={k}wave:{mode}')
                 else:knob(k+s,label,x,y,b)

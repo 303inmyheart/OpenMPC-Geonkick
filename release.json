@@ -1,9 +1,10 @@
 {
-  "version": "0.0.13",
+  "version": "0.0.14",
   "id": "geonkick-mpc",
   "repo": "303inmyheart/OpenMPC-Geonkick",
   "license": "GPL-3.0-or-later",
-  "tools_ref": "a2dd2b78a19c4cd46257c09eb9a485a155ab2968",
+  "tools_ref": "42420b6717b93e954ef3992d9a7aa0909f1e4bec",
   "requires": "Gen2 MPC (aarch64), MPC OS 3.10.1 or newer; development prototype, hardware test pending",
-  "about": "Local development prototype of the Geonkick DSP for MPC. Single percussion instrument, three layers, nine oscillators. MPC-app listening acceptance and CPU benchmark pending. Adapted source is available in the local project; public fork/release is pending. The source_repo URL is reserved for that future fork."
+  "about": "Local development prototype of the Geonkick DSP for MPC. Single percussion instrument, three layers, nine oscillators. MPC-app listening acceptance and CPU benchmark pending. Adapted source is available in the local project; public fork/release is pending. The source_repo URL is reserved for that future fork.",
+  "tools_dir": "mpc-vst-plugins-release-tools-20261115"
 }

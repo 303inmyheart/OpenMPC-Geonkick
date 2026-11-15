@@ -52,6 +52,9 @@ def skin():
     if generated.exists():shutil.rmtree(generated)
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json'])
     run([sys.executable,'tools/finish_skin.py'])
+    run([sys.executable,'tools/navigation.py'])
+    run([sys.executable,'tools/check_point_skin.py'])
+    run([sys.executable,'tools/check_navigation.py'])
     folder=ROOT/'build/skin'/f"{CFG['vendor']} - VST - {CFG['name']}"/'Plugin Skins'
     run([sys.executable,MPC/'tools/studio.py','preview',folder,'-o',ROOT/'build/preview_%d.png'])
 if __name__=='__main__':

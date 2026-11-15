@@ -10,7 +10,7 @@ assert len(params)==1782
 previous=json.loads(subprocess.check_output(['git','show','f3cd9a7:params.json'],cwd=root))['params']
 assert params[:len(previous)]==previous,'Changed previous VST identities/ranges/defaults'
 for tab in page['tabs']:
-    if tab['fnKeyIndex']!=6:continue
+    if tab['componentName']!='ENVELOPE|ENVELOPE':continue
     children=defs[tab['componentName']]['componentsData'];envelopes=[c for c in children if c['componentData']['type']=='gkPointEnvelope']
     assert len(envelopes)==18
     for n,c in enumerate(envelopes):
@@ -30,7 +30,7 @@ print('1782 append-only VST parameters; 18 native envelopes / 162 point handles;
 # Editor draws the same completed sound behind the draggable curve. No new
 # data channel or per-column host callback path is introduced by this skin.
 for tab in page['tabs']:
-    if tab['fnKeyIndex']!=6:continue
+    if tab['componentName']!='ENVELOPE|ENVELOPE':continue
     children=defs[tab['componentName']]['componentsData']
     wave=[(i,c) for i,c in enumerate(children) if c['componentData']['type'].startswith('gkEditWave_')]
     assert len(wave)==864
@@ -46,6 +46,6 @@ for tab in page['tabs']:
             assert not any(a.get('handler')=='Q-Link' for a in defs[c['componentData']['type']].get('actions',[]))
 q=json.loads(next((root/'build/skin').glob('*/Plugin Skins/Q-Links.json')).read_text())
 for m in q['Screen Mode Q-Links']['map']:
-    if m.get('Tab')==7:
+    if m.get('Tab')==5:
         assert all(v in (-1,ids['length_ms']) for v in m['Q-Links'].values())
 print('Rendered waveform below native point editor, shared quiet-time invalidation and touch-only point controls PASS')

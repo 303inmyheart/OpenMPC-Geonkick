@@ -10,8 +10,21 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.13 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.14 is a playable
 single-instrument prototype, not the complete desktop application.
+
+Current 0.0.14 reorganizes the interface into six menu keys: SOUND, LAYER1–3,
+ENVELOPE and MASTER. Each layer alternates OSC1/FX1, OSC2/FX2, OSC3/FX3. MASTER
+contains MIX, global FX and PRESETS; the point editor has its own key. Q-Links
+control rotary knobs only; switches, selectors, sliders and point editing remain
+touch-only. The historical MIDI CC table and all parameter/state IDs are retained.
+Native/ARM64 and isolated Live III signal-boundary tests pass; actual on-device
+menu and listening acceptance for this candidate remains pending.
+
+Short-hit ends now use a smooth 5 ms tail. Cut retriggers and stolen voices
+continue the old waveform through a bounded 5 ms fade while the new hit starts
+immediately. Panic still silences all voices/tails immediately. No audio-side
+allocation, synthesis wait or UI callbacks are introduced.
 
 Implemented:
 
