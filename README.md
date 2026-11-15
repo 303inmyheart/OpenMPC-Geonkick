@@ -10,16 +10,23 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.14 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.15 is a playable
 single-instrument prototype, not the complete desktop application.
 
-Current 0.0.14 reorganizes the interface into six menu keys: SOUND, LAYER1–3,
+Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
 ENVELOPE and MASTER. Each layer alternates OSC1/FX1, OSC2/FX2, OSC3/FX3. MASTER
 contains MIX, global FX and PRESETS; the point editor has its own key. Q-Links
 control rotary knobs only; switches, selectors, sliders and point editing remain
 touch-only. The historical MIDI CC table and all parameter/state IDs are retained.
 Native/ARM64 and isolated Live III signal-boundary tests pass; actual on-device
 menu and listening acceptance for this candidate remains pending.
+
+0.0.15 adds the original **Percussion Lab** design: graphite panels, machined
+rotary strips, recessed native value backgrounds, rounded selectors, green hit
+waveforms and amber envelopes. Page/layer indicators and the Sounds tile share
+the same geometric percussion mark. Native gestures, input bounds, Q-Link maps,
+all parameters and the 0.0.14 audio remain unchanged. On-device visual acceptance
+is pending; previews below are offline renders.
 
 Short-hit ends now use a smooth 5 ms tail. Cut retriggers and stolen voices
 continue the old waveform through a bounded 5 ms fade while the new hit starts
@@ -49,11 +56,11 @@ Implemented:
   artwork and an Init .xpl. Frames include complete label and value bounds.
 - Sharper 0.0.4 display: 432 two-pixel waveform columns, pixel-height waveform
   levels, finer envelope steps, native-size live values and crisp page captions.
-- Visual SYNTH page: green waveform of the actual completed sound, gray
+- Visual SYNTH page: green waveform of the actual completed sound, amber
   amplitude/pitch envelope of a selected oscillator, and three oscillator
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
-  playback/tuning controls. The palette follows the original gray/green design.
+  playback/tuning controls. The 0.0.15 Percussion Lab palette uses graphite, lime and amber.
 - Versioned project state with 385 stored controls, plus derived read-only
   graph/view channels. Original indices stay unchanged. 0.0.1 and 0.0.2 chunks
   load with the appended controls at neutral/default values. GKMP3 states
@@ -116,7 +123,7 @@ Simple Amp and Pitch envelopes use attack/decay and pitch-time controls.
 The SYNTH graph displays the completed sound; the separate ENVELOPE page edits
 five fixed linear points. Free insertion/deletion and Bezier handles are pending. It depicts the completed
 single-hit buffer before output gain, not a real-time oscilloscope of playing
-voices; the gray envelope is normalized independently to 0–1. The view updates
+voices; the amber envelope is normalized independently to 0–1. The view updates
 after synthesis completes, with host notifications on a separate 100 ms display
 thread rather than on the audio thread. Native display behavior and performance
 still need confirmation on a real MPC; the source desktop GUI is not embedded.

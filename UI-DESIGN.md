@@ -163,3 +163,22 @@ Point selection/value/time/copy controls have no Q-Link assignments or hardware
 focus. Their local Q-Link actions are removed without changing other pages.
 Only Length remains mapped on ENVELOPE. The underlying parameters and fine aliases
 remain for saved projects and compatibility. Other tabs’ Q-Link maps stay intact.
+
+
+## 0.0.15: Percussion Lab
+
+The current design replaces the earlier flat gray/green skin with graphite
+cards, a geometric percussion mark, original graduated rotary strips and rounded
+selector/pill states. Green represents the rendered hit and live values; amber
+distinguishes the selected envelope and native point curve. Teal renders the
+mixed hit behind envelope points. Native waveform columns and point geometry
+are unchanged. Six small header indicators identify the active main area.
+
+skin_design.py paints after navigation. Native widget/page bounds, input actions,
+Touch/Data aliases and Q-Link maps remain unchanged. Value recesses are painted
+by the existing CustomComponent backgroundData and cannot become a new input
+layer over native controls. Conditional captions remain inside their widgets;
+hidden tone/noise controls do not leave ghost numeric boxes. Thin horizontal
+sliders retain the enlarged transparent hit targets and their original geometry.
+Previews use actual VST values but remain offline approximations of host fonts
+and native Envelope geometry; hardware visual acceptance is separate.

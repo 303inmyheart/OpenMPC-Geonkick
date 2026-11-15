@@ -11,22 +11,22 @@ for kind,height in [('positive',96),('negative',96),('envelope',192)]:
         offset=frame*height
         if kind=='envelope':
             y=offset+round((1-frame/(levels-1))*(height-2))
-            d.rectangle((0,y,PLOT_WIDTH-1,y+1),fill='#E1E3E3')
+            d.rectangle((0,y,PLOT_WIDTH-1,y+1),fill='#efbc73')
         elif frame:
             length=max(1,round(frame/(levels-1)*height))
             top=height-length if kind=='positive' else 0
-            d.rectangle((0,offset+top,PLOT_WIDTH-1,offset+top+length-1),fill='#83B33E')
+            d.rectangle((0,offset+top,PLOT_WIDTH-1,offset+top+length-1),fill='#b9ed68')
     im.save(root/'art'/f'plot_{kind}.png')
-grid=Image.new('RGB',(920,220),'#252728');d=ImageDraw.Draw(grid)
+grid=Image.new('RGB',(920,220),'#0b1a1f');d=ImageDraw.Draw(grid)
 f=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),10)
-d.text((30,8),'GREEN: RENDERED HIT',font=f,fill='#91B958')
-d.text((390,8),'GRAY: SELECTED ENVELOPE / 0-1',font=f,fill='#D5D7D7')
+d.text((30,8),'HIT WAVEFORM',font=f,fill='#b9ed68')
+d.text((390,8),'ENVELOPE / 0-1',font=f,fill='#efbc73')
 d.text((760,8),'0 -> DURATION',font=f,fill='#B2B5B5')
 for i in range(5):
-    y=23+round(i*191/4);d.line((30,y,894,y),fill='#474A4B',width=1)
+    y=23+round(i*191/4);d.line((30,y,894,y),fill='#294047',width=1)
 for i in range(9):
-    x=30+i*108;d.line((x,23,x,214),fill='#3D4041',width=1)
-d.line((30,119,894,119),fill='#74797B',width=1)
+    x=30+i*108;d.line((x,23,x,214),fill='#20363d',width=1)
+d.line((30,119,894,119),fill='#506c6d',width=1)
 grid.save(root/'art/plot_grid.png')
 
 # The editor shares the existing 432 actual-sound columns. Only the painted
@@ -37,5 +37,5 @@ for width in (2,3):
         for frame in range(1,PLOT_WAVE_LEVELS):
             length=max(1,round(frame/(PLOT_WAVE_LEVELS-1)*height))
             y=frame*height+(height-length if channel=='p' else 0)
-            draw.rectangle((0,y,width-1,y+length-1),fill=(111,158,177,200))
+            draw.rectangle((0,y,width-1,y+length-1),fill=(83,149,152,180))
         im.save(root/'art'/f'plot_edit_{channel}_{width}.png')

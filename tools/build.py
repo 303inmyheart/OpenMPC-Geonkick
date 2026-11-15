@@ -53,6 +53,7 @@ def skin():
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json'])
     run([sys.executable,'tools/finish_skin.py'])
     run([sys.executable,'tools/navigation.py'])
+    run([sys.executable,'tools/skin_design.py'])
     run([sys.executable,'tools/check_point_skin.py'])
     run([sys.executable,'tools/check_navigation.py'])
     folder=ROOT/'build/skin'/f"{CFG['vendor']} - VST - {CFG['name']}"/'Plugin Skins'

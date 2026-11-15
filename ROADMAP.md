@@ -97,3 +97,16 @@ resume arbitrary point insertion/deletion/Bezier feasibility and the previously
 listed sound/kit tasks. Keep the existing quiet-time redraw, coarse direct touch,
 fine hardware input and waveform/point overlay; do not regress those to old paths.
 A formal store benchmark remains reserved for a final release binary.
+
+
+## 0.0.15 — Percussion Lab design
+
+Graphite panel hierarchy, original rotary strips and selector/switch artwork,
+recessed live values, green waveform/amber envelopes, layer/page indicators and
+matching original Sounds tile. Waveform/editor data, native gestures/targets,
+Q-Link maps, fine/direct touch and 0.0.14 audio paths are preserved. Numeric
+recesses use native backgroundData rather than added input-catching Images.
+Native/ARM64/point/geometry/installer checks pass; installed under standing
+permission. Live III visual/touch acceptance remains pending. No formal benchmark
+or public release. Next work remains the previously deferred envelope/kit/parity
+items and actual MPC listening/interaction validation.

@@ -406,3 +406,32 @@ Installed stripped SHA-256 matches the checked installer:
 Installed plugin.json explicitly reports format:vst2. No global settings/project/
 unrelated-plugin changes, full device reboot, Desktop copy or public release.
 Actual menu/touch/Q-Link and short-kick/Cut listening acceptance remains pending.
+
+
+## 0.0.15 — visual overhaul, no synthesis changes
+
+Native ASan/UBSan/leak and actual ARM64 shared-object/QEMU suites pass, including
+all 0.0.14 signal-boundary/Cut tests. The DSP sources and parameter table are
+unchanged. One-off comparison against the checked 0.0.14 skin verifies all 6895
+native control/display placements, action handlers, knob/button gestures and
+non-colour envelope fields unchanged; Q-Links.json is byte-identical. Existing
+25-page/six-key rotary-only, point-envelope and full native bounds checks pass.
+Only artwork, text/envelope colours and native value backgroundData change.
+No extra input-catching components or display callback paths are introduced.
+
+Offline native-value previews reviewed for SOUND, tone/noise OSC, MASTER/MIX,
+global effects and Simple/Amp/Pitch editors. Header/selector labels remain clear,
+conditional numeric backgrounds follow native widget visibility, and actual
+waveform/point geometry remains unaltered. The original new browser tile is
+270x110 and shares the geometric percussion mark. These are offline visual
+checks, not MPC screen-capture or listening acceptance.
+
+Current pinned installer/catalog checks report zero warnings; explicit VST2
+metadata, archive checksums and privacy scan pass. Installer SHA-256:
+`1f2753b8735c5433c4e3eac58008bc33f8e7ed8fa6150de7d361c825e563aca7`.
+Previous 0.0.14 backed up locally; 1488 package files staged/hash-verified,
+settings unchanged during replacement. MPC application restarted active/running,
+installed stripped SHA verified:
+`8820c78c7517355e9a50a2c87bcd20132d9bcefa2552018a395ddcf2e7fde990`.
+No global settings/project/unrelated-plugin changes, full reboot, Desktop copy,
+public release or formal benchmark. Real-device visual/touch acceptance pending.

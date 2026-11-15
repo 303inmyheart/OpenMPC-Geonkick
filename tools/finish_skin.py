@@ -110,8 +110,8 @@ for tab in page['tabs']:
             while font.getlength(label)>width-6 and size>8:
                 size-=1;font=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),size)
             for state in ('on','off'):
-                im=Image.new('RGB',(width,height),'#91B958' if state=='on' else '#46494B');draw=ImageDraw.Draw(im)
-                draw.text((width/2,height/2),label,font=font,anchor='mm',fill='#172015' if state=='on' else '#E0E4E5')
+                from skin_design import segment_image
+                im=segment_image(width,height,label,state=='on')
                 im.save(path.parent/f'{key}_{state}.png')
             item=shadow_skin._local(key,[shadow_skin._action('Mouse Down','Q-Link')],[shadow_skin._button(key+'_on.png',key+'_off.png',option,len(options),width,height)])
             item['value']['hideQLinkBounds']=False

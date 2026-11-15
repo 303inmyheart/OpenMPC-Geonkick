@@ -218,3 +218,13 @@ is deliberately unchanged to preserve existing MIDI CC assignments. Do not edit
 only layout.conf: tools/spec.py regenerates it. check_navigation.py and
 check_point_skin.py run during skin builds; render_ui.py creates offline images.
 edge_test.c checks signal continuity/termination without relying on UI rendering.
+
+
+0.0.15 runs skin_design.py after navigation and before the existing skin checks.
+It generates original 3x raster panels, rotary filmstrips, native value backdrops,
+pill/selector styling and headers without changing control bounds or inputs.
+finish_skin.py reuses its segment_image helper; tile.py uses the same palette.
+plot_assets.py preserves all strip sizes/frame counts while changing colours.
+render_ui.py paints native backgroundData and envelope colours for faithful
+layout review. All assets remain generated from source; no desktop screenshots,
+manufacturer artwork or new runtime drawing engine is included.

@@ -63,6 +63,8 @@ try:
             if cd['type']=='Image':
                 im.alpha_composite(Image.open(skin/cd['data']['image']).convert('RGBA'),(x,y));continue
             mapping={m['key']:int(m['value'].split()[-1]) for m in c.get('handle remapping',{}).get('map',[])}
+            backdrop=defs[cd['type']].get('backgroundData',{}).get('focussed',{}).get('image')
+            if backdrop:im.alpha_composite(Image.open(skin/backdrop).convert('RGBA'),(x,y))
             for sub in defs[cd['type']]['componentsData']:
                 sd=sub['componentData'];data=sd['data'];sx,sy,w,h=rect(sub['bounds'])
                 i=mapping.get(data.get('handleName','Data'),mapping.get('Data',-1));value=values.get(i,0)
@@ -86,8 +88,8 @@ try:
                         coords.append((x+sx+18+(w-36)*pos,y+sy+18+(h-36)*(1-level)))
                     for j in range(5):
                         gy=y+sy+18+j*(h-36)/4;dr.line((x+sx+18,gy,x+sx+w-18,gy),fill='#464d45')
-                    dr.line(coords,fill='#b3df75',width=3)
-                    for px,py in coords:dr.ellipse((px-18,py-18,px+18,py+18),fill='#20291d',outline='#b3df75',width=2)
+                    dr.line(coords,fill='#'+data.get('lineColour','ffefbc73')[-6:],width=3)
+                    for px,py in coords:dr.ellipse((px-18,py-18,px+18,py+18),fill='#'+data.get('handleFillColour','ff192b31')[-6:],outline='#'+data.get('handleLineColour','ffefbc73')[-6:],width=2)
                 elif sd['type']=='Label':
                     style=data['textStyle'];caption=cd['name'] if data.get('type')=='Name' else display(i)
                     height=style['font']['height']/(1.6 if data.get('type')=='Value' else 1)
