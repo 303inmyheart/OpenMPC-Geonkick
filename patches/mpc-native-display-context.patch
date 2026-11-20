@@ -1,0 +1,23 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -1076,10 +1076,20 @@
+     else copy_str(out, PARAMS[idx].name, n);
+ }
+ 
++#if UI_DISPLAY_CONTEXT
++void mpc_engine_ui_display(void *, const char *) __attribute__((weak));
++#endif
+ static void param_value_text(wrap_t *w, int idx, char *out, int n) {
+     char buf[PARAM_TEXT_MAX > 64 ? PARAM_TEXT_MAX : 64];
+     out[0] = 0;
+     if (idx < 0 || idx >= NPARAMS) return;
++#if UI_DISPLAY_CONTEXT
++    if(mpc_engine_ui_display) {
++        pthread_mutex_lock(&w->lock);
++        mpc_engine_ui_display(w->dsp, PARAMS[idx].key);
++        pthread_mutex_unlock(&w->lock);
++    }
++#endif
+     const param_t *pp = &PARAMS[idx];
+     char k2[96];
+     snprintf(k2, sizeof k2, "%s_display", pp->key);

@@ -1,8 +1,8 @@
-# Samples — Geonkick MPC0.0.24
+# Samples — Geonkick MPC0.0.25
 
 1. Select the sound on MASTER → KIT. Open MASTER → SAMPLES and choose the target
    oscillator (L1/1–L3/3). Each of the16 pads can retain samples on all9 oscillators.
-2. Press OPEN DEFAULT (initially internal storage). DRIVES opens the filesystem
+2. Press OPEN STORAGE (initially internal storage). DRIVES opens the filesystem
    root for other mounted storage. Tap folders to enter them; UP returns. The
    Press SET DEFAULT to remember the currently open folder across plugin/app
    restarts. This preference stays in the plugin folder, outside projects and
@@ -52,3 +52,8 @@ No new synthesis or per-column host callback is required on tab switching.
 
 Format references: [Microsoft WAVEFORMATEX](https://learn.microsoft.com/en-us/windows/win32/api/mmreg/ns-mmreg-waveformatex),
 [Microsoft WAVEFORMATEXTENSIBLE](https://learn.microsoft.com/en-us/windows/win32/api/mmreg/ns-mmreg-waveformatextensible).
+
+In0.0.25 OPEN STORAGE is deliberately named the same before/after choosing a
+folder; SET DEFAULT is the saving action. Its native parameter is4095, within the
+MPC handle registry. The shared SOUND display retains432 columns and switches
+cached data through the visible context caption; MIX/ENVELOPE restore mixed data.

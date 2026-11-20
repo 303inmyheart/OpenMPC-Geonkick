@@ -2,7 +2,7 @@
   "name": "Geonkick MPC",
   "vendor": "OpenMPC",
   "uid": "GkM3",
-  "version": 24,
+  "version": 25,
   "so": "geonkick_mpc.so",
   "params": "params.json",
   "layout": "layout.conf",
@@ -29,7 +29,8 @@
     "FILTER_CONTROL_FEEDBACK": 1,
     "CONTROL_CONTEXT_REV": 1,
     "DYNAMIC_PARAM_UNITS": 1,
-    "MODULE_SUBDIR": "\".\""
+    "MODULE_SUBDIR": "\".\"",
+    "UI_DISPLAY_CONTEXT": 1
   },
   "programs": {
     "param": "preset"

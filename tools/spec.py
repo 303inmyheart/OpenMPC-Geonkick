@@ -205,18 +205,25 @@ for key,label in [('folder','Folder'),('status','Import Status'),('page','File P
 for row in range(8):
     opt(f'sample_pick{row}',f'File Row{row+1}',['Off','Pick'],momentary=True,debounce_ms=180)
     p(f'sample_row{row}',f'File Name{row+1}',0,1,0,display='string',live=True,legacy=True,poll=False)
+# MPC creates exactly4096 native Parameter handles. Physical controls and all
+# state IDs stay fixed; only non-automatable, non-persisted display slots change.
 for layer in range(1,4):
     opt(f'sound_l{layer}_focus',f'Layer{layer} Envelope',[f'L{l} / {o}' for l in range(1,4) for o in range(1,4)],live=True,legacy=True)
     opt(f'sound_l{layer}_context',f'Layer{layer} Context',[str(i) for i in range(18)],live=True,legacy=True)
     for column in range(PLOT_COLUMNS):
-        p(f'viz_l{layer}_e_{column}',f'Layer{layer} Curve{column}',0,1,0,live=True,legacy=True)
+        if layer<3:
+            channel='p' if layer==1 else 'n'
+            p(f'viz_sound_{channel}_{column}',f'Sound Wave{channel}{column}',0,1,0,live=True,legacy=True)
+        elif column<4:
+            key=f'ui_view_l{column+1}' if column<3 else 'ui_view_mix'
+            p(key,'Waveform View',0,1,0,display='string',poll=False,live=True,legacy=True)
+        elif column<114:
+            p(f'viz_l3_e_{column}',f'Reserved Display{column}',0,1,0,live=True,legacy=True)
+        elif column==114:
+            opt('sample_set_default','Set Default Folder',['Off','Go'],momentary=True,debounce_ms=180)
+        else:break
+assert len(params)==4096
 
-# Append-only metadata: preserve every 0.0.23 parameter identity.
-for layer in range(1,4):
-    for channel in ("p","n"):
-        for column in range(PLOT_COLUMNS):
-            p(f"viz_l{layer}_{channel}_{column}",f"Layer{layer} Wave{channel}{column}",0,1,0,live=True,legacy=True)
-opt("sample_set_default","Set Default Folder",["Off","Go"],momentary=True,debounce_ms=180)
 
 
 def generate():
@@ -388,7 +395,7 @@ qlink_bounds=column
               'qlinks "KIT" = -,-,-,-,-,-,-,-,-,-,-,-,kit_base,kit_output,-,-']
     lines += ['\n[tab SAMPLES]',
               'frame x=24 y=104 w=1230 h=590 title="GEONKICK / SAMPLE LIBRARY"',
-              'button cx=185 cy=200 w=210 h=36 label="OPEN DEFAULT" key=sample_open',
+              'button cx=185 cy=200 w=210 h=36 label="OPEN STORAGE" key=sample_open',
               'button cx=390 cy=200 w=180 h=36 label="SET DEFAULT" key=sample_set_default',
               'button cx=580 cy=200 w=180 h=36 label="DRIVES" key=sample_root',
               'button cx=740 cy=200 w=100 h=36 label="UP" key=sample_up',

@@ -43,7 +43,7 @@ typedef struct {
     struct gkick_synth *synth;
     Cache slots[SLOTS];
     Voice voices[VOICES];
-    int current,pad_current[PADS];
+    int current,pad_current[PADS],display_layer;
     unsigned age;
     unsigned display_revision,ui_revision;
     float output_gain[PADS];
@@ -328,7 +328,7 @@ static void preset(Engine *e,int which) {
 
 static void *create(const char *dir) {
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
-    sample_init(e,dir);
+    e->display_layer=-1;sample_init(e,dir);
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
     for(int pad=0;pad<PADS;pad++) {
@@ -503,6 +503,15 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         int i=index_of(original);if(i<0)return 0;
         return snprintf(buf,len,"%.3f",atomic_load(&e->values[i]));
     }
+    if(!strncmp(key,"ui_view_",8)){
+        if(!strcmp(key,"ui_view_mix"))return snprintf(buf,len,"MIX WAVEFORM");
+        int l;char tail;if(sscanf(key,"ui_view_l%d%c",&l,&tail)==1 && l>=1&&l<=3)return snprintf(buf,len,"LAYER %d WAVEFORM",l);
+    }
+    char view_channel,view_tail;int view_col;
+    if(sscanf(key,"viz_sound_%c_%d%c",&view_channel,&view_col,&view_tail)==2 && (view_channel=='p'||view_channel=='n') && view_col>=0&&view_col<PLOT_COLUMNS){
+        int l=e->display_layer>=0?e->display_layer:0;
+        return snprintf(buf,len,"%.9g",e->slots[e->current].layer_wave[l][view_channel=='n'][view_col]/(float)(PLOT_WAVE_LEVELS-1));
+    }
     int layer,column;char extra,field[32];
     if(sscanf(key,"sound_l%d_%31s%c",&layer,field,&extra)==2 && layer>=1 && layer<=3) {
         int o=atomic_load(&e->sound_focus[atomic_load(&e->selected)][layer-1]);
@@ -516,6 +525,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         char channel,trailing;int column;
         if(sscanf(key,"viz_%c_%d%c",&channel,&column,&trailing)!=2 || column<0 || column>=PLOT_COLUMNS)return 0;
         int c=channel=='p'?0:channel=='n'?1:channel=='e'?2:-1;if(c<0)return 0;
+        if(c==2 && e->display_layer>=0)return snprintf(buf,len,"%.9g",e->slots[e->current].layer_plot[e->display_layer][column]/(float)(PLOT_ENV_LEVELS-1));
         return snprintf(buf,len,"%.9g",e->slots[e->current].plot[c][column]/(float)((c==2?PLOT_ENV_LEVELS:PLOT_WAVE_LEVELS)-1));
     }
     if(!strcmp(key,"synthesis_count"))return snprintf(buf,len,"%u",atomic_load(&e->synthesis_count));
@@ -529,6 +539,12 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     }
     int i=index_of(key);if(i<0)return 0;
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));
+}
+void mpc_engine_ui_display(void *inst,const char *key) {
+    Engine *e=inst;int l=-2;char tail;
+    if(!strcmp(key,"ui_view_mix"))l=-1;
+    else {int n;if(sscanf(key,"ui_view_l%d%c",&n,&tail)==1 && n>=1&&n<=3)l=n-1;}
+    if(l>=-1 && l!=e->display_layer){e->display_layer=l;++e->display_revision;}
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
     Engine *e=inst;

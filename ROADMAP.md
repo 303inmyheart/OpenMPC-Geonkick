@@ -354,3 +354,22 @@ backed up, settings were unchanged during replacement, and the MPC application
 returned active/running with the packaged binary. Native sanitizer and actual
 ARM64/QEMU suites and the installer checker pass; fresh on-device waveform and
 default-folder acceptance is pending. No final-release Store benchmark.
+
+
+0.0.25 corrective build: MPC native skin registration creates only Parameter0
+through4095 (confirmed by read-only local firmware analysis; no system patch).
+0.0.24's new wave/default handles were above that boundary; user reports missing
+SOUND waveform, nonworking Set Default and a UI hang on a second instance.
+The app was restarted; no fix was installed at that point. Reuse a shared
+432-column cached layer view, selected by visible native text formatting; move
+Set Default inside the native ceiling. Preserve all physical controls/project
+chunks; relock only derived, nonautomatable display slots before public release.
+Actual on-device tab following remains acceptance testing, not proven by QEMU.
+Native MPC presets/banks next; remove MASTER/PRESETS when native sounds replace
+it. KIT tutorial before final release. No benchmark before final release binary.
+
+0.0.25 deployment complete:1859 package files verified, previous0.0.24 backed
+up locally, settings unchanged during replacement, MPC app restarted active/
+running and installed library matches installer. Native sanitizer/full ARM64
+suites and final two-instance display-context regressions pass. On-device SOUND
+view following, folder button and UI responsiveness remain user acceptance.

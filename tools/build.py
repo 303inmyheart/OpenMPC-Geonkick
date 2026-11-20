@@ -2,7 +2,8 @@
 """Local native/ARM64 and skin builds. Reuses the neighbouring MPC wrapper.
 MPC_VST, MPC_TOOLCHAIN and QEMU_AARCH64 can select external tools.
 """
-import json,os,shutil,subprocess,sys
+import json,os,shutil,subprocess,sys,fcntl
+from contextlib import contextmanager
 from pathlib import Path
 import spec
 
@@ -10,6 +11,13 @@ ROOT=Path(__file__).resolve().parents[1]
 MPC=Path(os.environ.get('MPC_VST',ROOT.parent/'mpc-vst-plugins')).resolve()
 LOCAL=Path(os.environ.get('MPC_TOOLCHAIN',ROOT.parent/'mpc-vst-jc303/.tools/toolchain/usr')).resolve()
 CFG=json.loads((ROOT/'vst.json').read_text())
+@contextmanager
+def platform_lock():
+    (ROOT/'build').mkdir(exist_ok=True)
+    with (ROOT/'build/.platform-build.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX)
+        yield
+
 def run(args,**kw):
     env=os.environ.copy()
     env['LD_LIBRARY_PATH']=str(LOCAL/'lib/x86_64-linux-gnu')+':'+env.get('LD_LIBRARY_PATH','')
@@ -40,6 +48,7 @@ def prepare():
     if 'FILTER_CONTROL_FEEDBACK' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-filter-control-feedback.patch.')
     if 'CONTROL_CONTEXT_REV' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-control-context.patch.')
     if 'DYNAMIC_PARAM_UNITS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-sample-dynamic-units.patch last.')
+    if 'UI_DISPLAY_CONTEXT' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-native-display-context.patch last.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()
@@ -66,6 +75,7 @@ def skin():
     run([sys.executable,MPC/'tools/studio.py','preview',folder,'-o',ROOT/'build/preview_%d.png'])
 if __name__=='__main__':
     target=sys.argv[1] if len(sys.argv)>1 else 'all'
-    if target in ('native','all'):build('native')
-    if target in ('aarch64','all'):build('aarch64')
-    if target in ('skin','all'):skin()
+    with platform_lock():
+        if target in ('native','all'):build('native')
+        if target in ('aarch64','all'):build('aarch64')
+        if target in ('skin','all'):skin()

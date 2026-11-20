@@ -407,3 +407,18 @@ refreshes, not recalculated by reading a tab.
 
 Run native and ARM64 builds sequentially: preparation regenerates shared
 parameter headers, so concurrent compiler invocations are not independent.
+
+0.0.25 adds a14th opt-in wrapper patch, mpc-native-display-context.patch, after
+mpc-sample-dynamic-units.patch. UI_DISPLAY_CONTEXT calls the port's weak hook only
+from effGetParamDisplay formatting. Ordinary getParameter, metadata names,
+reporter scans and engine reads do not select pages. Visible text markers choose
+one cached SOUND layer or the mixed/editor view. No sample loop or file IO runs
+in this hook. A context change invalidates the graph once; repeated labels are
+idempotent. Actual native page-formatting behavior needs hardware acceptance.
+
+Native skin handles must be0..4095. All physical controls, first3111 descriptors,
+three focus/context IDs and GKMP9 project chunks stay fixed. Only derived display
+slots are relocked: shared432-column positive/negative layer strips, four native
+text context markers, and Set Default at4095. Old display-only values were never
+automatable or saved. Platform CLI builds/tests now serialize with flock to keep
+shared generated headers stable throughout library and test-host compilation.

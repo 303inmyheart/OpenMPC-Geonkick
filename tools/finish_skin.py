@@ -123,9 +123,18 @@ for tab in page['tabs']:
     if tab['fnKeyIndex']!=0:continue
     children=defs[tab['componentName']]['componentsData']
     children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'plot_grid.png'},shadow_skin._bounds(70,122,920,220),'Plot background'))
+    marker='ui_view_l'+str(tab['fnKeySubIndex']+1) if tab['fnKeySubIndex']<3 else 'ui_view_mix'
+    Image.new('RGB',(190,18),'#0b1a1f').save(path.parent/'gk_view_label.png')
+    view=shadow_skin._local('gkViewMarker',[],[
+        shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'gk_view_label.png'},shadow_skin._bounds(0,0,190,18),'Background'),
+        shadow_skin._value_label(0,0,190,18,10,'b9ed68',font='DejaVu Sans')])
+    if not any(d['key']=='gkViewMarker' for d in page['componentDefinitions']['localComponentDefinitions']):
+        view['value']['ignoreMousePresses']=True
+        page['componentDefinitions']['localComponentDefinitions'].append(view)
+    children.append(shadow_skin._placed('gkViewMarker','Waveform view',ids[marker],100,214,190,18,focus='No'))
     for column in range(PLOT_COLUMNS):
         for channel,height,y in [('p',96,145),('n',96,241),('e',192,145)]:
-            child=shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_l{tab["fnKeySubIndex"]+1}_{channel}_{column}'] if tab['fnKeySubIndex']<3 else ids[f'viz_{channel}_{column}'],100+column*PLOT_WIDTH,y+86,PLOT_WIDTH,height,focus='No')
+            child=shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_sound_{channel}_{column}'] if channel!='e' and tab['fnKeySubIndex']<3 else ids[f'viz_{channel}_{column}'],100+column*PLOT_WIDTH,y+86,PLOT_WIDTH,height,focus='No')
             child['bounds']['additionalInvalidatingHandles'].append('Parameter '+str(ids['graph_revision']))
             children.append(child)
 # Keep each caption INSIDE its native control so conditional visibility remains
@@ -223,6 +232,7 @@ for tab in page['tabs']:
             children.append(child)
     note=shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-simple.png'},shadow_skin._bounds(90,466,1100,22),'Simple envelope')
     note['bounds']['additionalInvalidatingHandles']=['IndexedEnabling/0/2/Parameter '+str(ids['ui_point_mode'])]
+    children.append(shadow_skin._placed('gkViewMarker','Waveform view',ids['ui_view_mix'],935,328,190,18,focus='No'))
     # Draw every segment, including points outside the current grip group,
     # using the same worker-produced envelope samples as the SOUND graph.
     for width in (2,3):

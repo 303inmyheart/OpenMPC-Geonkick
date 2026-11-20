@@ -62,6 +62,10 @@ try:
             set_value('free_select',2);set_value('free_bend',.65);settle()
         if filename=='osc-sample':set_value('o1_sample_on',1);settle()
         if wave:set_value('o1_wave',wave);settle()
+        # Format the visible native context caption before reading its cached
+        # graph, as on the post-invalidation frame of the MPC skin.
+        if tab['fnKeyIndex']==0:display(ids[f"ui_view_l{tab['fnKeySubIndex']+1}"])
+        elif tab['componentName'] in ('SYNTH|MIX','ENVELOPE|ENVELOPE'):display(ids['ui_view_mix'])
         values={i:get(e,i) for i in range(len(params))}
         state={i:round(values[i]*(len(p['options'])-1)) for i,p in enumerate(params) if p.get('options')}
         im=Image.new('RGBA',(1280,628));dr=ImageDraw.Draw(im)

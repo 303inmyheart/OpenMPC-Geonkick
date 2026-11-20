@@ -1,3 +1,20 @@
+# Current verification —0.0.25
+
+The actual native skin registry is bounded to Parameter0..4095. Every skin data,
+text, conditional-visibility, invalidation and context binding is now checked
+against that ceiling. The old unconstrained VST tests missed the platform limit;
+0.0.24 is rejected by the new validation. Derived-only display slots are relocked;
+physical controls, original sample controls, focus IDs and GKMP9 chunks stay fixed.
+
+Actual shared-library tests exercise visible text formatting for all three SOUND
+views, common high-resolution envelope channels, ordinary parameter/name scans
+that must not change a view, and full MIX/editor restoration. No tab-read synthesis.
+The standard-folder button is now4095. Worker-persisted default folder and native
+VST close/reopen tests remain. MPC page-caption formatting and multi-instance UI
+responsiveness need hardware acceptance; QEMU does not prove these native UI paths.
+
+Remaining tests/historical notes follow. No final-release Store benchmark.
+
 # Current verification —0.0.24
 
 Per-layer waveform peaks are checked against an independent isolated-layer mixed
@@ -533,3 +550,9 @@ backed up, settings were unchanged during replacement, and the MPC application
 returned active/running with the packaged binary. Native sanitizer and actual
 ARM64/QEMU suites and the installer checker pass; fresh on-device waveform and
 default-folder acceptance is pending. No final-release Store benchmark.
+
+0.0.25 deployment complete:1859 package files verified, previous0.0.24 backed
+up locally, settings unchanged during replacement, MPC app restarted active/
+running and installed library matches installer. Native sanitizer/full ARM64
+suites and final two-instance display-context regressions pass. On-device SOUND
+view following, folder button and UI responsiveness remain user acceptance.

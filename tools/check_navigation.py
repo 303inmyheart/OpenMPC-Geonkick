@@ -99,10 +99,10 @@ for layer in range(1,4):
  curves=[c for c in children if c['componentData']['type']=='gkPlot_e']
  assert len(curves)==432
  mapped={m['value'] for c in curves for m in c['handle remapping']['map'] if m['key']=='Data'}
- assert mapped=={f'Parameter {ids[f"viz_l{layer}_e_{col}"]}' for col in range(432)}
+ assert mapped=={f'Parameter {ids[f"viz_e_{col}"]}' for col in range(432)}
  for channel in ('p','n'):
   wave={m['value'] for c in children if c['componentData']['type']=='gkPlot_'+channel for m in c.get('handle remapping',{}).get('map',[]) if m['key']=='Data'}
-  assert wave=={f'Parameter {ids[f"viz_l{layer}_{channel}_{col}"]}' for col in range(432)}
+  assert wave=={f'Parameter {ids[f"viz_sound_{channel}_{col}"]}' for col in range(432)}
  assert any(any(m['key']=='Data' and m['value']==f'Parameter {ids[f"sound_l{layer}_focus"]}' for m in c.get('handle remapping',{}).get('map',[])) for c in children)
 page_samples=defs['SAMPLES|SAMPLES']['componentsData']
 for row in range(8):
@@ -121,3 +121,24 @@ for tab in tabs:
  children=defs[tab['componentName']]['componentsData']
  assert any(m['key']=='Data' and m['value']==f'Parameter {ids["kit_title"]}' for m in children[-1].get('handle remapping',{}).get('map',[])),'Header hidden by later bank artwork'
 print('Selected-pad header above every bank artwork PASS')
+
+# Model the actual MPC native handle registry, not just the unconstrained VST ABI.
+assert len(params)<=4096
+import re
+for definition in defs.values():
+    for component in definition.get('componentsData',[]):
+        for remap in component.get('handle remapping',{}).get('map',[]):
+            for match in re.finditer(r'Parameter (\d+)',remap['value']):assert int(match[1])<4096
+        for handle in component.get('bounds',{}).get('additionalInvalidatingHandles',[]):
+            for match in re.finditer(r'Parameter (\d+)',handle):assert int(match[1])<4096
+print('All native data, text, visibility and invalidation handles within MPC Parameter0..4095 PASS')
+for layer in range(1,4):
+    children=defs[f'SYNTH|LAYER {layer}']['componentsData']
+    assert any(c['componentData']['type']=='gkViewMarker' and any(m['value']==f'Parameter {ids[f"ui_view_l{layer}"]}' for m in c['handle remapping']['map']) for c in children)
+for name in ('SYNTH|MIX','ENVELOPE|ENVELOPE'):
+    assert any(c['componentData']['type']=='gkViewMarker' and any(m['value']==f'Parameter {ids["ui_view_mix"]}' for m in c['handle remapping']['map']) for c in defs[name]['componentsData'])
+
+for tab in page['tabs']:
+    for c in defs[tab['componentName']]['componentsData']:
+        if c['componentData']['type']=='gkViewMarker':
+            assert int(c['bounds']['bounds'].split()[1])==(242 if tab['componentName']=='ENVELOPE|ENVELOPE' else 128)
