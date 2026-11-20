@@ -50,10 +50,14 @@ try:
     preset_tab=next(t for t in page['tabs'] if t['componentName']=='PRESETS|PRESETS')
     mix_tab=next(t for t in page['tabs'] if t['componentName']=='SYNTH|MIX')
     fx_tab=next(t for t in page['tabs'] if t['componentName']=='EFFECTS|EFFECTS')
-    for filename,tab,wave in [('presets',preset_tab,0),('mix',mix_tab,0),('master-fx',fx_tab,0),('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0)]:
+    for filename,tab,wave in [('presets',preset_tab,0),('mix',mix_tab,0),('master-fx',fx_tab,0),('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0),('envelope-free',env_tab,0)]:
         if filename=='envelope-simple':set_value('reset',1);settle()
         if filename=='envelope-amp':set_value('o1_a_mode',1);settle()
         if filename=='envelope-pitch':set_value('o1_p_mode',1);settle()
+        if filename=='envelope-free':
+            set_value('plot_env',0);set_value('o1_a_mode',1)
+            for _ in range(5):set_value('free_add',1);time.sleep(.2)
+            set_value('free_select',2);set_value('free_bend',.65);settle()
         if wave:set_value('o1_wave',wave);settle()
         values={i:get(e,i) for i in range(len(params))}
         state={i:round(values[i]*(len(p['options'])-1)) for i,p in enumerate(params) if p.get('options')}
@@ -89,7 +93,7 @@ try:
                         coords.append((x+sx+18+(w-36)*pos,y+sy+18+(h-36)*(1-level)))
                     for j in range(5):
                         gy=y+sy+18+j*(h-36)/4;dr.line((x+sx+18,gy,x+sx+w-18,gy),fill='#464d45')
-                    dr.line(coords,fill='#'+data.get('lineColour','ffefbc73')[-6:],width=3)
+                    if data.get('lineColour','ffefbc73')[:2]!='00':dr.line(coords,fill='#'+data.get('lineColour','ffefbc73')[-6:],width=3)
                     for px,py in coords:dr.ellipse((px-18,py-18,px+18,py+18),fill='#'+data.get('handleFillColour','ff192b31')[-6:],outline='#'+data.get('handleLineColour','ffefbc73')[-6:],width=2)
                 elif sd['type']=='Label':
                     style=data['textStyle'];caption=cd['name'] if data.get('type')=='Name' else display(i)

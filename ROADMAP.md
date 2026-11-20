@@ -54,7 +54,8 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
    graphical point editing and preview/export. First prototype: native fixed
    five-level/four-time envelope for selected oscillator amplitude/pitch,
    explicit custom-envelope state/migration and safe point/time ordering.
-   Free point insertion/deletion and Bezier handles need further UI work.
+   Variable insertion/deletion and cubic curvature are implemented in 0.0.17 below;
+   freely draggable desktop Bezier handles still need further UI work.
    See [feasibility](docs/ENVELOPE-EDITOR.md).
 4. **Kit architecture** — sixteen independent drums, pad/key/channel mapping,
    per-drum choke/mute/solo, kit persistence, practical navigation. Decide output
@@ -127,3 +128,35 @@ MPC application restarted. Latest on-device selector/preset acceptance pending.
 No formal Store benchmark, public Geonkick release or renewed blanket permission
 for future device access. The JC303 Plugin Manager image issue is recorded in
 JC303's roadmap separately.
+
+
+## 0.0.17 — variable point envelopes (local candidate)
+
+- Amp/Pitch on all nine oscillators: 2–16 points, interior insertion/deletion,
+  cubic Bezier segment curvature, touch-only selection/value/time/curve controls.
+  Adding a point subdivides the existing cubic without changing its shape.
+- Full actual-DSP curve over the mixed-hit waveform; native endpoints plus
+  three banked inner grips. Previous/next selection is available. Hardware
+  acceptance is required for group changes, sparse 2/3/4-point placeholders,
+  fast gestures and quiet-time redraw. Installed after the user renewed standing
+  update permission; MPC application restarted and exact binary hash verified.
+- GKMP5 and larger opt-in VST chunks, exact GKMP1–4 migration, fixed original
+  parameter identities; bounded worker-baked curves and immutable key lookup.
+- Remaining desktop envelope parity: free two-dimensional Bezier control handles,
+  arbitrary tap-to-insert coordinates (ADD currently splits the selected segment),
+  more than 16 points if practical, and original desktop preset interchange.
+  Current native fixed-five editor has no documented raw canvas touch callback.
+
+After acceptance, continue useful filter range / sound parity, sample loading,
+external presets/export and eventually sixteen-instrument kit architecture.
+Formal benchmark only on the final release binary. No public release claimed.
+
+
+0.0.17 delivery: native ASan/UBSan/leaks, actual ARM64/QEMU shared-library,
+point/state/signal/focus tests and native skin geometry pass. Current pinned
+OpenMPC checker reports zero warnings. 1500 plugin files staged/hash-verified,
+prior0.0.16 backed up locally; settings unchanged during replacement. Necessary
+MPC application restart completed, service active/running and installed binary
+matches the package. No new on-device touch/hearing acceptance or formal CPU
+benchmark claimed. Next: the focused0.0.17 touch/curve test, fixes if needed,
+then useful filter range / remaining sound editing parity.

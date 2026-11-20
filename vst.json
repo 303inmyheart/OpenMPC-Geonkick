@@ -2,7 +2,7 @@
   "name": "Geonkick MPC",
   "vendor": "OpenMPC",
   "uid": "GkM3",
-  "version": 16,
+  "version": 17,
   "so": "geonkick_mpc.so",
   "params": "params.json",
   "layout": "layout.conf",
@@ -22,7 +22,8 @@
     "GRAPH_INVALIDATION_ONLY": 1,
     "GRAPH_REBIND_ON_REFRESH": 1,
     "FINE_TRACK_RAW_INPUT": 1,
-    "CANONICAL_CONTINUOUS_ECHO": 1
+    "CANONICAL_CONTINUOUS_ECHO": 1,
+    "ENGINE_CHUNK_CAPACITY": 65536
   },
   "programs": {
     "param": "preset"

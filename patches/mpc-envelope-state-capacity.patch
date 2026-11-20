@@ -1,0 +1,15 @@
+diff --git a/wrapper/vst2_wrap.c b/wrapper/vst2_wrap.c
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -156,7 +156,10 @@
+     pthread_t rev_th; volatile int rev_stop; int rev_th_on;   /* the display_rev reporter thread (see rev_scan) */
+ #endif
+     float open[NPARAMS];     /* popup "open" flags (popup.h): kept here, never sent to the DSP or saved */
+-    char chunk[8192];
++#ifndef ENGINE_CHUNK_CAPACITY
++#define ENGINE_CHUNK_CAPACITY 8192
++#endif
++    char chunk[ENGINE_CHUNK_CAPACITY];
+     pthread_mutex_t lock;    /* one engine call at a time: see eng_set() */
+     int nrpn;                /* HAS_NRPN: the parameter CC 99/98 selected (-1: none), its coarse value from CC 6 */
+     int nrpn_msb;

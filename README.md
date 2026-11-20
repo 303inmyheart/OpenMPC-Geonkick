@@ -10,7 +10,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.16 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.17 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
@@ -31,6 +31,17 @@ is pending; previews below are offline renders.
 0.0.16 fixes oscillator-focus snapback after native host feedback and centres
 all eight MASTER/PRESETS buttons inside their panel. Native sanitizer, ARM64 and
 new host-echo/geometry regressions pass; actual MPC touch acceptance is pending.
+
+0.0.17 adds **variable Amp/Pitch envelopes with 2–16 points** on every oscillator.
+ADD POINT divides the selected outgoing segment without changing its cubic shape;
+DELETE POINT removes an interior point. The full envelope and completed mixed-hit
+waveform remain visible together. Native touch grips edit endpoints plus a group
+of up to three interior points; choose a group or use POINT previous/next. POINT
+LEVEL and POSITION edit the selection; SEGMENT CURVE bends its outgoing cubic
+Bezier segment. All point editing is touch-only. First/last times stay at the
+sound boundaries. This is a local development build; new MPC touch acceptance
+is pending. The build was installed under renewed standing permission and the
+MPC application restarted; no formal Store benchmark has been performed.
 
 Short-hit ends now use a smooth 5 ms tail. Cut retriggers and stolen voices
 continue the old waveform through a bounded 5 ms fade while the new hit starts
@@ -65,22 +76,22 @@ Implemented:
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The 0.0.15 Percussion Lab palette uses graphite, lime and amber.
-- Versioned project state with 385 stored controls, plus derived read-only
-  graph/view channels. Original indices stay unchanged. 0.0.1 and 0.0.2 chunks
-  load with the appended controls at neutral/default values. GKMP3 states
-  retain their simple envelopes when migrated to GKMP4.
+- Versioned GKMP5 project state with 1521 stored values, including independent
+  point lists and Bezier ordinates for all 18 curves. All 1782 previous VST
+  parameter identities remain unchanged. GKMP1–4 states migrate with their
+  original sound and old five-point data; variable editing converts them lazily.
+  Full 16-point states are tested through the actual VST chunk API.
 - Graph refresh uses one derived revision signal instead of per-column host
   notifications; the skin binds each graph widget to that invalidation handle.
   The native repaint path remains experimental: a post-gesture host rebind now
   follows that signal. No column callback burst is reintroduced.
 - Thin sliders retain their original visible pixels with transparent padded
   native hit areas (64 pixels high for the main envelope sliders).
-- Native ENVELOPE page: five linear points for Amp and Pitch on each of the
-  nine oscillators, 36-pixel touch handles, touch-only selected-point controls,
-  Simple/Points modes and Copy Simple. First activation copies the existing curve.
-  Custom points and mode are saved per oscillator/envelope. The user confirmed dragging on MPC; waveform/curve alignment in the combined
-  view still requires acceptance. The waveform represents the complete mixed
-  hit, with the selected oscillator’s Amp/Pitch points above it.
+- Native ENVELOPE page: 2–16 points for Amp and Pitch on all nine oscillators,
+  Simple/Points and Copy Simple, cubic segment curvature, 36-pixel touch grips,
+  previous/next selection and complete curve/waveform overlay. No point Q-Links.
+  Original five-point dragging was confirmed on MPC; the new variable grip groups
+  require separate hardware validation. See [editor guide](docs/ENVELOPE-EDITOR.md).
 - Touch gestures use independent continuous handles for all 46 fine controls.
   Q-Link/data-wheel selection and mapping stay fine; both routes share saved
   physical values. The visible knob follows the direct Touch value, avoiding
@@ -147,3 +158,11 @@ Product name: **Geonkick MPC**; the prepared catalog JSON uses **GeonKick**.
 License: **GPL-3.0-or-later**, including vendored Geonkick and Quamplex DSP Tools.
 The external OpenMPC wrapper is MIT; the bundled DejaVu font has its own notice
 in art/FONT-LICENSE.txt. No Akai stock artwork or proprietary SDK is included.
+
+
+![Variable point envelope over the rendered hit — offline native-skin preview, not a hardware screenshot](docs/screenshots/envelope-free.png)
+
+The 0.0.17 native/ASan/UBSan/leak and actual ARM64 shared-library/QEMU suites
+pass. Cubic insertion audio differs by less than 1e-7 in the regression fixture;
+this is numerical verification, not a CPU benchmark or a hardware hearing claim.
+See [the focused MPC test guide](TESTPLAN-0.0.17-DE.md) for the next device test.

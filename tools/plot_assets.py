@@ -39,3 +39,11 @@ for width in (2,3):
             y=frame*height+(height-length if channel=='p' else 0)
             draw.rectangle((0,y,width-1,y+length-1),fill=(83,149,152,180))
         im.save(root/'art'/f'plot_edit_{channel}_{width}.png')
+
+# Full variable envelope over the same waveform, native grip inset matched.
+for width in (2,3):
+    height=134;im=Image.new('RGBA',(width,height*PLOT_ENV_LEVELS),(0,0,0,0));d=ImageDraw.Draw(im)
+    for frame in range(PLOT_ENV_LEVELS):
+        y=frame*height+round((1-frame/(PLOT_ENV_LEVELS-1))*(height-2))
+        d.rectangle((0,y,width-1,y+1),fill='#efbc73')
+    im.save(root/'art'/f'plot_edit_e_{width}.png')

@@ -86,8 +86,8 @@ def panel_background(layout,bank,children,defs,skin):
         line(d,[(60,86),(60,253)],CYAN,3);line(d,[(60,319),(60,496)],AMBER,3)
         text(d,(640,570),'FILTER  /  DRIVE   ·   '+('GLOBAL PROCESSING' if name=='EFFECTS' else 'OSCILLATOR PROCESSING'),13,MUTED)
     elif name=='ENVELOPE':
-        card((70,72,1210,225));card((70,244,1210,476));card((70,478,1210,611))
-        text(d,(90,267),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,267),'DRAG POINTS',12,AMBER,'rm')
+        card((70,72,1210,225));card((70,228,1210,423));card((70,424,1210,508));card((70,510,1256,625))
+        text(d,(90,240),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,240),'DRAG POINTS',12,AMBER,'rm')
     elif name=='PRESETS':
         card(PRESET_FRAME);text(d,(640,515),'EIGHT STARTING POINTS  /  SHAPE YOUR OWN SOUND',13,MUTED)
     # Group headings are static; actual conditional names remain inside native
@@ -140,7 +140,7 @@ def main():
                         line(dr,[(x+14,y+h-3),(x+w-14,y+h-3)],'#1e3639');save(im,skin/fn)
                     # Background paint cannot capture gestures over the value.
                     value['backgroundData']={'version':1,**{state:{'version':1,'colour':'00000000','image':fn} for state in ('focussed','unfocussed')}}
-            if cd['type']=='Envelope':
+            if cd['type']=='Envelope' and key!='gkFreeEnvelope':
                 for field,color in [('lineColour','ffefbc73'),('handleLineColour','ffefbc73'),('handleFillColour','ff192b31'),('handleFillColourOnPressed','ffb9ed68'),('scaleColour','ff31494c')]:cd['data'][field]=color
             updated.append(sub)
         if rotary:value['componentsData']=updated

@@ -35,12 +35,15 @@ struct gkick_envelope_point {
 };
 
 struct gkick_envelope {
+        float *sample_table; size_t sample_count, sample_capacity; /* MPC worker-baked curves */
         enum gkick_envelope_apply_type apply_type;
         enum gkick_envelope_curve_type curve_type;
 	size_t npoints;
 	struct gkick_envelope_point *first;
 	struct gkick_envelope_point *last;
 };
+
+void gkick_envelope_set_table(struct gkick_envelope *env, const float *samples, size_t count);
 
 struct gkick_envelope*
 gkick_envelope_create(void);

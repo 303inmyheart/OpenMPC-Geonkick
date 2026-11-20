@@ -131,6 +131,13 @@ gkick_real
 gkick_envelope_get_value(const struct gkick_envelope* envelope,
                          gkick_real xm)
 {
+    if (envelope && envelope->sample_count > 1) {
+        if (xm < 0 || xm > 1) return 0;
+        float position = xm * (envelope->sample_count - 1);
+        size_t i = (size_t)position;
+        if (i >= envelope->sample_count - 1) return envelope->sample_table[envelope->sample_count - 1];
+        return envelope->sample_table[i] + (envelope->sample_table[i+1] - envelope->sample_table[i]) * (position-i);
+    }
     if (envelope == NULL
         || envelope->npoints < 2
         || envelope->first == NULL
@@ -235,6 +242,7 @@ void gkick_envelope_destroy(struct gkick_envelope *envelope)
 			free(point);
 		}
 	}
+        free(envelope->sample_table);
 	free(envelope);
 }
 
@@ -284,6 +292,7 @@ gkick_envelope_set_points(struct gkick_envelope *env,
 
 void gkick_envelope_clear(struct gkick_envelope* env)
 {
+        env->sample_count = 0; /* Retain bounded worker table storage for edits. */
         struct gkick_envelope_point *p = env->first;
         struct gkick_envelope_point *curr;
         while (p != NULL) {
@@ -301,6 +310,7 @@ gkick_envelope_remove_point(struct gkick_envelope *env, size_t index)
         if (env == NULL || index >= env->npoints)
                 return;
 
+        env->sample_count = 0; /* Retain bounded worker table storage for edits. */
         struct gkick_envelope_point *p = env->first;
         size_t i = 0;
         while (p) {
@@ -330,6 +340,7 @@ gkick_envelope_update_point(struct gkick_envelope *env,
         if (env == NULL || index >= env->npoints)
                 return;
 
+        env->sample_count = 0; /* Retain bounded worker table storage for edits. */
         struct gkick_envelope_point *p = env->first;
         size_t i = 0;
         while (p) {
@@ -342,4 +353,19 @@ gkick_envelope_update_point(struct gkick_envelope *env,
                 p = p->next;
                 i++;
         }
+}
+
+/* MPC extension: called only on the synthesis worker. Constant-time lookup
+ * during upstream synthesis; never used or allocated on the host audio thread. */
+void gkick_envelope_set_table(struct gkick_envelope *env, const float *samples, size_t count)
+{
+    if (!env || !samples || count < 2) return;
+    if (env->sample_capacity < count) {
+        float *next = realloc(env->sample_table, count * sizeof *next);
+        if (!next) return;
+        env->sample_table = next;
+        env->sample_capacity = count;
+    }
+    memcpy(env->sample_table, samples, count * sizeof *samples);
+    env->sample_count = count;
 }

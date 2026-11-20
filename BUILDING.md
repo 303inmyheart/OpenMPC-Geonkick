@@ -12,7 +12,8 @@ patches/mpc-display-parameter-budget.patch and
 patches/mpc-coalesced-graph-and-fine-input.patch, then
 patches/mpc-graph-rebind-and-input-observation.patch and
 patches/mpc-accumulated-fine-input.patch, followed by
-patches/mpc-canonical-continuous-echo.patch, in that order. The wrapper is not copied into this repository.
+patches/mpc-canonical-continuous-echo.patch and finally
+patches/mpc-envelope-state-capacity.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
 `mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
@@ -240,3 +241,35 @@ opt in and are unaffected. The full documented wrapper patch sequence was
 checked against the clean pinned base. focus_echo_test.c exercises all nine
 Amp/Pitch contexts, stopped and rendering, including async host rebinds and
 preservation of fractional physical state. The same test fails on 0.0.15.
+
+
+0.0.17 appends variable-envelope storage and touch proxies after all previous
+1782 VST indices. GKMP5 stores 1521 values; GKMP4 still consumes exactly 385.
+ENGINE_CHUNK_CAPACITY=65536 opts this port into a larger per-instance state buffer;
+the shared wrapper defaults to 8192 for other ports. The final capacity patch is
+included in patches/. free_chunk_test.c tests a >8 KiB actual shared-library
+chunk, restart/restore, asymmetric Bezier handles and exact native proxy echoes.
+
+src/free_envelope.h owns up to 16 points per curve, independent cubic control
+ordinates and De Casteljau subdivision. The worker bakes each used free curve
+into 4097 normalized samples; upstream synthesis interpolates those samples in
+constant time instead of searching variable point lists or inverting cubics per
+sample. No worker table lookup/allocation moves into the host audio callback.
+An immutable generated hash index replaces repeated linear scans through the
+larger stored parameter table. Storage channels are host-readonly and edits
+notify only the small proxy set, not all curve fields. The quiet-time graph
+refresh continues to use the existing shared invalidation.
+
+The native Pitch Envelope has five grips. Its line is transparent; readonly
+viz_e columns draw the complete actual-DSP curve above the existing waveform.
+Virtual edit_l0..4/edit_t1..4 map endpoints and three banked interior points.
+Two to four points use coincident inert placeholder grips at the right endpoint;
+their appearance and actual native drag semantics require device acceptance.
+Raw adjacent duration writes retain one proxy weight vector between events,
+preventing normalization drift of untouched points. Actual point order is
+clamped against hidden neighbors; endpoints cannot change their time.
+
+free_envelope_test.c covers all 18 contexts, 2..16 point bounds, cubic insertion
+sound preservation, raw paired time events, endpoint safety, malformed-state
+atomic rejection, GKMP4 migration, original parameter automation and Copy Simple.
+This remains an offline/QEMU regression suite, not a hardware CPU benchmark.

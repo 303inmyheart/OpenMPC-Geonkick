@@ -70,11 +70,11 @@ int main(void) {
     note(a,0x81,62,0);api->render(a,out,128);assert(energy(out,256)==0);
     /* Exact round trip includes edits across every layer, not only the selected page. */
     set(a,"layer3","0.32");set(a,"o9_wave","5");set(a,"o9_on","1");set(a,"o9_drive","7");set(a,"o9_attack","0.1");
-    char state[8192],again[8192];assert(api->get_param(a,"state",state,sizeof state)>0);
+    char state[65536],again[65536];assert(api->get_param(a,"state",state,sizeof state)>0);
     set(b,"state",state);assert(api->get_param(b,"state",again,sizeof again)>0);assert(!strcmp(state,again));
     /* A genuine 0.0.1-shaped chunk contains exactly the first 103 values.
      * Loading it preserves those and supplies defaults for every appended key. */
-    char legacy[8192];strcpy(legacy,state);memcpy(legacy,"GKMP1",5);
+    char legacy[65536];strcpy(legacy,state);memcpy(legacy,"GKMP1",5);
     char *end=legacy+6;for(int i=0;i<103;i++)strtof(end,&end);*end=0;
     set(b,"state",legacy);assert(get(b,"o9_wave")==5);assert(get(b,"o9_drive")==2);assert(get(b,"o9_attack")==0);
     strcpy(legacy,state);memcpy(legacy,"GKMP2",5);end=legacy+6;

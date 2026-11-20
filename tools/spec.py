@@ -118,6 +118,32 @@ opt('point_copy','Copy Simple Envelope',['Off','Copy'],momentary=True,debounce_m
 TOUCH_BINDINGS.update(point_level_fine='point_level_drag',point_time_fine='point_time_drag')
 
 
+# 0.0.17: append-only variable envelopes. Storage is read-only to the host;
+# editing uses a small set of touch proxies, never hundreds of notifications.
+FREE_PARAMS=[]
+for osc in range(1,10):
+    for kind in ('a','p'):
+        start=len(params);prefix=f'f{osc}_{kind}_'
+        p(prefix+'n',f'O{osc} {kind} Point Count',0,16,0,display='int',live=True,legacy=True)
+        for j in range(16):
+            p(prefix+f'x{j}',f'O{osc} {kind} Time {j}',0,1,j/15,live=True,legacy=True)
+            p(prefix+f'y{j}',f'O{osc} {kind} Level {j}',0,1,0,live=True,legacy=True)
+        for j in range(15):
+            for handle in ('b','c'):p(prefix+f'{handle}{j}',f'O{osc} {kind} Bend {handle}{j}',-1,1,0,live=True,legacy=True)
+        FREE_PARAMS.extend(params[start:])
+opt('free_select','Envelope Point',[str(j+1) for j in range(16)],legacy=True)
+opt('free_bank','Visible Handles',['2–4','5–7','8–10','11–13','14–15'],legacy=True)
+FREE_PARAMS.extend(params[-2:]);STORED_PARAMS+=FREE_PARAMS
+for j in range(5):p(f'edit_l{j}',f'Curve Handle {j+1}',0,1,0,dynamic_display=True,legacy=True)
+for j in range(1,5):p(f'edit_t{j}',f'Curve Interval {j}',0.0001,1,0.25,dynamic_display=True,legacy=True)
+for key,name in [('free_add','ADD POINT'),('free_delete','DELETE POINT')]:opt(key,name,['Off','Go'],momentary=True,debounce_ms=180,legacy=True)
+p('free_level','Point Level',0,1,0,dynamic_display=True,legacy=True)
+p('free_time','Point Position',0,1,0,dynamic_display=True,legacy=True)
+p('free_bend','Segment Curve',-1,1,0,dynamic_display=True,legacy=True)
+p('free_status','Envelope Status',0,1,0,live=True,legacy=True,dynamic_display=True)
+for key in ('free_prev','free_next'):opt(key,'Select Envelope Point',['Off','Go'],momentary=True,debounce_ms=150,legacy=True)
+
+
 def generate():
     (ROOT/'params.json').write_text(json.dumps(dict(name='Geonkick MPC',params=params),indent=2)+'\n')
     # Engine uses this independent, plain table rather than wrapper-private types.
@@ -126,8 +152,22 @@ def generate():
        'static const GParam gparams[] = {']
     for x in STORED_PARAMS:
         h.append('    {"%s", %sf, %sf, %sf, %d},'%(x['key'],float(x['min']),float(x['max']),float(x['default']),bool(x.get('options'))))
-    h+=['};',f'#define GP_COUNT {len(STORED_PARAMS)}',f'#define LEGACY_GP_COUNT {CONTROL_COUNT}',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
+    h+=['};',f'#define GP_COUNT {len(STORED_PARAMS)}',f'#define LEGACY_GP_COUNT {CONTROL_COUNT}', '#define GKMP4_GP_COUNT 385',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
         f'#define PLOT_WAVE_LEVELS {PLOT_WAVE_LEVELS}',f'#define PLOT_ENV_LEVELS {PLOT_ENV_LEVELS}']
+    # Compile-time immutable lookup: growing curve storage must not turn each
+    # physical/proxy read into a scan through 1500 entries on audio/UI threads.
+    size=1
+    while size<len(STORED_PARAMS)*2:size*=2
+    lookup=[-1]*size
+    for i,x in enumerate(STORED_PARAMS):
+        hash_value=2166136261
+        for byte in x['key'].encode():hash_value=((hash_value^byte)*16777619)&0xffffffff
+        slot=hash_value&(size-1)
+        while lookup[slot]>=0:slot=(slot+1)&(size-1)
+        lookup[slot]=i
+    h += [f'#define GP_LOOKUP_SIZE {size}', 'static const short gparam_lookup[] = {']
+    h += ['    '+','.join(map(str,lookup[i:i+32]))+',' for i in range(0,size,32)]
+    h += ['};']
     h+=['typedef struct { const char *key,*target; int kind; float lo,hi; } GAlias;',
         'static const GAlias galiases[] = {']
     for key,target,kind in ALIASES:
@@ -237,12 +277,17 @@ qlink_bounds=column
     lines += ['\n[tab ENVELOPE]','frame x=24 y=104 w=1230 h=590 title="GEONKICK / POINT ENVELOPE"',
               'enum_h cx=640 cy=185 sw=94 sh=34 label="SELECT LAYER / OSCILLATOR" key=plot_osc',
               'enum_h cx=210 cy=270 sw=120 sh=34 label="CURVE" key=plot_env options="AMP,PITCH"',
-              'toggle cx=640 cy=270 bw=220 label="COPY SIMPLE" key=point_copy',
-              'frame x=70 y=330 w=1140 h=250 title="WAVEFORM + ENVELOPE / DRAG THE POINTS"',
-              'enum_h cx=205 cy=620 sw=52 sh=32 label="POINT" key=point_select',
-              'knob cx=500 cy=600 r=28 bw=220 ns=15 vs=19 label="POINT VALUE" key=point_level_fine when=ui_point_mode:1',
-              'knob cx=800 cy=600 r=28 bw=220 ns=15 vs=19 label="SEGMENT TIME" key=point_time_fine when=ui_point_mode:1',
-              'knob cx=1100 cy=600 r=24 bw=200 ns=13 vs=17 label="LENGTH (ms)" key=length_ms']
+              'toggle cx=570 cy=270 bw=190 label="COPY SIMPLE" key=point_copy',
+              'frame x=70 y=314 w=1140 h=195 title="WAVEFORM + ENVELOPE / SELECT A GRIP AND DRAG"',
+              'enum_h cx=640 cy=550 sw=114 sh=30 label="GRIP GROUP / ENDPOINTS ALWAYS VISIBLE" key=free_bank',
+              'button cx=170 cy=630 w=180 h=38 label="< POINT" key=free_prev',
+              'button cx=375 cy=630 w=180 h=38 label="POINT >" key=free_next',
+              'button cx=170 cy=682 w=180 h=38 label="ADD POINT" key=free_add',
+              'button cx=375 cy=682 w=180 h=38 label="DELETE POINT" key=free_delete',
+              'knob cx=590 cy=624 r=20 bw=180 ns=12 vs=16 label="POINT LEVEL" key=free_level',
+              'knob cx=790 cy=624 r=20 bw=180 ns=12 vs=16 label="POSITION (ms)" key=free_time',
+              'knob cx=990 cy=624 r=20 bw=180 ns=12 vs=16 label="SEGMENT CURVE" key=free_bend',
+              'knob cx=1170 cy=624 r=20 bw=155 ns=12 vs=16 label="LENGTH (ms)" key=length_ms']
     for osc in range(1,10):
         for mode,kind in enumerate(('a','p')):
             target=(osc-1)*2+mode

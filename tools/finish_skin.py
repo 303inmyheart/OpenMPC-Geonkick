@@ -226,31 +226,52 @@ for tab in page['tabs']:
     # Clone actions per placed control so other tabs keep their Q-Link behavior.
     for child in children:
         mapping=child.get('handle remapping',{}).get('map',[])
-        if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for k in ('point_select','point_level_fine','point_time_fine','point_copy') for m in mapping):
+        if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for k in ('point_select','point_level_fine','point_time_fine','point_copy','free_bank','free_level','free_time','free_bend','free_add','free_delete','free_prev','free_next') for m in mapping):
             original=defs.get(child['componentData']['type'])
             if original:
                 key=child['componentData']['type']+'_pointTouchOnly';clone=deepcopy(original)
                 clone['actions']=[a for a in clone.get('actions',[]) if a.get('handler')!='Q-Link']
                 defs[key]=clone;page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
                 child['componentData']['type']=key;child['bounds']['acceptsHWFocus']='No'
-    children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-wave-background.png'},shadow_skin._bounds(90,294,1100,170),'Waveform background'))
+    children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-wave-background.png'},shadow_skin._bounds(90,250,1100,170),'Waveform background'))
     for column in range(PLOT_COLUMNS):
         left=108+column*1064//PLOT_COLUMNS;right=108+(column+1)*1064//PLOT_COLUMNS
-        for channel,y in (('p',312),('n',379)):
+        for channel,y in (('p',268),('n',335)):
             child=shadow_skin._placed(f'gkEditWave_{channel}_{right-left}','Rendered sound',ids[f'viz_{channel}_{column}'],left,y+86,right-left,67,focus='No')
             child['bounds']['additionalInvalidatingHandles']=['Parameter '+str(ids['graph_revision'])]
             children.append(child)
     note=shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-simple.png'},shadow_skin._bounds(90,466,1100,22),'Simple envelope')
     note['bounds']['additionalInvalidatingHandles']=['IndexedEnabling/0/2/Parameter '+str(ids['ui_point_mode'])]
-    children.append(note)
-    for osc in range(1,10):
-        for kind in ('a','p'):
-            prefix=f'o{osc}_{kind}_';target=(osc-1)*2+(kind=='p')
-            mapping={f'Level{j}':ids[prefix+f'l{j}'] for j in range(5)}
-            mapping.update({f'Time{j}':ids[prefix+f't{j}'] for j in range(1,5)})
-            child=shadow_skin._placed('gkPointEnvelope',f'Osc {osc} '+('AMP' if kind=='a' else 'PITCH'),ids[prefix+'mode'],90,380,1100,170,focus='No',extra=mapping)
-            child['bounds']['additionalInvalidatingHandles']=[f'IndexedEnabling/{target}/18/Parameter '+str(ids['ui_point_target']),'IndexedEnabling/1/2/Parameter '+str(ids[prefix+'mode'])]
-            children.append(child)
+    # Draw every segment, including points outside the current grip group,
+    # using the same worker-produced envelope samples as the SOUND graph.
+    for width in (2,3):
+        filename=f'plot_edit_e_{width}.png';shutil.copy2(root/'art'/filename,path.parent/filename)
+        item=shadow_skin._local(f'gkEditCurve_{width}',[],[shadow_skin._sub('Knob',{
+            'version':5,'knobType':'FilmStrip','filmStrip':filename,'numFrames':PLOT_ENV_LEVELS,
+            'invert':False,'dragOrientation':'Vertical','handleName':'Data'
+        },shadow_skin._bounds(0,0,width,134),'Envelope curve')])
+        item['value']['ignoreMousePresses']=True
+        page['componentDefinitions']['localComponentDefinitions'].append(item)
+    for column in range(PLOT_COLUMNS):
+        left=108+column*1064//PLOT_COLUMNS;right=108+(column+1)*1064//PLOT_COLUMNS
+        child=shadow_skin._placed(f'gkEditCurve_{right-left}','Full envelope',ids[f'viz_e_{column}'],left,268+86,right-left,134,focus='No')
+        child['bounds']['additionalInvalidatingHandles']=['Parameter '+str(ids['graph_revision'])]
+        children.append(child)
+    native=deepcopy(envelope_data);native['lineColour']='00000000';native['scaleColour']='00000000';native['handleLineColour']='ffefbc73';native['handleFillColour']='ff192b31';native['handleFillColourOnPressed']='ffb9ed68'
+    item=shadow_skin._local('gkFreeEnvelope',[],[shadow_skin._sub('Envelope',native,shadow_skin._bounds(0,0,1100,170),'Point grips')])
+    item['value']['hideQLinkBounds']=True
+    page['componentDefinitions']['localComponentDefinitions'].append(item)
+    mapping={f'Level{j}':ids[f'edit_l{j}'] for j in range(5)}
+    mapping.update({f'Time{j}':ids[f'edit_t{j}'] for j in range(1,5)})
+    child=shadow_skin._placed('gkFreeEnvelope','Envelope point grips',ids['free_level'],90,336,1100,170,focus='No',extra=mapping)
+    child['bounds']['additionalInvalidatingHandles']=['IndexedEnabling/1/2/Parameter '+str(ids['ui_point_mode'])]
+    children.append(child)
+    # Native live text: selected point/count, no input-catching image overlay.
+    style={'version':1,'font':{'version':1,'name':'Titillium Web','height':18,'style':'SemiBold'},'colour':'ffefbc73','justification':'horizontallyCentred verticallyCentred','case':'Upper Case'}
+    item=shadow_skin._local('gkFreeStatus',[],[shadow_skin._sub('Label',{'version':1,'type':'Value','handleName':'Data','textStyle':style},shadow_skin._bounds(0,0,1080,24),'Status')])
+    item['value']['ignoreMousePresses']=True
+    page['componentDefinitions']['localComponentDefinitions'].append(item)
+    children.append(shadow_skin._placed('gkFreeStatus','Point count / selection',ids['free_status'],100,570,1080,24,focus='No'))
 path.write_text(json.dumps(d,indent=2)+'\n')
 # Browser tile launches the real Init sound and presents the same name.
 import xml.etree.ElementTree as ET

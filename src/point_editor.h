@@ -22,6 +22,8 @@ static void point_focus(Engine *e,int osc,int kind,int selected){
  if(selected>=0 && (int)at(e,"point_select")!=selected){point_store_key(e,"point_select",selected);e->point_dirty|=15;}
 }
 static void point_seed(Engine *e,int osc,int kind){
+ e->edit_time_valid=0;
+ char free_count[48];snprintf(free_count,sizeof free_count,"f%d_%c_n",osc+1,kind?'p':'a');put(e,free_count,0);
  struct gkick_envelope_point_info pts[5];int n=0;float length=at(e,"length");char key[40];
  if(!kind){
   snprintf(key,sizeof key,"o%d_attack",osc+1);float attack=at(e,key);snprintf(key,sizeof key,"o%d_decay",osc+1);float decay=at(e,key);
@@ -42,7 +44,7 @@ static void point_seed(Engine *e,int osc,int kind){
  }
  for(int j=0;j<5;j++){char suffix[32];snprintf(suffix,sizeof suffix,"l%d",j);point_store(e,osc,kind,suffix,clampf(pts[j].y,0,1));
   if(j){snprintf(suffix,sizeof suffix,"t%d",j);point_store(e,osc,kind,suffix,fmaxf(POINT_EPS,pts[j].x-pts[j-1].x));}}
- point_store(e,osc,kind,"seen",1);e->point_dirty|=POINT_ALL;
+ point_store(e,osc,kind,"seen",1);e->point_dirty|=POINT_ALL;e->free_dirty=0x7fffu;
 }
 static void point_prepare(Engine *e,const PointKey *key,float v){if((key->field=='l'||key->field=='t'||(key->field=='m'&&v>0))&&!point_at(e,key->osc,key->kind,"seen"))point_seed(e,key->osc,key->kind);}
 static void point_changed(Engine *e,const PointKey *key){

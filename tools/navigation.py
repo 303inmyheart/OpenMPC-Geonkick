@@ -15,7 +15,7 @@ GROUPS=[('SOUND',[f'SYNTH|LAYER {l}' for l in range(1,4)])]
 for l in range(1,4):GROUPS.append((f'LAYER {l}',[f'LAYER {l}|L{l} {kind}{o}' for o in range(1,4) for kind in ('OSC','FX')]))
 GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS'])]
 LOCATION={name:(main,sub,title) for main,(title,names) in enumerate(GROUPS) for sub,name in enumerate(names)}
-POINT_KEYS={'point_select','point_level_fine','point_time_fine','point_copy'}
+POINT_KEYS={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 def widgets(layout,bank):return [w for w in layout['widgets'] if not w.get('banks') or bank in w['banks'].split('|')]
 def knob_groups(layout,bank):
     rotary={w['key']:w for w in widgets(layout,bank) if w['kind']=='knob' and w['key'] not in POINT_KEYS}

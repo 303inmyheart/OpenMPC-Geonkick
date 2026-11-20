@@ -14,7 +14,7 @@ assert {(m['Tab']-1,m['SubTab']-1) for m in maps}=={(t['fnKeyIndex'],t['fnKeySub
 for layer in range(1,4):
  assert [t['componentName'].split('|')[1] for t in tabs if t['fnKeyIndex']==layer]==[f'L{layer} {kind}{osc}' for osc in range(1,4) for kind in ('OSC','FX')]
 assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS']
-points={'point_select','point_level_fine','point_time_fine','point_copy'}
+points={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 for t in tabs:
  source,bank=t['componentName'].split('|');children=defs[t['componentName']]['componentsData']
  wanted={ids[w['key']] for w in layouts[source]['widgets'] if w['kind']=='knob' and w['key'] not in points and (not w.get('banks') or bank in w['banks'].split('|'))}
