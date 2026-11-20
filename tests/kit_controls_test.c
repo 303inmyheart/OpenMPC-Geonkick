@@ -46,5 +46,24 @@ int main(void) {
  }
  e->dispatch(e,23,0,0,&chunk,0);assert(!memcmp(saved,chunk,size));
  printf("Actual VST:16 pad contexts and read/write echoes, immediate fine handover, %ld-byte kit chunk close/reopen, retired Humanizer nonautomatable/inert PASS\n",(long)size);
+ free(saved);
+ /* Learn through actual VST MIDI events, including a repeated press and UI
+  * echoes while armed. Native previews must not count as hardware notes. */
+ int notes[]={48,50,52,53,55,57,59,36,60,62,64,65,67,69,71,72};
+ int learn=find("kit_learn"),mapping=find("kit_mapping");physical(e,"kit_learn",1);
+ for(int p=0;p<16;p++) {
+  physical(e,"audition",1);e->set(e,learn,e->get(e,learn));
+  struct {int32_t type,size,frame,flags,len,offset;unsigned char m[4];char pad[4];} midi={1,32,0,0,0,0,{0x90,notes[p],110,0},{0}};
+  struct {int32_t n;intptr_t reserved;void *events[2];} events={1,0,{&midi,NULL}};
+  e->dispatch(e,25,0,0,&events,0);float l[128],r[128],*out[]={l,r};e->render(e,NULL,out,128);
+  assert(roundf(e->get(e,pad)*15)==p);
+ }
+ assert(e->get(e,learn)==0 && e->get(e,mapping)==1);
+ e->dispatch(e,7,find("kit_learn_status"),0,display,0);assert(!strcmp(display,"16 PADS LEARNED"));
+ size=e->dispatch(e,23,0,0,&chunk,0);saved=malloc(size);assert(saved);memcpy(saved,chunk,size);
+ e->dispatch(e,1,0,0,NULL,0);e=VSTPluginMain(host);assert(e);e->dispatch(e,24,0,size,saved,0);
+ restored=e->dispatch(e,23,0,0,&chunk,0);assert(restored==size && !memcmp(chunk,saved,size));
+ assert(e->get(e,mapping)==1 && !e->get(e,learn));
+ puts("Actual VST:hardware MIDI learn16 nonchromatic notes, armed echoes/preview isolation, auto-finish, full learned-map close/reopen PASS");
  free(saved);e->dispatch(e,1,0,0,NULL,0);return 0;
 }

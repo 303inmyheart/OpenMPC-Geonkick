@@ -254,3 +254,33 @@ survives actual VST close/reopen. Archived0.0.19/current actualARM64 libraries,
 0.0.21 installed on Live III: plugin files and binary checksum verified, previous
 version backed up, settings unchanged during replacement, MPC application
 restarted active/running. New pad/kit hearing and Touch acceptance is pending.
+
+
+## 0.0.22 — learn the hardware pad-note map
+
+User confirmed0.0.21 generally works but hardware Bank A pad8 played sound1 and
+sound2 was unreachable. The chromatic36..51 assumption was insufficient for the
+track’s Pad Perform note layout. The visual physical-pad grid stays unchanged.
+
+- Learn16 captures each physical pad’s actual note in order. Native status shows
+  the next target; duplicate note-ons cannot steal a slot. Abort/partial capture
+  retain the previous map; only16 unique notes commit. Touch-only map/learn UI,
+  no Q-Links added except the existing rotary controls. Preview bypasses capture.
+- Chromatic/Learned routing with a saved16-note lookup; CHROMATIC START affects
+  Chromatic only. Normal MIDI after learning does not auto-select or cause UI
+  status updates. A changed host scale/octave/map requires matching/relearning.
+- GKMP9 adds a validated unique MAP1 table. GKMP8 kits preserve chromatic routing;
+  earlier migrations and all1551 sound fields per pad remain unchanged.3056 VST
+  entries; first3053 exact identities/ranges retained. No audio synthesis change.
+- During learning, status uses explicit shared display invalidation, including
+  the first note when selected pad01 has not changed. No polled/audio-thread UI
+  text calls, file IO, allocation or new synthesis are introduced.
+
+Next: hardware learn/map acceptance, then samples per pad, original presets and
+banks. Future original-bank import should preserve the learned hardware map by
+default unless the user explicitly chooses to import/replace note routing.
+
+0.0.22 installed on Live III:1721 plugin files and installed binary verified,
+previous0.0.21 backed up locally, settings unchanged during replacement. MPC
+application restarted active/running. Actual hardware-learn acceptance pending.
+Installer/catalog validation:0 warnings; privacy scan passed.

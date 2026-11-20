@@ -26,7 +26,7 @@ int main(void){
   n+=snprintf(input+n,sizeof input-n," %.9g",v);
  }
  assert(n>8192);e->dispatch(e,24,0,n+1,input,0);void *chunk=NULL;intptr_t size=e->dispatch(e,23,0,0,&chunk,0);
- assert(size>8192 && size<65536 && chunk);strcpy(before,chunk);assert(!strncmp(before,"GKMP8 ",6));assert(!strncmp(input+6,before+6,strlen(input+6)));
+ assert(size>8192 && size<65536 && chunk);strcpy(before,chunk);assert(!strncmp(before,"GKMP9 ",6));assert(!strncmp(input+6,before+6,strlen(input+6)));
  /* A complete host rebind echoes each real proxy and must preserve controls,
   * selected point/bank and both independent Bezier handles. */
  const char *keys[]={"xy_x","xy_y","free_level","free_time","free_bend","free_select","free_bank","edit_l0","edit_l1","edit_l2","edit_l3","edit_l4","edit_t1","edit_t2","edit_t3","edit_t4"};
@@ -39,8 +39,9 @@ int main(void){
  /* Maximum curve population: all18 envelopes on all16 pads have16 points,
   * exercising the actual host's chunk copy, not only the engine serializer. */
  char *kit=malloc(1048576);assert(kit);
- int total=snprintf(kit,1048576,"GKMP8%s KIT1 1 36 0 1",input+5);
+ int total=snprintf(kit,1048576,"GKMP9%s KIT1 1 36 0 1",input+5);
  for(int pad=1;pad<16;pad++)total+=snprintf(kit+total,1048576-total," P%s",input+5);
+ total+=snprintf(kit+total,1048576-total," MAP1 0");for(int p=0;p<16;p++)total+=snprintf(kit+total,1048576-total," %d",36+p);
  assert(total>200000 && total<1048576);e->dispatch(e,24,0,total+1,kit,0);
  size=e->dispatch(e,23,0,0,&chunk,0);assert(size==total+1 && !memcmp(kit,chunk,size));
  e->dispatch(e,1,0,0,NULL,0);e=VSTPluginMain(host);assert(e);e->dispatch(e,24,0,size,kit,0);

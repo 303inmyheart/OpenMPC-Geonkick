@@ -1,4 +1,4 @@
-# Current verification —0.0.21
+# Current verification —0.0.22
 
 Native ASan/UBSan/leaks and actual ARM64 shared-library/QEMU suites pass.
 Sixteen independent physical states/curves, all assigned MIDI notes, outside-note
@@ -6,11 +6,20 @@ silence, mixed-signal two-instance oracle, per-pad Cut/Gate, raw fine-input cont
 handover, saved kit >64KiB through actual VST close/reopen, atomic malformed-state
 rejection, legacy GKMP7 migration and retired-Humanizer inertness are covered.
 Previous touch, filter, points, short-hit/Cut boundaries and blocked-UI audio tests
-remain passing. The control-context kit test serializes104207bytes; the fully populated
-16×18×16-point fixture serializes238482bytes. The VST supports1MiB. Only final-release binaries receive a formal Store benchmark.
+remain passing. The control-context kit test serializes104262bytes; the fully populated
+16×18×16-point fixture serializes238537bytes. The VST supports1MiB. Only final-release binaries receive a formal Store benchmark.
 
 Live III acceptance of this new build is pending. The user accepted the previous
-0.0.19 filters and asked to remove0.0.20 Humanizer. See TESTPLAN-0.0.21-DE.md.
+0.0.19 filters and asked to remove0.0.20 Humanizer. See TESTPLAN-0.0.22-DE.md.
+
+New pad-map suite reproduces the reported physical pad8 note36 -> sound1 issue
+and unreachable sound2 with a constructed nonchromatic16-note fixture. This
+fixture is not a captured Live III MIDI trace; actual hardware notes were not logged. Learned routing then
+matches all16 independent single-sound audio captures. Actual VST MIDI delivery,
+preview/zero/repeat isolation, cancel/partial persistence, duplicate rejection,
+first-step status invalidation, complete GKMP9 map close/reopen and GKMP8 exact
+routing migration pass natively and onARM64/QEMU. No new synthesis is requested
+by learning. Live III learned-map acceptance is pending.
 
 Historical notes follow; their older pending items are superseded by the newer
 roadmap and build-specific test plans.
@@ -499,3 +508,8 @@ maximum sample difference0. Installer/catalog checker:0 warnings; privacy scan p
 0.0.21 installed on Live III: plugin files and binary checksum verified, previous
 version backed up, settings unchanged during replacement, MPC application
 restarted active/running. New pad/kit hearing and Touch acceptance is pending.
+
+0.0.22 installed on Live III:1721 plugin files and installed binary verified,
+previous0.0.21 backed up locally, settings unchanged during replacement. MPC
+application restarted active/running. Actual hardware-learn acceptance pending.
+Installer/catalog validation:0 warnings; privacy scan passed.

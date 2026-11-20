@@ -6,8 +6,8 @@ root=Path(__file__).resolve().parents[1]
 params=json.loads((root/'params.json').read_text())['params'];ids={p['key']:i for i,p in enumerate(params)}
 page=json.loads(next((root/'build/skin').glob('*/Plugin Skins/TUI.json')).read_text())['pageData']
 defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
-assert len(params)==3053
-previous=json.loads(subprocess.check_output(['git','show','5b5a758:params.json'],cwd=root))['params']
+assert len(params)==3056
+previous=json.loads(subprocess.check_output(['git','show','81d58ce:params.json'],cwd=root))['params']
 assert params[:len(previous)]==previous,'Changed previous VST identities/ranges/defaults'
 for tab in page['tabs']:
     if tab['componentName']!='ENVELOPE|ENVELOPE':continue
@@ -21,7 +21,7 @@ for tab in page['tabs']:
     assert not any(c['componentData']['type']=='gkFreeEnvelope' for c in children)
     curves=[c for c in children if c['componentData']['type'].startswith('gkEditCurve_')]
     assert len(curves)==432
-print('All previous 3040 parameter identities preserved; absolute XY point proxies and full DSP curve PASS')
+print('All previous 3053 parameter identities preserved; absolute XY point proxies and full DSP curve PASS')
 # Editor draws the same completed sound behind the draggable curve. No new
 # data channel or per-column host callback path is introduced by this skin.
 for tab in page['tabs']:

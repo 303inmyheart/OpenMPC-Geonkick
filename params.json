@@ -27865,6 +27865,41 @@
       "live": true,
       "legacy": true,
       "poll": false
+    },
+    {
+      "key": "kit_mapping",
+      "name": "Note Map",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Chromatic",
+        "Learned"
+      ],
+      "refresh_display": true
+    },
+    {
+      "key": "kit_learn",
+      "name": "Learn Hardware Pads",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "options": [
+        "Off",
+        "Learn 16"
+      ],
+      "refresh_display": true
+    },
+    {
+      "key": "kit_learn_status",
+      "name": "Learn Status",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "display": "string",
+      "live": true,
+      "legacy": true,
+      "poll": false
     }
   ]
 }

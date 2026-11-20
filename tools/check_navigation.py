@@ -79,3 +79,15 @@ for c in cells:
  i=button['componentData']['data']['buttonId']
  x,y,w,h=map(int,c['bounds']['bounds'].split());assert y==ys[3-i//4]
 print('Native pad values match MPC physical layout:01 bottom-left,16 top-right PASS')
+
+# The learned-map controls remain touch-only and fit inside the kit panel.
+for key in ('kit_mapping','kit_learn'):
+ controls=[c for c in defs[kit['componentName']]['componentsData'] if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[key]) for m in c.get('handle remapping',{}).get('map',[]))]
+ assert len(controls)==2
+ for c in controls:
+  assert c['bounds']['acceptsHWFocus']=='No'
+  x,y,w,h=map(int,c['bounds']['bounds'].split());assert 70<=x and x+w<=1220 and 72<=y and y+h<=603
+  for cell in cells:
+   xx,yy,ww,hh=map(int,cell['bounds']['bounds'].split())
+   assert x+w<=xx or xx+ww<=x or y+h<=yy or yy+hh<=y,'Learn controls overlap pad buttons'
+print('Learn/map selectors touch-only, inside panel, separate from pad buttons PASS')

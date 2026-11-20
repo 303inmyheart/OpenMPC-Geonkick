@@ -357,3 +357,15 @@ step immediately after selection before any asynchronous notification/rebind.
 
 Additional actual VST capacity check:all16 sounds ×18 curves ×16 points;
 238482-byte full-kit chunk survives complete close/reopen natively and onARM64/QEMU.
+
+
+0.0.22 appends3 VST entries (3056 total, first3053 frozen):kit_mapping, kit_learn,
+kit_learn_status. Fixed16-int capture stage and learned map; duplicate notes do
+not advance, only a complete unique stage commits. Preview calls hit_pad directly,
+never feeding its note into capture. Normal note routing uses at most16 integer
+comparisons. Sound values/DSP/worker and existing context hook are unchanged.
+GKMP9 keeps the GKMP8 body and appends `MAP1 mapping note0 ... note15`. Validate
+all notes0..127, integer/unique, before publishing any part of a state. Earlier
+kits default the saved table to their original chromatic base. Learning UI flags
+and partial staging are not serialized. New KIT footer and note-map controls are
+Touch only; header/grid/rotary bounds remain checked.

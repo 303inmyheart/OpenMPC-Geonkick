@@ -92,8 +92,7 @@ def panel_background(layout,bank,children,defs,skin):
     elif name=='KIT':
         card((70,72,660,510));card((690,72,1220,450));card((70,520,1220,603))
         text(d,(955,475),'16 INDEPENDENT SOUNDS / STEREO OUT',12,MUTED)
-        text(d,(640,550),'PRESETS AND INIT APPLY TO THE SELECTED PAD',16,INK)
-        text(d,(640,580),'Select a pad, then shape its sound on SOUND / LAYER / ENVELOPE.',13,MUTED)
+        text(d,(955,535),'PRESS HARDWARE PADS 01-16 IN ORDER',11,MUTED)
         text(d,(365,495),'Selection edits a sound. PLAY auditions it.',12,MUTED)
     elif name=='PRESETS':
         card(PRESET_FRAME);text(d,(640,515),'EIGHT STARTING POINTS  /  SHAPE YOUR OWN SOUND',13,MUTED)

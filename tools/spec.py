@@ -187,6 +187,9 @@ p('kit_base','First MIDI Note',0,112,36,display='int',dynamic_display=True,refre
 p('kit_output','Kit Output',0,1,1)
 p('kit_info','Pad Assignment',0,1,0,display='string',live=True,legacy=True,poll=False)
 p('kit_title','Edited Sound',0,1,0,display='string',live=True,legacy=True,poll=False)
+opt('kit_mapping','Note Map',['Chromatic','Learned'],refresh_display=True)
+opt('kit_learn','Learn Hardware Pads',['Off','Learn 16'],refresh_display=True)
+p('kit_learn_status','Learn Status',0,1,0,display='string',live=True,legacy=True,poll=False)
 
 
 def generate():
@@ -343,10 +346,13 @@ qlink_bounds=column
               'frame x=24 y=104 w=1230 h=590 title="GEONKICK / PAD INSTRUMENTS"',
               'enum_h cx=365 cy=267 sw=122 sh=62 rows=4 label="SELECT SOUND TO EDIT" key=kit_pad',
               'enum_h cx=955 cy=215 sw=130 sh=38 label="MIDI ROUTING" key=kit_mode',
-              'knob cx=820 cy=380 r=36 bw=230 ns=16 vs=22 label="FIRST MIDI NOTE" key=kit_base',
+              'enum_h cx=955 cy=285 sw=130 sh=32 label="NOTE MAP" key=kit_mapping',
+              'knob cx=820 cy=380 r=36 bw=230 ns=16 vs=22 label="CHROMATIC START" key=kit_base',
               'knob cx=1090 cy=380 r=36 bw=230 ns=16 vs=22 label="KIT OUTPUT" key=kit_output',
               'readout cx=955 cy=510 w=460 h=34 key=kit_info',
               'button cx=365 cy=540 w=250 h=42 label="PLAY SELECTED PAD" key=audition',
+              'enum_h cx=365 cy=660 sw=122 sh=34 label="LEARN HARDWARE PADS" key=kit_learn',
+              'readout cx=955 cy=650 w=460 h=34 tsize=20 key=kit_learn_status',
               'qlinks "KIT" = -,-,-,-,-,-,-,-,-,-,-,-,kit_base,kit_output,-,-']
     # Every page displays which sound the shared editing controls belong to.
     shared=[]

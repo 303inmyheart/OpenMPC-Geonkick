@@ -12,7 +12,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.21 adds sixteen independent pad sounds within one instrument instance.
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.22 includes sixteen independent pad sounds within one instrument instance.
 It remains a development port; sample/preset-bank import is the following phase.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
@@ -75,7 +75,10 @@ Implemented:
   (default36) and the kit output. The selected pad is shown on every page.
   Single is the default and preserves the earlier chromatic instrument behavior.
   In 16 Pads mode, consecutive notes trigger pads1–16; outside notes are ignored.
-  Adjust the first note to the MPC track's actual pad-note mapping.
+  For the actual hardware layout, choose LEARN16 and press hardware pads1–16
+  in order. This accepts nonconsecutive scale/custom notes; a complete unique
+  learned table is stored in the kit. CHROMATIC START applies only to Chromatic.
+  Stop any sequence and use the intended hardware bank during learning.
 - Velocity, optional Single-mode note tracking, per-sound tuning and Poly/Cut/Gate.
   The keyboard octave convention does not affect routing: MIDI note numbers do.
 - Eight starting sounds: Init, Deep Kick, Tight Kick, Snare, Closed Hat,
@@ -89,10 +92,10 @@ Implemented:
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The 0.0.15 Percussion Lab palette uses graphite, lime and amber.
-- GKMP8 project/preset state stores all16 sounds (1551 physical values each),
+- GKMP9 project/preset state stores all16 sounds (1551 physical values each),
   selection and routing/output settings. Default pad rows are compacted; the
   VST chunk capacity is1MiB. Complete kits larger than64KiB are tested through
-  actual VST close/reopen. GKMP1–7 migrate to pad1 in Single mode. All previous
+  actual VST close/reopen. GKMP1–7 migrate to pad1 in Single mode; GKMP8 retains its full kit and chromatic routing. All previous
   3040 control identities/ranges remain; seven0.0.20 Humanizer slots are inert,
   hidden compatibility reservations and cannot be automated.
 - Graph refresh uses one derived revision signal instead of per-column host
@@ -218,9 +221,17 @@ Store CPU benchmark has been performed for this development binary.
 
 
 
-## Current development build —0.0.21
+## Current development build —0.0.22
 
-MASTER → KIT is the foundation for upcoming sample and original bank import.
+MASTER → KIT now learns the actual hardware pad-note map rather than assuming
+that sixteen physical pads always send sixteen consecutive notes. Select
+LEARN16 and play hardware pads1–16 in order; status names the next pad. Completion
+switches NOTE MAP to Learned. Off cancels; partial progress never replaces the
+previous playable mapping. Repeated notes do not advance. Two physical pads
+sending an identical note cannot be distinguished; use unique notes in Pad
+Perform in that case. Preview does not count as hardware input.
+
+This is the foundation for upcoming sample and original bank import.
 Choose a pad before editing its sound; PRESETS and INIT SELECTED PAD affect only
 that pad. The upper nine-oscillator selector is removed from SOUND pages; their
 curve follows the last edited oscillator and a small readout identifies it.
@@ -232,7 +243,7 @@ this port does not enable or execute it for MIDI hits.
 
 ![Kit foundation — offline native-skin preview, not an MPC screenshot](docs/screenshots/kit.png)
 
-See [pad guide](docs/PADS.md), [test plan](TESTPLAN-0.0.21-DE.md) and
+See [pad guide](docs/PADS.md), [test plan](TESTPLAN-0.0.22-DE.md) and
 [roadmap](ROADMAP.md). Native sanitizers and actual ARM64/QEMU regressions pass;
 Live III acceptance for this new build is pending. No final Store benchmark or
 public Geonkick release is claimed.
@@ -240,3 +251,12 @@ public Geonkick release is claimed.
 0.0.21 installed on Live III: plugin files and binary checksum verified, previous
 version backed up, settings unchanged during replacement, MPC application
 restarted active/running. New pad/kit hearing and Touch acceptance is pending.
+
+
+The user confirmed0.0.21 works apart from hardware-pad routing.0.0.22 corrects
+that assumption with learned note maps; new Live III learn acceptance is pending.
+
+0.0.22 installed on Live III:1721 plugin files and installed binary verified,
+previous0.0.21 backed up locally, settings unchanged during replacement. MPC
+application restarted active/running. Actual hardware-learn acceptance pending.
+Installer/catalog validation:0 warnings; privacy scan passed.

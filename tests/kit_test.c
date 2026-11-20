@@ -42,7 +42,7 @@ int main(void) {
  }
  /* Complete kit round trip is larger than the old 64 KiB state limit. */
  set(a,"kit_mode",1);set(a,"kit_base",48);set(a,"kit_output",.63f);set(a,"kit_pad",9);snapshot(a,state);
- assert(!strncmp(state,"GKMP8 ",6));assert(strlen(state)>65536);api->set_param(b,"state",state);snapshot(b,again);assert(!strcmp(state,again));
+ assert(!strncmp(state,"GKMP9 ",6));assert(strlen(state)>65536);api->set_param(b,"state",state);snapshot(b,again);assert(!strcmp(state,again));
  assert(get(b,"kit_pad")==9 && get(b,"kit_mode")==1 && get(b,"kit_base")==48);
  /* Rejection is atomic even when the final pad/metadata is corrupt. */
  strcpy(legacy,state);strcat(legacy," garbage");api->set_param(b,"state",legacy);snapshot(b,again);assert(!strcmp(state,again));

@@ -28,7 +28,9 @@ typedef struct {
     _Atomic float *values; /* selected row; only serialized host/audio entry points use it */
     atomic_uint pad_audio[PADS],pad_view[PADS];
     atomic_int selected;
-    int kit_mode,kit_base;float kit_output,kit_gain;
+    int kit_mode,kit_base,kit_mapping,kit_notes[PADS];
+    int kit_learn,kit_learn_count,kit_stage[PADS],kit_duplicate,kit_learn_done;
+    float kit_output,kit_gain;
     unsigned kit_dirty,control_context;
     atomic_uint revision,audio_revision,view_revision,synthesis_count;
     atomic_bool running;
@@ -287,6 +289,7 @@ static void *create(const char *dir) {
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
     for(int pad=0;pad<PADS;pad++) {
+        e->kit_notes[pad]=36+pad;e->kit_stage[pad]=-1;
         atomic_init(&e->ready[pad],-1);atomic_init(&e->pad_audio[pad],0);atomic_init(&e->pad_view[pad],0);e->pad_current[pad]=-1;
         for(int i=0;i<GP_COUNT;i++)atomic_init(&e->pad_values[pad][i],gparams[i].def);
         e->output_gain[pad]=gparams[index_of("volume")].def;
@@ -312,18 +315,7 @@ static void destroy(void *inst) {
     atomic_store(&e->running,false); pthread_join(e->worker,NULL);
     gkick_synth_free(&e->synth); for(int i=0;i<SLOTS;i++)free(e->slots[i].data); free(e);
 }
-static void midi(void *inst,const uint8_t *msg,int len) {
-    Engine *e=inst;if(!e||len<3)return;
-    int type=msg[0]&0xf0,ch=msg[0]&15,note=msg[1]&127,vel=msg[2]&127;
-    if(type==0xb0 && (note==120||note==123)){stop_all(e);return;}
-    if(type==0x80 || (type==0x90&&!vel)) {
-        /* A release still reaches its voice after changing the edited pad. */
-        for(int i=0;i<VOICES;i++)if(e->voices[i].gate && e->voices[i].note==note && e->voices[i].channel==ch)stop_voice(e,&e->voices[i]);
-        return;
-    }
-    if(type!=0x90)return;
-    int pad=e->kit_mode?note-e->kit_base:atomic_load(&e->selected);
-    if(pad<0 || pad>=PADS)return;
+static void hit_pad(Engine *e,int pad,int note,int ch,int vel) {
     adopt(e);int playback=(int)pad_at(e,pad,"playback");
     if(playback==1)for(int i=0;i<VOICES;i++)if(e->voices[i].pad==pad)choke_voice(e,&e->voices[i]);
     int v=0;
@@ -333,7 +325,20 @@ static void midi(void *inst,const uint8_t *msg,int len) {
     voice->pad=pad;voice->gate=playback==2;voice->pos=0;voice->gain=vel/127.f;
     voice->note=note;voice->channel=ch;voice->age=++e->age;
     voice->step=exp2((pad_at(e,pad,"tune")+(!e->kit_mode && pad_at(e,pad,"keytrack")>0?note-60:0))/12.0);
+}static void midi(void *inst,const uint8_t *msg,int len) {
+    Engine *e=inst;if(!e||len<3)return;
+    int type=msg[0]&0xf0,ch=msg[0]&15,note=msg[1]&127,vel=msg[2]&127;
+    if(type==0xb0 && (note==120||note==123)){stop_all(e);return;}
+    if(type==0x80 || (type==0x90&&!vel)) {
+        for(int i=0;i<VOICES;i++)if(e->voices[i].gate && e->voices[i].note==note && e->voices[i].channel==ch)stop_voice(e,&e->voices[i]);
+        return;
+    }
+    if(type!=0x90)return;
+    if(e->kit_learn) {int pad=kit_capture_note(e,note);if(pad>=0)hit_pad(e,pad,note,ch,vel);return;}
+    int pad=e->kit_mode?kit_route(e,note):atomic_load(&e->selected);
+    if(pad>=0 && pad<PADS)hit_pad(e,pad,note,ch,vel);
 }
+
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
     if(!strncmp(key,"human_",6))return; /* retired 0.0.20 slots are inert */
@@ -362,7 +367,7 @@ static void set_param(void *inst,const char *key,const char *text) {
     int i=index_of(key); if(i<0)return;
     char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return;
     v=clampf(v,gparams[i].lo,gparams[i].hi);if(gparams[i].discrete)v=roundf(v);
-    if(!strcmp(key,"audition")) { if(v>0) { uint8_t m[]={0x90,(uint8_t)(e->kit_mode?e->kit_base+atomic_load(&e->selected):60),110};midi(e,m,3); }return; }
+    if(!strcmp(key,"audition")) { if(v>0) { int pad=atomic_load(&e->selected);hit_pad(e,pad,e->kit_mode?kit_assigned_note(e,pad):60,0,110); }return; }
     if(!strcmp(key,"reset")) {
         if(v>0) { atomic_fetch_add(&e->revision,1);preset(e,0);audio_changed(e);view_changed(e);atomic_fetch_add(&e->revision,1); }
         return;
