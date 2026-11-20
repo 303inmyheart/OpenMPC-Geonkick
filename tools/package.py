@@ -7,6 +7,7 @@ root=build.ROOT
 ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--desktop',action='store_true',help='Explicitly copy installer to Desktop');ap.add_argument('--no-desktop',action='store_true',help=argparse.SUPPRESS);args=ap.parse_args()
 cfg=json.loads((root/'release.json').read_text())
 build.run([sys.executable,'tools/check_sound_overview.py'])
+build.run([sys.executable,'tools/check_native_presets.py'])
 release_tools=Path(os.environ.get('MPC_RELEASE_TOOLS',root.parent/cfg.get('tools_dir','mpc-vst-plugins-release-tools')))
 ref=subprocess.check_output(['git','-C',str(release_tools),'rev-parse','HEAD'],text=True).strip()
 assert ref==cfg['tools_ref'],'Unexpected release tooling revision'

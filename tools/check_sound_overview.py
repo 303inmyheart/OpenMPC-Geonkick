@@ -8,8 +8,8 @@ p=next((ROOT/'build/skin').glob('*/Plugin Skins/TUI.json'));page=json.loads(p.re
 assert len(params)==4096
 old=json.loads(subprocess.check_output(['git','show','40b5a7d:params.json'],cwd=ROOT))['params'];assert params[:3985]==old[:3985]
 assert params[3992:]==old[3992:]
-assert len(page['tabs'])==25
-assert [sum(t['fnKeyIndex']==i for t in page['tabs']) for i in range(6)]==[1,6,6,6,1,5]
+assert len(page['tabs'])==24
+assert [sum(t['fnKeyIndex']==i for t in page['tabs']) for i in range(6)]==[1,6,6,6,1,4]
 q=json.loads((p.parent/'Q-Links.json').read_text());maps=q['Screen Mode Q-Links']['map']
 assert {(m['Tab']-1,m['SubTab']-1) for m in maps}=={(t['fnKeyIndex'],t['fnKeySubIndex']) for t in page['tabs']}
 children=defs['SYNTH|LAYER 1']['componentsData'];selector=[c for c in children if c['componentData']['type']=='gkSoundLayerSelect'];assert len(selector)==1
@@ -40,4 +40,5 @@ for definition in defs.values():
    for match in re.finditer(r'Parameter (\d+)',handle):assert int(match[1])<4096
 for t in page['tabs']:
  assert not any(c['componentData']['type']=='gkViewMarker' for c in defs[t['componentName']]['componentsData'])
-print('25 native pages, three explicit conditional SOUND panels,432 columns, rotary-only Q-Links/full frames, no caption inference, all handles<=4095 PASS')
+assert all(t['componentName']!='PRESETS|PRESETS' for t in page['tabs'])
+print('24 native pages, three explicit conditional SOUND panels,432 columns, rotary-only Q-Links/full frames, no caption inference, all handles<=4095 PASS')

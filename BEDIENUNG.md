@@ -1,4 +1,21 @@
-# Geonkick MPC bedienen — 0.0.13
+# Geonkick MPC bedienen — 0.0.28
+
+## Native Presets und Kits
+
+Im MPC-Sounds-Browser bzw. nativen Preset-Menü stehen Init, sieben weitere
+MPC-Startsounds und „Starter Kit (16 Pads)“ bereit. Das ist noch nicht die
+Originalbibliothek von Geonkick. Jedes native Preset ersetzt den gesamten
+Plugin-Zustand inklusive aller Pads und der MIDI-Zuordnung. Eigene Änderungen
+über die MPC-Presetverwaltung speichern; dabei werden auch importierte Samples
+und eine gelernte Pad-Zuordnung gespeichert.
+
+Das Starter-Kit nutzt zunächst MIDI-Noten36–51. Falls die Hardware-Pads anders
+zugeordnet sind: Wiedergabe stoppen, gewünschte Bank auswählen, unter MASTER →
+KIT LEARN16 aktivieren und Pads1–16 der Reihe nach drücken. Anschließend das Kit
+als eigenes natives Preset speichern. INIT PAD unter MASTER → KIT setzt nur das
+ausgewählte Pad zurück. Native Init setzt dagegen das gesamte Plugin zurück.
+
+## Klangerzeugung (Grundlagen)
 
 Ein Plugin erzeugt einen Drum-Sound aus drei Layern mit je drei Oszillatoren.
 Für eine Kick genügt zunächst Layer 1, OSC 1. Layer 2 und 3 starten stumm;

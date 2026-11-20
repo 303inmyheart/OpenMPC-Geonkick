@@ -44,10 +44,10 @@ combined.append(shadow_skin._placed('gkSoundLayerSelect','Layer',ids['sound_laye
 defs['SYNTH|LAYER 1']['componentsData']=combined
 for definition in page['componentDefinitions']['localComponentDefinitions']:
  definition['value']['componentsData']=[c for c in definition['value'].get('componentsData',[]) if c['componentData']['type']!='gkViewMarker']
-page['tabs']=[t for t in page['tabs'] if not(t['fnKeyIndex']==0 and t['fnKeySubIndex']>0)]
+page['tabs']=[t for t in page['tabs'] if not(t['fnKeyIndex']==0 and t['fnKeySubIndex']>0) and t['componentName']!='PRESETS|PRESETS']
 sound=next(t for t in page['tabs'] if t['fnKeyIndex']==0);sound['tabName']='SOUND'
 qpath=p.parent/'Q-Links.json';q=json.loads(qpath.read_text());maps=q['Screen Mode Q-Links']['map']
-q['Screen Mode Q-Links']['map']=[m for m in maps if not(m['Tab']==1 and m['SubTab']>1)]
+q['Screen Mode Q-Links']['map']=[m for m in maps if not(m['Tab']==1 and m['SubTab']>1) and not(m['Tab']==6 and m['SubTab']==5)]
 replacements={ids[f'o{slot}_{suffix}']:ids[f'sound_o{slot}_{suffix}'] for slot in range(1,4) for suffix in ('freq_fine','level')}
 for mapping in q['Screen Mode Q-Links']['map']:
  if mapping['Tab']==1:

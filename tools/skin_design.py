@@ -91,7 +91,7 @@ def panel_background(layout,bank,children,defs,skin):
         text(d,(90,240),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,240),'SELECT POINT NUMBER / DRAG AMBER POINT',12,AMBER,'rm')
     elif name=='KIT':
         card((70,72,660,510));card((690,72,1220,450));card((70,520,1220,603))
-        text(d,(955,475),'16 INDEPENDENT SOUNDS / STEREO OUT',12,MUTED)
+        text(d,(955,508),'SAVE COMPLETE KITS IN THE MPC PRESET MENU',10,MUTED)
         text(d,(955,535),'PRESS HARDWARE PADS 01-16 IN ORDER',11,MUTED)
         text(d,(365,495),'Selection edits a sound. PLAY auditions it.',12,MUTED)
     elif name=='SAMPLES':
@@ -171,7 +171,7 @@ def main():
         if source.startswith('LAYER'):title=source+' / '+bank.split(' ',1)[1]
         text(d,(650,35),title,16,INK)
         for k in range(6):box(d,(1010+k*15,32,1018+k*15,36),accent if k==tab['fnKeyIndex'] else '#324449',None,1)
-        count=sum(t['fnKeyIndex']==tab['fnKeyIndex'] for t in page['tabs']);text(d,(1225,35),f'{tab["fnKeySubIndex"]+1:02d} / {count:02d}',11,MUTED,'rm');save(im,file)
+        count=sum(t['fnKeyIndex']==tab['fnKeyIndex'] and not(tab['fnKeyIndex']==5 and t['componentName']=='PRESETS|PRESETS') for t in page['tabs']);text(d,(1225,35),f'{tab["fnKeySubIndex"]+1:02d} / {count:02d}',11,MUTED,'rm');save(im,file)
     # Dense display geometry and its shared revision binding are unchanged.
     im=Image.new('RGB',(1100,170),'#0b1a1f');d=ImageDraw.Draw(im)
     for j in range(9):x=18+round(j*1064/8);d.line((x,18,x,152),fill='#20383e')

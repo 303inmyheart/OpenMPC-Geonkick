@@ -60,7 +60,7 @@ def build(target,sanitize=False):
     run([compiler(target),*flags(target,sanitize),'-shared',*objects,'-lpthread','-lm','-ldl','-Wl,--no-undefined','-Wl,--gc-sections','-Wl,--version-script=src/exports.map','-o',dest/CFG['so']])
     print('Built',dest/CFG['so'],flush=True);return objects
 def skin():
-    prepare()
+    build('native') # native presets are exported from this exact engine build
     run([sys.executable,'tools/tile.py'])
     run([sys.executable,'tools/plot_assets.py'])
     run(['gcc','-O2','-I'+str(MPC/'tools/vendor/force-shadow/tools'),MPC/'tools/shadow_art.c','-lm','-o','build/shadow_art'])
@@ -74,6 +74,8 @@ def skin():
     run([sys.executable,'tools/check_navigation.py'])
     run([sys.executable,'tools/sound_overview.py'])
     run([sys.executable,'tools/check_sound_overview.py'])
+    run([sys.executable,'tools/native_presets.py'])
+    run([sys.executable,'tools/check_native_presets.py'])
     folder=ROOT/'build/skin'/f"{CFG['vendor']} - VST - {CFG['name']}"/'Plugin Skins'
     run([sys.executable,MPC/'tools/studio.py','preview',folder,'-o',ROOT/'build/preview_%d.png'])
 if __name__=='__main__':

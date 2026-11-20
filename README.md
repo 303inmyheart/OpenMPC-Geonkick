@@ -12,13 +12,14 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.27 includes sixteen independent pad sounds and WAV sample import per
-oscillator. Original preset/soundbank conversion is the following phase and will
-use native MPC presets and the Sounds browser.
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.28 includes sixteen independent pad sounds, WAV sample import per
+oscillator, eight native MPC starter presets (including Init) and a 16-pad
+starter kit. These are the MPC port’s own starting recipes, not the complete
+original Geonkick factory library. Original .gkick/.gkit import remains deferred.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
 ENVELOPE and MASTER. Each layer alternates OSC1/FX1, OSC2/FX2, OSC3/FX3. MASTER
-contains KIT, SAMPLES, MIX, global FX and PRESETS; the point editor has its own key. Q-Links
+contains KIT, SAMPLES, MIX and global FX; the point editor has its own key. Q-Links
 control rotary knobs only; switches, selectors, sliders and point editing remain
 touch-only. The historical MIDI CC table and all parameter/state IDs are retained.
 Native/ARM64 and isolated Live III signal-boundary tests pass; actual on-device
@@ -83,9 +84,14 @@ Implemented:
 - Velocity, optional Single-mode note tracking, per-sound tuning and Poly/Cut/Gate.
   The keyboard octave convention does not affect routing: MIDI note numbers do.
 - Eight starting sounds: Init, Deep Kick, Tight Kick, Snare, Closed Hat,
-  Open Hat, Metal and Tom. Native VST program bank for MPC's preset browser.
+  Open Hat, Metal and Tom. All eight ship as authentic full-state .xpl files
+  for the native MPC Sounds/preset browser, alongside a 16-pad starter kit.
+  Native loading replaces the whole kit, routing and embedded samples. Native
+  Save preserves the complete edited kit, including its learned hardware map.
+  Factory presets use Single mode; the starter kit uses chromatic notes36–51.
+  Use LEARN16 for a custom hardware layout, then save your own native kit.
 - Native MPC pages and Q-Links, per-layer oscillator subpages, Sounds-browser
-  artwork and an Init .xpl. Frames include complete label and value bounds.
+  artwork and a complete Init .xpl. Frames include complete label and value bounds.
 - Sharper 0.0.4 display: 432 two-pixel waveform columns, pixel-height waveform
   levels, finer envelope steps, native-size live values and crisp page captions.
 - Visual SYNTH page: green waveform of the actual completed sound, amber
@@ -148,8 +154,9 @@ Editing a sound is asynchronous: new notes use the latest **completed** sound.
 During rapid changes they may briefly use the preceding one. Output, tuning,
 note tracking and playback mode apply at playback; layers/filter/oscillators are
 rendered into the sound. Layer 1 is audible by default; layers 2 and 3 start at
-zero gain. On the PRESETS page, INIT SELECTED PAD restores Init even if Init is already
-the selected preset; selecting the same preset value alone does not reload it.
+zero gain. On MASTER → KIT, INIT PAD restores only the selected pad, retaining the rest
+of the kit and its mapping. Loading native Init resets the entire instance.
+The internal PRESETS page has been removed; use the native MPC browser.
 
 Current limits: stereo output; WAV import (first channel, first4seconds,
 10MiB of decoded PCM per instance). Original preset/soundbank interchange,
@@ -344,3 +351,17 @@ MPC automation recording still needs device validation.
 MPC application restarted active/running and installed library matches installer.
 User reports the new overview appears to work and is continuing brief hardware
 tests; full Q-Link/navigation/automation acceptance is not yet complete.
+
+
+## 0.0.28 — native MPC starter presets and kit
+
+Eight native MPC starter presets and a16-pad kit are supplied in Presets/.
+They contain actual GKMP9 VST states. Init therefore clears an edited instance
+instead of relying on the old empty default chunk. Native Save/Load uses the
+whole instance, including all16 sounds, routing, learned notes and sample data.
+Original Geonkick library import is a separate future compatibility step.
+MASTER/PRESETS is removed; INIT PAD is available on MASTER/KIT. Original program
+and parameter identities remain for old projects. Device acceptance is pending.
+
+Next: interface redesign, including selected-WAV preview before Load under
+MASTER/SAMPLES; original.gkick/.gkit import follows later.

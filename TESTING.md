@@ -1,3 +1,22 @@
+# Current verification —0.0.28
+
+Native MPC presets are actual GKMP9 VST full-instance chunks, exported by the
+compiled plugin and wrapped as JUCE FXB inside nine native.xpl files. Native
+ASan/UBSan/leak and actual ARM64/QEMU tests load all eight starter sounds after
+changing an existing kit and require byte-exact state replacement, including Init.
+All16 starter-kit pads match independent legacy-program waveform/audio oracles.
+A learned nonchromatic map and edited kit survive complete VST close/reopen.
+Existing embedded-sample roundtrip tests remain in the full suite.
+
+The final XPL validator checks exact filenames/names, portable plugin paths,
+UID/version, FXB/chunk lengths and SHA256 payloads against authentic exports.
+The native skin has24 pages on6 keys; MASTER/PRESETS is removed and INIT PAD is
+on KIT.4096 parameter identities and engine audio/state format are unchanged.
+Direct deployment resolves XPL payload paths exactly as the portable installer
+does; the final installed files are separately hash-verified. Hardware browser
+load/save and native UI acceptance remain pending. No final-release benchmark.
+See TESTPLAN-0.0.28-DE.md.
+
 # Current verification —0.0.27
 
 Explicit SOUND Touch selection, not caption formatting or tab guesses. The actual
@@ -603,3 +622,9 @@ removed. Native waveform/tab acceptance remains pending user retest.
 MPC application restarted active/running and installed library matches installer.
 User reports the new overview appears to work and is continuing brief hardware
 tests; full Q-Link/navigation/automation acceptance is not yet complete.
+
+
+0.0.28 deployment:1875 plugin files staged/hash-verified, previous folder backed
+up locally; all9 installed XPL paths resolve to the registered plugin. Settings
+unchanged during replacement. MPC application restarted active/running and
+installed binary matches final ZIP. Native browser acceptance remains pending.

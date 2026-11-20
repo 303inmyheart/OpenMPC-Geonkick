@@ -453,3 +453,24 @@ buttons and remaps six rotary Data bindings/Q-Links. Detail Touch handles stay
 physical. check_sound_overview.py verifies the final deliverable; package.py
 requires that check. Original intermediate navigation checker still validates
 unchanged detail pages. Captions/formatting never select a layer.
+
+
+## Native MPC presets (0.0.28)
+
+The skin build first compiles the optimized native plugin. tools/native_presets.py
+loads it through a minimal VST host, exports eight actual complete GKMP9 chunks
+and builds a16-pad kit using the preserved program bank. tools/xpl.py from the
+external wrapper encodes these authentic chunks into standard native.xpl files.
+The generated manifest and tools/check_native_presets.py validate the deliverable
+files and their payloads. The latter is required by tools/package.py.
+
+These are the port's eight starter recipes, not the upstream factory library.
+Original.gkick/.gkit import and missing engine parity are deferred. All native
+presets are complete-instance snapshots; no new scoped chunk format is used.
+Existing old program/parameter identities remain. Native Save preserves the
+full kit, learned map and embedded sample data using existing GKMP9.
+
+Portable XPL PLUGIN.file values contain %payload-path%, replaced by install.sh.
+Direct plugin-only deployment must make that same replacement before computing
+the deployed file hashes, then validate the installed absolute plugin path/UID.
+The downloadable installer remains portable and its audio binary is unchanged.

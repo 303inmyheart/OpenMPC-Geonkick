@@ -396,6 +396,7 @@ qlink_bounds=column
               'knob cx=820 cy=380 r=36 bw=230 ns=16 vs=22 label="CHROMATIC START" key=kit_base',
               'knob cx=1090 cy=380 r=36 bw=230 ns=16 vs=22 label="KIT OUTPUT" key=kit_output',
               'readout cx=955 cy=510 w=460 h=34 key=kit_info',
+              'button cx=955 cy=568 w=280 h=36 label="INIT PAD" key=reset',
               'button cx=365 cy=540 w=250 h=42 label="PLAY SELECTED PAD" key=audition',
               'enum_h cx=365 cy=660 sw=122 sh=34 label="LEARN HARDWARE PADS" key=kit_learn',
               'readout cx=955 cy=650 w=460 h=34 tsize=20 key=kit_learn_status',

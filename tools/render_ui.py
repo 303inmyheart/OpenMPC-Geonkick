@@ -47,12 +47,11 @@ try:
     assert not any(ids[p['key']] in reported for p in params if p['key'].startswith('viz_')),'Unexpected per-column graph feedback'
     osc_tab=next(t for t in page['tabs'] if t['fnKeyIndex']==1 and t['fnKeySubIndex']==0)
     env_tab=next(t for t in page['tabs'] if t['componentName']=='ENVELOPE|ENVELOPE')
-    preset_tab=next(t for t in page['tabs'] if t['componentName']=='PRESETS|PRESETS')
     mix_tab=next(t for t in page['tabs'] if t['componentName']=='SYNTH|MIX')
     kit_tab=next(t for t in page['tabs'] if t['componentName']=='KIT|KIT')
     sample_tab=next(t for t in page['tabs'] if t['componentName']=='SAMPLES|SAMPLES')
     fx_tab=next(t for t in page['tabs'] if t['componentName']=='EFFECTS|EFFECTS')
-    for filename,tab,wave in [('presets',preset_tab,0),('mix',mix_tab,0),('master-fx',fx_tab,0),('kit',kit_tab,0),('samples',sample_tab,0),('synth',page['tabs'][0],0),('synth-layer2',page['tabs'][0],0),('synth-layer3',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('osc-sample',osc_tab,0),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0),('envelope-free',env_tab,0)]:
+    for filename,tab,wave in [('mix',mix_tab,0),('master-fx',fx_tab,0),('kit',kit_tab,0),('samples',sample_tab,0),('synth',page['tabs'][0],0),('synth-layer2',page['tabs'][0],0),('synth-layer3',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('osc-sample',osc_tab,0),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0),('envelope-free',env_tab,0)]:
         if filename.startswith('synth'):
             set_value('layer2',.75);set_value('o4_freq',300);set_value('o4_attack',.08)
             set_value('layer3',.8);set_value('o7_wave',2);set_value('o7_freq',1000);set_value('o7_decay',.15)

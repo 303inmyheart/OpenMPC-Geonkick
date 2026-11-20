@@ -17,19 +17,26 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
    editing selection, consecutive MIDI-note mapping, per-pad Poly/Cut/Gate,
    shared worker/caches and complete kit/project persistence. User confirmed the
    learned hardware mapping in0.0.22 works. Stereo output;16 shared voices.
-5. **Samples, presets and soundbanks** —0.0.23 implements WAV loading per pad / oscillator;
-   WAV import confirmed working on Live III. 0.0.24 separates the green SOUND
-   waveforms by layer and adds a persistent default sample folder; these changes
-   need fresh device acceptance. Next:
-   then original.gkick sounds and complete.gkit banks using the pad architecture.
-   User requirement: integrate presets/banks with the native MPC preset system
-   and Sounds browser; saving/loading should follow the MPC workflow.
-   Remove MASTER/PRESETS when native Init/factory sounds replace that page;
-   keep old parameter/program identities for existing projects.
-   Later: audio export, mute/solo/choke groups, copying and other kit management.
-   Verify host routing before promising multi-outs or dedicated pad automation.
-6. **Public release** — small on-screen KIT/pad-learning tutorial, final hardware regression, exact release-binary Store
-   benchmark, source/fork/reproducible build review, release and catalog PR.
+5. **Native MPC presets and soundbanks — current step** — user accepted0.0.27
+   SOUND layer selection and requested continuation. WAV import is accepted.
+   Implement eight native MPC starter.xpl sounds (including Init) and a16-pad kit,
+   with native MPC saving/loading. Remove MASTER/PRESETS once native sounds are
+   available. Preserve old physical parameter/program identities and hardware
+   MIDI learn maps. User explicitly chose native presets first; faithful original
+   .gkick/.gkit import and required missing engine parity remain a later step.
+6. **Redesign — immediately next** — user explicitly requested this after native
+   presets. Revisit spacing, hierarchy and navigation around the accepted explicit
+   SOUND layer selector while preserving its functionality.
+   **Important: MASTER/SAMPLES file preview.** Add direct audition/stop for the
+   selected WAV before loading it. Preview must not assign/replace an oscillator,
+   alter a pad's sound or change the project. Existing PLAY PAD auditions the
+   assigned sound and does not satisfy this requested file-preview feature.
+7. **Remaining import/kit work** — faithful.gkick/.gkit conversion, other kit
+   management, copying, mute/solo/choke groups, audio export; verify host routing
+   before promising multi-outs. Deferred engine-envelope UI remains deferred.
+8. **Public release** — small KIT/pad-learning tutorial, hardware regression,
+   exact release-binary Store benchmark, source/licensing/reproducible-build
+   review, release and catalog PR.
 
 Before release: add a small in-plugin tutorial on MASTER/KIT for pad learning,
 including stopping playback, selecting a bank, pressing1–16 in order and learning
@@ -411,3 +418,23 @@ PRESETS when native Init/factory sounds replace it; KIT tutorial before release.
 MPC application restarted active/running and installed library matches installer.
 User reports the new overview appears to work and is continuing brief hardware
 tests; full Q-Link/navigation/automation acceptance is not yet complete.
+
+
+## 0.0.28 — native MPC presets and starter kit
+
+Implemented eight MPC starter presets including a complete Init snapshot plus
+a16-pad starter kit, using standard full-instance native.xpl files. These are
+MPC recipes, not the original Geonkick factory library. Native Save/Load retains
+the complete kit, learned mapping and embedded samples. MASTER/PRESETS removed;
+INIT PAD on KIT resets only the selected sound. Old parameter/program identities,
+GKMP9 format and the accepted explicit SOUND-layer behavior are retained.
+
+Native sanitizer and actual ARM64/QEMU tests pass: authentic state replacement,
+all16 independent sound/audio references, learned-map complete VST close/reopen.
+All nine portable XPL files/UIDs/version/payload hashes and final24-page skin
+validated. Installer checker reports0 warnings. Hardware acceptance pending;
+see TESTPLAN-0.0.28-DE.md. No public release or final Store benchmark.
+
+Next: redesign immediately, including MASTER/SAMPLES WAV preview/stop before
+Load, without replacing the assigned sound. Faithful original.gkick/.gkit import
+remains a later engine/compatibility step. KIT tutorial remains before release.
