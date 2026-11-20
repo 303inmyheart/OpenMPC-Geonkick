@@ -66,6 +66,7 @@ try:
         # graph, as on the post-invalidation frame of the MPC skin.
         if tab['fnKeyIndex']==0:display(ids[f"ui_view_l{tab['fnKeySubIndex']+1}"])
         elif tab['componentName'] in ('SYNTH|MIX','ENVELOPE|ENVELOPE'):display(ids['ui_view_mix'])
+        time.sleep(.3) # allow deferred native-caption context adoption
         values={i:get(e,i) for i in range(len(params))}
         state={i:round(values[i]*(len(p['options'])-1)) for i,p in enumerate(params) if p.get('options')}
         im=Image.new('RGBA',(1280,628));dr=ImageDraw.Draw(im)

@@ -422,3 +422,11 @@ slots are relocked: shared432-column positive/negative layer strips, four native
 text context markers, and Set Default at4095. Old display-only values were never
 automatable or saved. Platform CLI builds/tests now serialize with flock to keep
 shared generated headers stable throughout library and test-host compilation.
+
+0.0.26 refines UI_DISPLAY_CONTEXT in the engine only: the formatting hook queues
+its latest context and timestamps only a changed request. display_rev adopts it
+after100ms stability, incrementing the graph revision only for a real committed
+change. This avoids publishing first-tab intermediates during MPC's native
+rebind. Hook requests themselves never trigger resynthesis or immediate rebinds.
+The14-patch wrapper stack is unchanged. The replay fixture exercises the real
+shared library with a host that reproduces the measured formatting order.

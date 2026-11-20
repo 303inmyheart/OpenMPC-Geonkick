@@ -43,7 +43,8 @@ typedef struct {
     struct gkick_synth *synth;
     Cache slots[SLOTS];
     Voice voices[VOICES];
-    int current,pad_current[PADS],display_layer;
+    int current,pad_current[PADS],display_layer,pending_display_layer;
+    uint64_t display_layer_requested_ns;
     unsigned age;
     unsigned display_revision,ui_revision;
     float output_gain[PADS];
@@ -328,7 +329,7 @@ static void preset(Engine *e,int which) {
 
 static void *create(const char *dir) {
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
-    e->display_layer=-1;sample_init(e,dir);
+    e->display_layer=e->pending_display_layer=-1;sample_init(e,dir);
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
     for(int pad=0;pad<PADS;pad++) {
@@ -469,7 +470,17 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     int xy_result=free_xy_get(e,key,buf,len);if(xy_result>0)return xy_result;
     int free_result=free_virtual_get(e,key,buf,len);if(free_result>0)return free_result;
     int point_result=point_virtual_get(e,key,buf,len);if(point_result>0)return point_result;
-    if(!strcmp(key,"display_rev")) { sample_poll(e);adopt(e);return snprintf(buf,len,"%u",e->display_revision+e->ui_revision); }
+    if(!strcmp(key,"display_rev")) {
+        sample_poll(e);adopt(e);
+        /* MPC rebuilds first-tab labels before the visible tab's labels. Do not
+         * publish transient formatting contexts or cause another rebuild loop.
+         * Only a stable last request is adopted by this normal-priority scan. */
+        if(e->pending_display_layer!=e->display_layer &&
+           worker_clock_ns()-e->display_layer_requested_ns>=UINT64_C(100000000)) {
+            e->display_layer=e->pending_display_layer;++e->display_revision;
+        }
+        return snprintf(buf,len,"%u",e->display_revision+e->ui_revision);
+    }
     if(!strcmp(key,"graph_revision"))return snprintf(buf,len,"%u",e->display_revision%1024);
     if(!strcmp(key,"ui_env_focus")) {
         int focus=(int)at(e,"plot_osc");char wave[32];snprintf(wave,sizeof wave,"o%d_wave",focus+1);
@@ -544,7 +555,9 @@ void mpc_engine_ui_display(void *inst,const char *key) {
     Engine *e=inst;int l=-2;char tail;
     if(!strcmp(key,"ui_view_mix"))l=-1;
     else {int n;if(sscanf(key,"ui_view_l%d%c",&n,&tail)==1 && n>=1&&n<=3)l=n-1;}
-    if(l>=-1 && l!=e->display_layer){e->display_layer=l;++e->display_revision;}
+    if(l>=-1 && l!=e->pending_display_layer){
+        e->pending_display_layer=l;e->display_layer_requested_ns=worker_clock_ns();
+    }
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
     Engine *e=inst;

@@ -373,3 +373,19 @@ up locally, settings unchanged during replacement, MPC app restarted active/
 running and installed library matches installer. Native sanitizer/full ARM64
 suites and final two-instance display-context regressions pass. On-device SOUND
 view following, folder button and UI responsiveness remain user acceptance.
+
+
+0.0.26: user confirmed25 restored SOUND waveform visibility, but all three views
+still showed the same data. A bounded private device trace captured first-tab
+then visible-tab caption formatting during native rebuilds. Publishing every
+request immediately produced a rebuild feedback loop. Pending contexts now
+coalesce for100ms and are adopted only on the normal display scan, with one
+revision per stable change. No resynthesis or reduced graph resolution.
+Native sanitizer and ARM64/QEMU replay tests pass; archived25 fails the same
+feedback-count assertion. Hardware validation is still pending. Next remains
+native MPC presets/banks, replacing MASTER/PRESETS; KIT tutorial before release.
+
+0.0.26 installed:1859 package files verified, previous plugin backed up locally,
+settings unchanged during replacement, MPC app restarted active/running and
+installed library matches the uninstrumented installer. Temporary device trace
+removed. Native waveform/tab acceptance remains pending user retest.

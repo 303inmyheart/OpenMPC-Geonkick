@@ -1,3 +1,19 @@
+# Current verification —0.0.26
+
+Real-device diagnostics identified repeated first-tab/visible-tab caption queries
+inside a native rebind. The host regression now draws cached wave/envelope data,
+formats first-tab captions, waits40ms, formats the visible tab, and repeats this
+on audioMasterUpdateDisplay. With transport stopped, all three SOUND views and
+MIX settle at the intended data and no more than3 callbacks are allowed over800ms
+(actual passing runs:1). Two instances remain independent; full get/name scans
+are inert. Archived0.0.25 fails this exact test with6 rebuilds on the second view.
+The pending context is adopted after100ms stability by the normal display thread;
+repeated captions do not indefinitely postpone it. No audio synthesis changes.
+Full native ASan/UBSan/leaks and actual ARM64/QEMU suites pass. These checks do not
+prove native UI acceptance; the installed device needs the view-switch retest.
+No formal Store benchmark. Existing native4096 handle ceiling and sample tests
+remain in place. See TESTPLAN-0.0.26-DE.md.
+
 # Current verification —0.0.25
 
 The actual native skin registry is bounded to Parameter0..4095. Every skin data,
@@ -556,3 +572,8 @@ up locally, settings unchanged during replacement, MPC app restarted active/
 running and installed library matches installer. Native sanitizer/full ARM64
 suites and final two-instance display-context regressions pass. On-device SOUND
 view following, folder button and UI responsiveness remain user acceptance.
+
+0.0.26 installed:1859 package files verified, previous plugin backed up locally,
+settings unchanged during replacement, MPC app restarted active/running and
+installed library matches the uninstrumented installer. Temporary device trace
+removed. Native waveform/tab acceptance remains pending user retest.

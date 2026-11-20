@@ -12,7 +12,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.25 includes sixteen independent pad sounds and WAV sample import per
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.26 includes sixteen independent pad sounds and WAV sample import per
 oscillator. Original preset/soundbank conversion is the following phase and will
 use native MPC presets and the Sounds browser.
 
@@ -319,3 +319,15 @@ up locally, settings unchanged during replacement, MPC app restarted active/
 running and installed library matches installer. Native sanitizer/full ARM64
 suites and final two-instance display-context regressions pass. On-device SOUND
 view following, folder button and UI responsiveness remain user acceptance.
+
+0.0.26 coalesces native view-formatting requests before publishing the selected
+cached graph. Device diagnostics showed first-tab captions being requested during
+another tab's rebuild; immediate context publication in0.0.25 caused repeated
+rebinds. The actual-host regression replays this order: archived0.0.25 fails;
+0.0.26 settles with one refresh per view in native sanitizer and ARM64/QEMU tests.
+Fresh Live III acceptance remains separate. Audio synthesis/point state unchanged.
+
+0.0.26 installed:1859 package files verified, previous plugin backed up locally,
+settings unchanged during replacement, MPC app restarted active/running and
+installed library matches the uninstrumented installer. Temporary device trace
+removed. Native waveform/tab acceptance remains pending user retest.
