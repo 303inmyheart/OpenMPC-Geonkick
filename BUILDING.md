@@ -13,7 +13,8 @@ patches/mpc-coalesced-graph-and-fine-input.patch, then
 patches/mpc-graph-rebind-and-input-observation.patch and
 patches/mpc-accumulated-fine-input.patch, followed by
 patches/mpc-canonical-continuous-echo.patch and finally
-patches/mpc-envelope-state-capacity.patch, in that order. The wrapper is not copied into this repository.
+patches/mpc-envelope-state-capacity.patch, then
+patches/mpc-idle-action-release.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
 `mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
@@ -273,3 +274,26 @@ free_envelope_test.c covers all 18 contexts, 2..16 point bounds, cubic insertion
 sound preservation, raw paired time events, endpoint safety, malformed-state
 atomic rejection, GKMP4 migration, original parameter automation and Copy Simple.
 This remains an offline/QEMU regression suite, not a hardware CPU benchmark.
+
+
+0.0.18 replaces the five-stage Pitch EG in the skin with native XYPad. Live III
+screenshots showed that the native Pitch widget uses its own stage spacing;
+normalizing four weights in our offline renderer had masked the mismatch.
+Do not restore that assumed geometry. The selected XY pad and sixteen readonly
+marker pads share one rectangle. Their normalised native puck centers encode
+the common18px inset: x=(18+1064*time)/1100, y=(18+134*level)/170. The curve
+strip occupies136px, with its134px line travel matching that inset exactly.
+Source tools/editor_geometry.py is shared by skin generation and geometry checks.
+C regressions check all points in all18 contexts and actual VST XY echo safety.
+The two-to-four-point placeholder-grip limitation is removed.
+
+IDLE_ACTION_RELEASE opts into a30ms normal-priority feedback deadline for each
+momentary input, including highs that debounce before dispatch. A stopped MPC
+need not call the audio callback for a button to reset. It changes only cached
+UI feedback; engine actions remain once per valid tap. XY_POSITION_FEEDBACK
+returns constrained selected-point positions to the host from the same existing
+notification thread. Both options are off for unrelated ports. No new audio
+thread UI call, graph callback burst or synthesis wait is added.
+idle_action_test.c reproduces the stopped-host cache, repeated taps and the
+finger-up high pulse after the first reset, and echoes notifications back to the
+actual shared VST. No formal Store benchmark is implied by these checks.

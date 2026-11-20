@@ -142,6 +142,13 @@ p('free_time','Point Position',0,1,0,dynamic_display=True,legacy=True)
 p('free_bend','Segment Curve',-1,1,0,dynamic_display=True,legacy=True)
 p('free_status','Envelope Status',0,1,0,live=True,legacy=True,dynamic_display=True)
 for key in ('free_prev','free_next'):opt(key,'Select Envelope Point',['Off','Go'],momentary=True,debounce_ms=150,legacy=True)
+# Native XY editing uses absolute full-hit positions, not stage durations.
+p('xy_x','Point X Touch',0,1,0,legacy=True)
+p('xy_y','Point Y Touch',0,1,0,legacy=True)
+p('ui_point_count','Visible Point Count',2,16,2,display='int',live=True,legacy=True)
+for j in range(16):
+    for axis in ('x','y'):p(f'point_{axis}_{j}',f'Point {j+1} {axis}',0,1,0,live=True,legacy=True)
+
 
 
 def generate():
@@ -279,7 +286,7 @@ qlink_bounds=column
               'enum_h cx=210 cy=270 sw=120 sh=34 label="CURVE" key=plot_env options="AMP,PITCH"',
               'toggle cx=570 cy=270 bw=190 label="COPY SIMPLE" key=point_copy',
               'frame x=70 y=314 w=1140 h=195 title="WAVEFORM + ENVELOPE / SELECT A GRIP AND DRAG"',
-              'enum_h cx=640 cy=550 sw=114 sh=30 label="GRIP GROUP / ENDPOINTS ALWAYS VISIBLE" key=free_bank',
+              'enum_h cx=640 cy=537 sw=64 sh=28 rows=2 label="" key=free_select',
               'button cx=170 cy=630 w=180 h=38 label="< POINT" key=free_prev',
               'button cx=375 cy=630 w=180 h=38 label="POINT >" key=free_next',
               'button cx=170 cy=682 w=180 h=38 label="ADD POINT" key=free_add',

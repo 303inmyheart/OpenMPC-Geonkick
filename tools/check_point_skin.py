@@ -6,21 +6,22 @@ root=Path(__file__).resolve().parents[1]
 params=json.loads((root/'params.json').read_text())['params'];ids={p['key']:i for i,p in enumerate(params)}
 page=json.loads(next((root/'build/skin').glob('*/Plugin Skins/TUI.json')).read_text())['pageData']
 defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
-assert len(params)==2935
-previous=json.loads(subprocess.check_output(['git','show','91b2975:params.json'],cwd=root))['params']
+assert len(params)==2970
+previous=json.loads(subprocess.check_output(['git','show','8ee7bfc:params.json'],cwd=root))['params']
 assert params[:len(previous)]==previous,'Changed previous VST identities/ranges/defaults'
 for tab in page['tabs']:
     if tab['componentName']!='ENVELOPE|ENVELOPE':continue
     children=defs[tab['componentName']]['componentsData']
-    envelopes=[c for c in children if c['componentData']['type']=='gkFreeEnvelope']
-    assert len(envelopes)==1
-    mapping={m['key']:m['value'] for m in envelopes[0]['handle remapping']['map']}
-    for j in range(5):assert mapping[f'Level{j}']=='Parameter '+str(ids[f'edit_l{j}'])
-    for j in range(1,5):assert mapping[f'Time{j}']=='Parameter '+str(ids[f'edit_t{j}'])
-    assert defs['gkFreeEnvelope']['componentsData'][0]['componentData']['data']['lineColour']=='00000000'
+    pads=[c for c in children if c['componentData']['type']=='gkPointXY']
+    assert len(pads)==1
+    mapping={m['key']:m['value'] for m in pads[0]['handle remapping']['map']}
+    assert mapping['X']=='Parameter '+str(ids['xy_x']) and mapping['Y']=='Parameter '+str(ids['xy_y'])
+    markers=[c for c in children if c['componentData']['type']=='gkPointDot'];assert len(markers)==16
+    assert defs['gkPointDot']['ignoreMousePresses']
+    assert not any(c['componentData']['type']=='gkFreeEnvelope' for c in children)
     curves=[c for c in children if c['componentData']['type'].startswith('gkEditCurve_')]
     assert len(curves)==432
-print('Original 1782 parameter identities preserved; variable point grip proxies and full DSP curve PASS')
+print('All previous 2935 parameter identities preserved; absolute XY point proxies and full DSP curve PASS')
 # Editor draws the same completed sound behind the draggable curve. No new
 # data channel or per-column host callback path is introduced by this skin.
 for tab in page['tabs']:
@@ -28,12 +29,12 @@ for tab in page['tabs']:
     children=defs[tab['componentName']]['componentsData']
     wave=[(i,c) for i,c in enumerate(children) if c['componentData']['type'].startswith('gkEditWave_')]
     assert len(wave)==864
-    first_curve=min(i for i,c in enumerate(children) if c['componentData']['type']=='gkFreeEnvelope')
+    first_curve=min(i for i,c in enumerate(children) if c['componentData']['type']=='gkPointXY')
     assert max(i for i,c in wave)<first_curve
     for _,c in wave:
         assert c['bounds']['additionalInvalidatingHandles']==['Parameter '+str(ids['graph_revision'])]
         assert defs[c['componentData']['type']]['ignoreMousePresses']
-    point_keys=['point_copy','free_bank','free_level','free_time','free_bend','free_add','free_delete','free_prev','free_next']
+    point_keys=['point_copy','free_select','free_level','free_time','free_bend','free_add','free_delete','free_prev','free_next']
     for c in children:
         if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for k in point_keys for m in c.get('handle remapping',{}).get('map',[])):
             assert c['bounds']['acceptsHWFocus']=='No'
@@ -46,11 +47,25 @@ print('Rendered waveform below native point editor, shared quiet-time invalidati
 
 # Touchable bank/actions must not be hidden under the full-size native editor.
 children=defs['ENVELOPE|ENVELOPE']['componentsData']
-curve=next(c for c in children if c['componentData']['type']=='gkFreeEnvelope')
+curve=next(c for c in children if c['componentData']['type']=='gkPointXY')
 x,y,w,h=map(int,curve['bounds']['bounds'].split())
 for c in children:
-    if c is curve:continue
-    if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for k in ('free_bank','free_add','free_delete','free_prev','free_next','free_level','free_time','free_bend') for m in c.get('handle remapping',{}).get('map',[])):
+    if c is curve or c['componentData']['type']=='gkPointDot':continue
+    if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids[k]) for k in ('free_select','free_add','free_delete','free_prev','free_next','free_level','free_time','free_bend') for m in c.get('handle remapping',{}).get('map',[])):
         xx,yy,ww,hh=map(int,c['bounds']['bounds'].split())
         assert yy>=y+h and 0<=xx and xx+ww<=1280 and yy+hh<=628
-print('Point actions/groups lie outside the native canvas and inside the display PASS')
+print('Point actions/selectors lie outside the native canvas and inside the display PASS')
+
+from editor_geometry import OUTER,PLOT,CURVE_HEIGHT
+xy=defs['gkPointXY']['componentsData'][0]['componentData']
+assert xy['type']=='XYPad' and xy['data']['image']=='point-active.png'
+assert tuple(map(int,curve['bounds']['bounds'].split()))==OUTER
+curve_columns=[c for c in children if c['componentData']['type'].startswith('gkEditCurve_')]
+rects=[tuple(map(int,c['bounds']['bounds'].split())) for c in curve_columns]
+assert min(x for x,y,w,h in rects)==PLOT[0]
+assert max(x+w for x,y,w,h in rects)==PLOT[0]+PLOT[2]
+assert {y for x,y,w,h in rects}=={PLOT[1]} and {h for x,y,w,h in rects}=={CURVE_HEIGHT}
+assert CURVE_HEIGHT-2==PLOT[3]
+for c in children:
+    if c['componentData']['type']=='gkPointDot':assert tuple(map(int,c['bounds']['bounds'].split()))==OUTER
+print('Absolute XY puck centres and complete curve share one pixel/time/level rectangle PASS')

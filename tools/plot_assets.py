@@ -2,6 +2,7 @@
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 from spec import PLOT_WIDTH,PLOT_WAVE_LEVELS,PLOT_ENV_LEVELS
+from editor_geometry import CURVE_HEIGHT
 root=Path(__file__).resolve().parents[1]
 for kind,height in [('positive',96),('negative',96),('envelope',192)]:
     levels=PLOT_ENV_LEVELS if kind=='envelope' else PLOT_WAVE_LEVELS
@@ -42,7 +43,7 @@ for width in (2,3):
 
 # Full variable envelope over the same waveform, native grip inset matched.
 for width in (2,3):
-    height=134;im=Image.new('RGBA',(width,height*PLOT_ENV_LEVELS),(0,0,0,0));d=ImageDraw.Draw(im)
+    height=CURVE_HEIGHT;im=Image.new('RGBA',(width,height*PLOT_ENV_LEVELS),(0,0,0,0));d=ImageDraw.Draw(im)
     for frame in range(PLOT_ENV_LEVELS):
         y=frame*height+round((1-frame/(PLOT_ENV_LEVELS-1))*(height-2))
         d.rectangle((0,y,width-1,y+1),fill='#efbc73')

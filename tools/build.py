@@ -36,6 +36,7 @@ def prepare():
     if 'FINE_TRACK_RAW_INPUT' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-accumulated-fine-input.patch first.')
     if 'CANONICAL_CONTINUOUS_ECHO' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-canonical-continuous-echo.patch after mpc-accumulated-fine-input.patch.')
     if 'ENGINE_CHUNK_CAPACITY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-envelope-state-capacity.patch.')
+    if 'IDLE_ACTION_RELEASE' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-idle-action-release.patch.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()

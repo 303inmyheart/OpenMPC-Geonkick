@@ -3,7 +3,7 @@
 No fake waveform: the pixel strips are positioned by the compiled DSP's values.
 Requires an optimized native build, built skin and Pillow.
 """
-import ctypes as C,json,os,sys,time
+import ctypes as C,json,os,sys,time,re
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
 root=Path(__file__).resolve().parents[1]
@@ -64,6 +64,12 @@ try:
         im=Image.new('RGBA',(1280,628));dr=ImageDraw.Draw(im)
         for c in studio.tab_components(tab,defs):
             if not studio.shown(c,state):continue
+            allowed=True
+            for handle in c['bounds'].get('additionalInvalidatingHandles',[]):
+                m=re.fullmatch(r'RangedEnabling/(\d+)/(\d+)/(\d+)/Parameter (\d+)',handle)
+                if m:
+                    lo,hi,count,index=map(int,m.groups());allowed &= lo<=round(values[index]*(count-1))<=hi
+            if not allowed:continue
             cd=c['componentData'];x,y,cw,ch=rect(c['bounds'])
             if cd['type']=='Image':
                 im.alpha_composite(Image.open(skin/cd['data']['image']).convert('RGBA'),(x,y));continue
@@ -83,6 +89,12 @@ try:
                 elif sd['type']=='Button':
                     count=data['numButtonsInGroup'];on=value>=0.5 if count==1 else round(value*(count-1))==data['buttonId']
                     im.alpha_composite(Image.open(skin/data['onImage' if on else 'offImage']).convert('RGBA'),(x+sx,y+sy))
+                elif sd['type']=='XYPad':
+                    # Firmware places the image's centre at width*x,height*(1-y).
+                    px=x+sx+w*values[mapping[data['xPositionHandle']]]
+                    py=y+sy+h*(1-values[mapping[data['yPositionHandle']]])
+                    puck=Image.open(skin/data['image']).convert('RGBA')
+                    im.alpha_composite(puck,(round(px-puck.width/2),round(py-puck.height/2)))
                 elif sd['type']=='Envelope':
                     # Approximate native widget geometry for layout review only.
                     levels=[values[mapping[f'Level{j}']] for j in range(5)]

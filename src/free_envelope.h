@@ -75,6 +75,7 @@ static void free_context(Engine *e,int *o,int *k,int *s,FreeCurve *c){
  *o=(int)at(e,"plot_osc");*k=(int)at(e,"plot_env");free_current(e,*o,*k,c);*s=(int)at(e,"free_select");if(*s>=c->n)*s=c->n-1;
 }
 static void free_selection(Engine *e,int n,int selected){
+ ++e->ui_revision;
  selected=selected<0?0:selected>=n?n-1:selected;put(e,"free_select",selected);
  if(selected>0 && selected<n-1)put(e,"free_bank",(selected-1)/3);
  e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;
@@ -96,6 +97,27 @@ static void free_times(Engine *e,int o,int k,const FreeCurve *c,const float x[5]
   e->edit_osc=o;e->edit_kind=k;e->edit_bank=bank;e->edit_count=c->n;e->edit_time_valid=1;
  }
 }
+/* XYPad geometry: native puck centers are (width*x,height*(1-y)).
+ * Encode the common 18px inset here; plot columns share this exact rectangle. */
+static float free_xy(float value,int axis){return axis?(18+134*value)/170.f:(18+1064*value)/1100.f;}
+static int free_xy_get(Engine *e,const char *key,char *buf,int len){
+ int axis=-1,j=-1;char a,tail;
+ if(!strcmp(key,"xy_x"))axis=0;else if(!strcmp(key,"xy_y"))axis=1;
+ else if(!strcmp(key,"ui_point_count"))axis=2;
+ else if(sscanf(key,"point_%c_%d%c",&a,&j,&tail)==2 && (a=='x'||a=='y') && j>=0&&j<16)axis=a=='y';
+ if(axis<0)return 0;
+ int o,k,selected;FreeCurve c;free_context(e,&o,&k,&selected,&c);
+ if(axis==2)return snprintf(buf,len,"%d",c.n);
+ if(j<0)j=selected;
+ if(j>=c.n)j=c.n-1;
+ return snprintf(buf,len,"%.9g",free_xy(axis?c.y[j]:c.x[j],axis));
+}
+static int free_xy_set(Engine *e,const char *key,const char *text){
+ int axis=!strcmp(key,"xy_y");if(!axis && strcmp(key,"xy_x"))return 0;
+ char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return 1;
+ char value[48];snprintf(value,sizeof value,"%.9g",clampf(axis?(v*170-18)/134.f:(v*1100-18)/1064.f,0,1));
+ set_param(e,axis?"free_level":"free_time",value);return 1;
+}
 static int free_virtual_get(Engine *e,const char *key,char *buf,int len){
  if(strncmp(key,"edit_",5) && strncmp(key,"free_",5))return 0;
  int o,k,s;FreeCurve c;free_context(e,&o,&k,&s,&c);int m[5];float x[5];free_map(e,&c,m,x);
@@ -106,7 +128,7 @@ static int free_virtual_get(Engine *e,const char *key,char *buf,int len){
  if(!strcmp(key,"free_select"))return snprintf(buf,len,"%d",s);
  if(!strcmp(key,"free_bank"))return snprintf(buf,len,"%.0f",clampf(at(e,key),0,fmaxf(0,(c.n-3)/3)));
  if(!strcmp(key,"free_status_display"))return snprintf(buf,len,"POINT %d / %d%s",s+1,c.n,c.n==FREE_MAX?"  / MAX":"");
- if(!strcmp(key,"free_status"))return snprintf(buf,len,"0");
+ if(!strcmp(key,"free_status"))return snprintf(buf,len,"%.9g",(c.n*16+s)/271.f);
  if(!strcmp(key,"free_level_display"))return k?snprintf(buf,len,"%.2f Hz",20+(point_upper(point_base(e,o))-20)*c.y[s]):snprintf(buf,len,"%.2f %%",c.y[s]*100);
  if(!strcmp(key,"free_time_display"))return snprintf(buf,len,"%.2f ms%s",1000*at(e,"length")*c.x[s],s==0 || s==c.n-1?" / END":"");
  if(!strcmp(key,"free_bend_display"))return s==c.n-1?snprintf(buf,len,"END / --"):snprintf(buf,len,"%+.0f %%",(c.b[s]+c.d[s])*50);
@@ -121,7 +143,7 @@ static int free_virtual_set(Engine *e,const char *key,const char *text){
  int o,k,s;FreeCurve c;free_context(e,&o,&k,&s,&c);
  if(!strcmp(key,"free_select") || !strcmp(key,"free_bank")){
   if(!strcmp(key,"free_select")){int selected=(int)clampf(roundf(v),0,c.n-1);if(selected==s)return 1;free_selection(e,c.n,selected);}
-  else {int bank=(int)clampf(roundf(v),0,fmaxf(0,(c.n-3)/3));if(bank==(int)at(e,"free_bank"))return 1;put(e,"free_bank",bank);put(e,"free_select",c.n>2?1+bank*3:0);e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;}
+  else {int bank=(int)clampf(roundf(v),0,fmaxf(0,(c.n-3)/3));if(bank==(int)at(e,"free_bank"))return 1;++e->ui_revision;put(e,"free_bank",bank);put(e,"free_select",c.n>2?1+bank*3:0);e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;}
   return 1;
  }
  if(!strcmp(key,"free_prev") || !strcmp(key,"free_next")){if(v>0)free_selection(e,c.n,s+(!strcmp(key,"free_next")?1:-1));return 1;}

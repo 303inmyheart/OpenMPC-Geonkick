@@ -1,4 +1,4 @@
-# Variable Amp/Pitch envelopes — 0.0.17 local candidate
+# Variable Amp/Pitch envelopes — 0.0.18
 
 Every oscillator has independent amplitude and pitch curves. SIMPLE uses the
 existing Attack/Decay or Pitch Drop/Time controls. POINTS retains custom edits;
@@ -10,10 +10,11 @@ Changing the older simple controls returns the corresponding envelope to SIMPLE.
 1. Open ENVELOPE, choose L1/1–L3/3 and AMP or PITCH, then POINTS.
 2. The teal waveform is the actual completed **mixed hit**; the amber line is
    the complete selected oscillator envelope. Both use the full sound duration.
-3. Drag a native grip in two dimensions. Endpoints and up to three interior
-   points are available at once. GRIP GROUP switches the interior set; POINT
-   previous/next selects individual points, including those in another group.
-   The status identifies the selected point and current count.
+3. Select a point using its numbered button, or POINT previous/next. Only
+   existing point numbers are shown. All points are visible as small markers;
+   the selected point is an amber puck. Drag that puck on the native XY surface
+   to change its time and level. Touch elsewhere on the surface moves the
+   **selected** point; it does not select the nearest point or add a point.
 4. ADD POINT inserts halfway through the selected outgoing segment (or the last
    segment when the final endpoint is selected). Cubic subdivision preserves
    the existing curve. The new point becomes selected. Maximum: 16 points.
@@ -36,15 +37,23 @@ Graph feedback keeps the existing 180 ms quiet-time refresh. Native grips move
 immediately; the completed curve/waveform follow the synthesis worker. No
 per-column callback burst, UI file IO or synthesis wait is added to audio.
 
-## Native UI limits and validation
+## Native UI and validation
 
-The documented MPC native Pitch Envelope has five grips, not a free drawing
-canvas. Its own line is transparent; readonly filmstrips show all segments,
-including those outside the current grip group. Unused grips for sparse curves
-coincide with the final endpoint and ignore edits. Actual sparse-grip appearance,
-hit testing and drag behavior require Live III acceptance. Offline previews only
-approximate the host's geometry. ADD uses a button; tapping an arbitrary empty
-canvas coordinate to insert is not implemented.
+0.0.17 used the native Pitch Envelope with five banked grips. Actual MPC
+screenshots showed that its stage spacing differs from our free normalized
+point timeline. 0.0.18 replaces it with native XYPad: absolute X and Y encode
+the same inset/scale used by the complete curve and mixed-hit waveform. No
+banked or placeholder grips remain. The selected puck is touchable; the small
+markers ignore input. Native coordinate and geometry regressions cover all18
+contexts, and offline previews use the same absolute mapping. Hardware touch
+acceptance remains required; previews are not hardware screenshots.
+
+Point actions reset their highlight from a normal-priority thread even when
+MPC is stopped. A second high pulse from finger release is debounced as an
+action but still schedules the UI reset. POINT selection changes publish UI
+feedback without triggering sound synthesis. Existing quiet-time waveform
+refresh remains, so the completed line/sound follow after the short quiet interval.
+ADD still uses a button; arbitrary tap-to-insert is not implemented.
 
 First activation of a legacy POINTS curve keeps its existing five-point data.
 Variable editing copies it lazily. GKMP5 stores 1521 values, including eighteen

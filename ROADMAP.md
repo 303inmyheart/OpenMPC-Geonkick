@@ -160,3 +160,39 @@ MPC application restart completed, service active/running and installed binary
 matches the package. No new on-device touch/hearing acceptance or formal CPU
 benchmark claimed. Next: the focused0.0.17 touch/curve test, fixes if needed,
 then useful filter range / remaining sound editing parity.
+
+
+## 0.0.18 — hardware-reported point alignment and sticky actions
+
+Live III screenshots exposed incompatible time spacing in the five-stage Pitch
+widget and latched point-action highlights while stopped. Replace it with native
+absolute XY editing, all16 readonly markers and numbered selection of existing
+points. The amber selected point uses the same time/level rectangle as the curve
+and waveform; no grip banks or sparse placeholder points remain. Touching empty
+space moves the selected point; it does not select the nearest point or insert.
+
+Idle action feedback resets highlights without audio callbacks, including a
+second debounced high from finger release. Selection/status refresh without
+synthesis. GKMP5, original2935 VST indices, curves and quiet-time audio/plot
+behavior remain compatible;35 readonly/absolute UI channels are appended.
+
+Next gate: user checks numbered selection, XY alignment after settling, all four
+point buttons while stopped/playing and two-point endpoints. Then continue
+filter range / remaining sound features, followed by samples/presets and kits.
+Desktop free Bezier control handles/tap-to-insert remain deferred. No Store
+benchmark before the final release binary.
+
+
+User reports manually installing the latest build and that it works. The exact
+installed version could not be independently confirmed because SSH was
+unreachable at the final check. Do not claim an automated0.0.18 deployment or
+restart; none was performed. Keep the successful user report distinct from the
+specific new XY/button hardware matrix until the installed version is known.
+0.0.18 local package passes native sanitizers, actualARM64/QEMU, geometry and
+current pinned installer checks with0warnings. The stopped-button regression
+fails on the frozen0.0.17 shared object and passes on0.0.18.
+
+Recommended next functional task: phase3 sound-engine parity, beginning with a
+stable useful filter range/resonance expansion. Check gain, parameter transitions
+and old-project behavior. Then remaining original-engine differences; sample
+loading and external presets follow in phase4, kits in phase5.

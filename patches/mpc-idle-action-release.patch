@@ -1,0 +1,57 @@
+diff --git a/wrapper/vst2_wrap.c b/wrapper/vst2_wrap.c
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -130,6 +130,7 @@
+     int inpos;
+     double bpm;
+     volatile int holdFrames[NPARAMS];  /* momentary params: frames left before reporting back to 0 (hold_ms) */
++    uint64_t action_release_ns[NPARAMS]; /* IDLE_ACTION_RELEASE: normal-priority reset deadline */
+     long long press_ms[NPARAMS];       /* momentary params: when the last press that was acted on arrived (CLOCK_MONOTONIC ms), see set_param_now */
+     volatile char changed[NPARAMS];  /* params the plugin changed itself (step_of on an option), to report */
+     int stepped_echo_pending[NPARAMS]; /* accepted stepped values awaiting an optional host echo */
+@@ -232,6 +233,9 @@
+     w->master(&w->fx,audioMasterAutomate,i,0,0,value);
+     reporting_instance=saved;reporting_index=saved_i;reporting_value=saved_value;
+ }
++#ifndef IDLE_ACTION_RELEASE
++#define IDLE_ACTION_RELEASE 0
++#endif
+ static const mpc_engine_t *g_api;
+ 
+ /* One engine call at a time per instance. A JUCE host (MPC's) sets and reads parameters, chunks and displays on its
+@@ -322,6 +326,8 @@
+     const param_t *p = &PARAMS[i];
+     const float requested_n = n;
+     int nudge = 0;
++    if (IDLE_ACTION_RELEASE && p->momentary && n > 0.5f)
++        __atomic_store_n(&w->action_release_ns[i],monotonic_ns()+30000000u,__ATOMIC_RELEASE);
+     /* One tap on a drawn button reaches us as two presses 30 to 140 ms apart, with no release between (the finger going down and lifting;
+      * Live III, 2026-10-30, docs/NOTES.md), so "Program >" stepped two programs and a keyboard key typed twice. A momentary param ignores a
+      * second press within debounce_ms of the last one acted on (vst.json "debounce_ms", default 250, 0 = off). The wrapper's own spring-back
+@@ -463,6 +469,10 @@
+     }
+     norm_to_str(p, n, buf, sizeof buf);
+     eng_set(w, PARAMS[i].key, buf);
++#if defined(XY_POSITION_FEEDBACK) && XY_POSITION_FEEDBACK
++    if(!strncmp(PARAMS[i].key,"xy_",3) && fabsf(get_norm(w,i)-requested_n)>1e-6f)
++        __atomic_store_n(&w->notify_pending[i],1,__ATOMIC_RELEASE);
++#endif
+     /* Q-Link writes are fractional even for switches/options. The host caches that
+      * fraction for its skin, while settle() selects a different, exact engine value.
+      * Send the accepted value from the next audio callback so buttons and radio
+@@ -695,6 +705,15 @@
+         if (__atomic_load_n(&w->rev_stop, __ATOMIC_ACQUIRE)) break;
+         if (!ASYNC_HOST_NOTIFY || ++scan_ticks >= 10) { scan_ticks = 0; rev_scan(w); }
+         if (ASYNC_HOST_NOTIFY) {
++            if(IDLE_ACTION_RELEASE) {
++                uint64_t now_ns=monotonic_ns();
++                for(int i=0;i<NPARAMS;i++) {
++                    uint64_t deadline=__atomic_load_n(&w->action_release_ns[i],__ATOMIC_ACQUIRE);
++                    if(deadline && now_ns>=deadline &&
++                       __atomic_compare_exchange_n(&w->action_release_ns[i],&deadline,0,0,__ATOMIC_ACQ_REL,__ATOMIC_ACQUIRE))
++                        __atomic_store_n(&w->notify_pending[i],1,__ATOMIC_RELEASE);
++                }
++            }
+             struct timespec begin, now; clock_gettime(CLOCK_MONOTONIC, &begin);
+             for (int k = 0; k < NPARAMS; k++) {
+                 if (__atomic_load_n(&w->rev_stop, __ATOMIC_ACQUIRE)) break;

@@ -10,7 +10,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.17 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.18 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
@@ -35,8 +35,10 @@ new host-echo/geometry regressions pass; actual MPC touch acceptance is pending.
 0.0.17 adds **variable Amp/Pitch envelopes with 2–16 points** on every oscillator.
 ADD POINT divides the selected outgoing segment without changing its cubic shape;
 DELETE POINT removes an interior point. The full envelope and completed mixed-hit
-waveform remain visible together. Native touch grips edit endpoints plus a group
-of up to three interior points; choose a group or use POINT previous/next. POINT
+waveform remain visible together. Native XY editing uses the same full-hit coordinates as the curve. All points
+are visible; choose a point number or POINT previous/next, then drag the amber
+puck. The five-grip native Pitch editor used in0.0.17 was removed after hardware
+screenshots exposed incompatible stage spacing. POINT
 LEVEL and POSITION edit the selection; SEGMENT CURVE bends its outgoing cubic
 Bezier segment. All point editing is touch-only. First/last times stay at the
 sound boundaries. This is a local development build; new MPC touch acceptance
@@ -165,4 +167,14 @@ in art/FONT-LICENSE.txt. No Akai stock artwork or proprietary SDK is included.
 The 0.0.17 native/ASan/UBSan/leak and actual ARM64 shared-library/QEMU suites
 pass. Cubic insertion audio differs by less than 1e-7 in the regression fixture;
 this is numerical verification, not a CPU benchmark or a hardware hearing claim.
-See [the focused MPC test guide](TESTPLAN-0.0.17-DE.md) for the next device test.
+See [the focused MPC test guide](TESTPLAN-0.0.18-DE.md) for the next device test.
+
+
+0.0.18 corrects the hardware-reported envelope/handle alignment using native
+absolute XY positions. Only existing point numbers are shown, all points use
+readonly small markers, and the selected point uses an amber draggable marker.
+A normal-priority idle action reset clears point buttons even when MPC is
+stopped, including a debounced second high event from finger release. Point
+selection/status now notify the host without waiting for synthesis. Hardware
+interaction acceptance remains required. Existing sound/state/Q-Link behavior
+and quiet-time waveform feedback remain in place.

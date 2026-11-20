@@ -33,7 +33,7 @@ typedef struct {
     Voice voices[VOICES];
     int current;
     unsigned age;
-    unsigned display_revision;
+    unsigned display_revision,ui_revision;
     float output_gain;
     float cut_tail[EDGE_SAMPLES];
     unsigned cut_pos;
@@ -308,6 +308,7 @@ static void midi(void *inst,const uint8_t *msg,int len) {
 }
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
+    if(free_xy_set(e,key,text))return;
     if(free_virtual_set(e,key,text))return;
     if(point_virtual_set(e,key,text))return;
     int alias=alias_of(key);
@@ -392,9 +393,10 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
     /* Wrapper serializes this call with MIDI/render. The display thread can
      * adopt a completed sound even while the host isn't processing audio. */
+    int xy_result=free_xy_get(e,key,buf,len);if(xy_result>0)return xy_result;
     int free_result=free_virtual_get(e,key,buf,len);if(free_result>0)return free_result;
     int point_result=point_virtual_get(e,key,buf,len);if(point_result>0)return point_result;
-    if(!strcmp(key,"display_rev")) { adopt(e);return snprintf(buf,len,"%u",e->display_revision); }
+    if(!strcmp(key,"display_rev")) { adopt(e);return snprintf(buf,len,"%u",e->display_revision+e->ui_revision); }
     if(!strcmp(key,"graph_revision"))return snprintf(buf,len,"%u",e->display_revision%1024);
     if(!strcmp(key,"ui_env_focus")) {
         int focus=(int)at(e,"plot_osc");char wave[32];snprintf(wave,sizeof wave,"o%d_wave",focus+1);

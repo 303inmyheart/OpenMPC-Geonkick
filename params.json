@@ -26717,6 +26717,320 @@
       "momentary": true,
       "debounce_ms": 150,
       "legacy": true
+    },
+    {
+      "key": "xy_x",
+      "name": "Point X Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "legacy": true
+    },
+    {
+      "key": "xy_y",
+      "name": "Point Y Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "legacy": true
+    },
+    {
+      "key": "ui_point_count",
+      "name": "Visible Point Count",
+      "min": 2,
+      "max": 16,
+      "default": 2,
+      "display": "int",
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_0",
+      "name": "Point 1 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_0",
+      "name": "Point 1 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_1",
+      "name": "Point 2 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_1",
+      "name": "Point 2 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_2",
+      "name": "Point 3 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_2",
+      "name": "Point 3 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_3",
+      "name": "Point 4 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_3",
+      "name": "Point 4 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_4",
+      "name": "Point 5 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_4",
+      "name": "Point 5 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_5",
+      "name": "Point 6 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_5",
+      "name": "Point 6 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_6",
+      "name": "Point 7 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_6",
+      "name": "Point 7 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_7",
+      "name": "Point 8 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_7",
+      "name": "Point 8 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_8",
+      "name": "Point 9 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_8",
+      "name": "Point 9 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_9",
+      "name": "Point 10 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_9",
+      "name": "Point 10 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_10",
+      "name": "Point 11 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_10",
+      "name": "Point 11 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_11",
+      "name": "Point 12 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_11",
+      "name": "Point 12 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_12",
+      "name": "Point 13 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_12",
+      "name": "Point 13 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_13",
+      "name": "Point 14 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_13",
+      "name": "Point 14 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_14",
+      "name": "Point 15 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_14",
+      "name": "Point 15 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_x_15",
+      "name": "Point 16 x",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
+    },
+    {
+      "key": "point_y_15",
+      "name": "Point 16 y",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "live": true,
+      "legacy": true
     }
   ]
 }

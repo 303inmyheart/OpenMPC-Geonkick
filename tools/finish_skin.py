@@ -9,6 +9,7 @@ import shutil
 import re
 from PIL import Image,ImageDraw,ImageFont
 from spec import PLOT_COLUMNS,PLOT_WIDTH,PLOT_WAVE_LEVELS,PLOT_ENV_LEVELS,TOUCH_BINDINGS
+from editor_geometry import OUTER,PLOT,CURVE_HEIGHT
 layouts,_=shadow_skin.parse_layout(root/'layout.conf')
 params=json.loads((root/'params.json').read_text())['params']
 ids={p['key']:i for i,p in enumerate(params)}
@@ -180,26 +181,6 @@ for tab in page['tabs']:
             defs[key]=clone;page['componentDefinitions']['localComponentDefinitions'].append({'key':key,'value':clone})
         mapping.append({'key':'Touch','value':'Parameter '+str(ids[TOUCH_BINDINGS[fine]])})
         child['componentData']['type']=key
-# Public native Envelope schema. Five linear points / four duration weights.
-# Geometry and gestures need hardware acceptance; all parameter wiring is tested offline.
-envelope_data={
-    'version':1,'envelopeType':'Pitch','envelopeStyle':'WithoutHeader','envelopeName':'',
-    'backgroundColour':'00000000','scaleColour':'ff464d45','lineColour':'ffb3df75',
-    'fillColour':'00000000','highlightColour':'208bb85c','lineWidth':3,
-    'handleWidth':36,'handleHeight':36,'handleShape':'Circle','handleLineWidth':2,
-    'handleLineColour':'ffb3df75','handleFillColour':'ff20291d','handleTextColour':'00000000',
-    'handleLineWidthOnPressed':3,'handleLineColourOnPressed':'ffffffff',
-    'handleFillColourOnPressed':'ff91b958','handleTextColourOnPressed':'00000000',
-    'handleArrowLineColourOnPressed':'ffffffff','handleArrowFillColourOnPressed':'ff91b958',
-    'pitchEnvelopeLevel1Handle':'Level0','pitchEnvelopeDelayHandle':'Time1',
-    'pitchEnvelopeLevel2Handle':'Level1','pitchEnvelopeAttackHandle':'Time2',
-    'pitchEnvelopeLevel3Handle':'Level2','pitchEnvelopeDecayHandle':'Time3',
-    'pitchEnvelopeSustainHandle':'Level3','pitchEnvelopeReleaseHandle':'Time4',
-    'pitchEnvelopeLevel5Handle':'Level4',
-    'forceHideShapeHandles':True,'forceCurveShape':0.5,'curveType':'Quadratic'
-}
-item=shadow_skin._local('gkPointEnvelope',[],[shadow_skin._sub('Envelope',envelope_data,shadow_skin._bounds(0,0,1100,170),'Curve')])
-page['componentDefinitions']['localComponentDefinitions'].append(item)
 # Waveform is behind the native editor, so its touch handles remain on top.
 # Reuse the existing shared revision and read-only sound columns.
 for width in (2,3):
@@ -249,23 +230,46 @@ for tab in page['tabs']:
         item=shadow_skin._local(f'gkEditCurve_{width}',[],[shadow_skin._sub('Knob',{
             'version':5,'knobType':'FilmStrip','filmStrip':filename,'numFrames':PLOT_ENV_LEVELS,
             'invert':False,'dragOrientation':'Vertical','handleName':'Data'
-        },shadow_skin._bounds(0,0,width,134),'Envelope curve')])
+        },shadow_skin._bounds(0,0,width,CURVE_HEIGHT),'Envelope curve')])
         item['value']['ignoreMousePresses']=True
         page['componentDefinitions']['localComponentDefinitions'].append(item)
     for column in range(PLOT_COLUMNS):
         left=108+column*1064//PLOT_COLUMNS;right=108+(column+1)*1064//PLOT_COLUMNS
-        child=shadow_skin._placed(f'gkEditCurve_{right-left}','Full envelope',ids[f'viz_e_{column}'],left,268+86,right-left,134,focus='No')
+        child=shadow_skin._placed(f'gkEditCurve_{right-left}','Full envelope',ids[f'viz_e_{column}'],left,PLOT[1]+86,right-left,CURVE_HEIGHT,focus='No')
         child['bounds']['additionalInvalidatingHandles']=['Parameter '+str(ids['graph_revision'])]
         children.append(child)
-    native=deepcopy(envelope_data);native['lineColour']='00000000';native['scaleColour']='00000000';native['handleLineColour']='ffefbc73';native['handleFillColour']='ff192b31';native['handleFillColourOnPressed']='ffb9ed68'
-    item=shadow_skin._local('gkFreeEnvelope',[],[shadow_skin._sub('Envelope',native,shadow_skin._bounds(0,0,1100,170),'Point grips')])
-    item['value']['hideQLinkBounds']=True
-    page['componentDefinitions']['localComponentDefinitions'].append(item)
-    mapping={f'Level{j}':ids[f'edit_l{j}'] for j in range(5)}
-    mapping.update({f'Time{j}':ids[f'edit_t{j}'] for j in range(1,5)})
-    child=shadow_skin._placed('gkFreeEnvelope','Envelope point grips',ids['free_level'],90,336,1100,170,focus='No',extra=mapping)
-    child['bounds']['additionalInvalidatingHandles']=['IndexedEnabling/1/2/Parameter '+str(ids['ui_point_mode'])]
-    children.append(child)
+    # The firmware's Pitch EG has fixed stage widths and cannot represent the
+    # free curve's full time axis. XYPad uses absolute native x/y positions.
+    for filename,size,colour in [('point-dot.png',10,'#819d9b'),('point-active.png',32,'#efbc73')]:
+        im=Image.new('RGBA',(size,size),(0,0,0,0));dr=ImageDraw.Draw(im)
+        dr.ellipse((1,1,size-2,size-2),fill='#14272c',outline=colour,width=2)
+        im.save(path.parent/filename)
+    for key,image in [('gkPointDot','point-dot.png'),('gkPointXY','point-active.png')]:
+        item=shadow_skin._local(key,[],[shadow_skin._sub('XYPad',{
+            'version':1,'xPositionHandle':'X','yPositionHandle':'Y','image':image
+        },shadow_skin._bounds(0,0,OUTER[2],OUTER[3]),'Point position')])
+        item['value']['hideQLinkBounds']=True
+        if key=='gkPointDot':item['value']['ignoreMousePresses']=True
+        page['componentDefinitions']['localComponentDefinitions'].append(item)
+    enabled='IndexedEnabling/1/2/Parameter '+str(ids['ui_point_mode'])
+    for j in range(16):
+        child=shadow_skin._placed('gkPointDot',f'Point {j+1}',ids['free_level'],OUTER[0],OUTER[1]+86,OUTER[2],OUTER[3],focus='No',extra={'X':ids[f'point_x_{j}'],'Y':ids[f'point_y_{j}']})
+        child['bounds']['additionalInvalidatingHandles']=[enabled]
+        if j>=2:child['bounds']['additionalInvalidatingHandles'].append(f'RangedEnabling/{j-1}/14/15/Parameter '+str(ids['ui_point_count']))
+        child['bounds']['showWhenDataModelInvalid']='Hide'
+        children.append(child)
+    child=shadow_skin._placed('gkPointXY','Selected point / drag X Y',ids['free_level'],OUTER[0],OUTER[1]+86,OUTER[2],OUTER[3],focus='No',extra={'X':ids['xy_x'],'Y':ids['xy_y']})
+    child['bounds']['additionalInvalidatingHandles']=[enabled]
+    child['bounds']['showWhenDataModelInvalid']='Hide';children.append(child)
+    # Unused point numbers disappear instead of selecting a clamped endpoint.
+    for child in children:
+        if not any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids['free_select']) for m in child.get('handle remapping',{}).get('map',[])):continue
+        original=defs[child['componentData']['type']]
+        button=next(c for c in original['componentsData'] if c['componentData']['type']=='Button')
+        j=button['componentData']['data']['buttonId']
+        if j>=2:
+            child['bounds']['additionalInvalidatingHandles'].append(f'RangedEnabling/{j-1}/14/15/Parameter '+str(ids['ui_point_count']))
+            child['bounds']['showWhenDataModelInvalid']='Hide'
     # Native live text: selected point/count, no input-catching image overlay.
     style={'version':1,'font':{'version':1,'name':'Titillium Web','height':18,'style':'SemiBold'},'colour':'ffefbc73','justification':'horizontallyCentred verticallyCentred','case':'Upper Case'}
     item=shadow_skin._local('gkFreeStatus',[],[shadow_skin._sub('Label',{'version':1,'type':'Value','handleName':'Data','textStyle':style},shadow_skin._bounds(0,0,1080,24),'Status')])

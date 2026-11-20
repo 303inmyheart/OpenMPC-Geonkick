@@ -62,6 +62,23 @@ int main(void){
  set(b,"free_select",2);set(b,"edit_t2",.35f);set(b,"edit_t3",.15f);
  assert(fabsf(get(b,"f1_a_x1")-.25f)<1e-6f);assert(fabsf(get(b,"f1_a_x2")-.6f)<1e-6f);assert(fabsf(get(b,"f1_a_x3")-.75f)<1e-6f);assert(get(b,"free_select")==2);
  set(b,"free_next",1);assert(get(b,"free_select")==3);set(b,"free_prev",1);assert(get(b,"free_select")==2);
+ /* Absolute XY coordinates share the exact waveform/curve rectangle. */
+ for(int o=1;o<=9;o++)for(int kind=0;kind<2;kind++){
+  set(a,"plot_osc",o-1);set(a,"plot_env",kind);
+  snprintf(key,sizeof key,"f%d_%c_n",o,kind?'p':'a');int n=(int)get(a,key);
+  if(n<2){set(a,"free_add",1);n=(int)get(a,key);}
+  assert(get(a,"ui_point_count")==n);
+  for(int j=0;j<n;j++){
+   set(a,"free_select",j);snprintf(key,sizeof key,"f%d_%c_x%d",o,kind?'p':'a',j);float x=get(a,key);
+   snprintf(key,sizeof key,"f%d_%c_y%d",o,kind?'p':'a',j);float y=get(a,key);
+   assert(fabsf((get(a,"xy_x")*1100+90)-(108+x*1064))<.0003f);
+   assert(fabsf((250+170*(1-get(a,"xy_y")))-(268+134*(1-y)))<.0001f);
+   snprintf(key,sizeof key,"point_x_%d",j);assert(fabsf(get(a,key)-get(a,"xy_x"))<1e-7f);
+   snprintf(key,sizeof key,"point_y_%d",j);assert(fabsf(get(a,key)-get(a,"xy_y"))<1e-7f);
+  }
+  set(a,"free_select",1);set(a,"xy_y",(18+134*.246813f)/170);assert(fabsf(get(a,"free_level")-.246813f)<1e-6f);
+ }
+ set(a,"plot_osc",0);set(a,"plot_env",0);
  /* Legacy automation and COPY SIMPLE remain authoritative, not stale curves. */
  set(a,"o1_a_l2",.17f);assert(get(a,"f1_a_n")==0);set(a,"free_add",1);assert(get(a,"f1_a_n")==6);set(a,"point_copy",1);assert(get(a,"f1_a_n")==0);
  api->destroy(a);api->destroy(b);puts("18 variable envelopes, 2..16 points, cubic split, touch viewport, bounds, atomic GKMP5/GKMP4 migration and no-synthesis selection PASS");return 0;

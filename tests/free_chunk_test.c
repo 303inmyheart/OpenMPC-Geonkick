@@ -29,7 +29,7 @@ int main(void){
  assert(size>8192 && size<65536 && chunk);strcpy(before,chunk);assert(!strcmp(input,before));
  /* A complete host rebind echoes each real proxy and must preserve controls,
   * selected point/bank and both independent Bezier handles. */
- const char *keys[]={"free_level","free_time","free_bend","free_select","free_bank","edit_l0","edit_l1","edit_l2","edit_l3","edit_l4","edit_t1","edit_t2","edit_t3","edit_t4"};
+ const char *keys[]={"xy_x","xy_y","free_level","free_time","free_bend","free_select","free_bank","edit_l0","edit_l1","edit_l2","edit_l3","edit_l4","edit_t1","edit_t2","edit_t3","edit_t4"};
  for(int pass=0;pass<4;pass++)for(unsigned j=0;j<sizeof keys/sizeof *keys;j++){int i=find(keys[j]);float v=e->get(e,i);e->set(e,i,v);}
  size=e->dispatch(e,23,0,0,&chunk,0);strcpy(after,chunk);assert(!strcmp(before,after));
  /* Saved chunk survives native VST close/new-instance restore. */
