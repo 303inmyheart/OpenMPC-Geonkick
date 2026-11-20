@@ -40,5 +40,14 @@ int main(void){
   assert(fabsf(e->get(e,touch)-clamped)<2e-6f);assert(fabsf(atomic_load(&accepted)-clamped)<2e-6f);
   assert(physical(e,key(prefix,"cutoff"))==8000);atomic_store(&watched,-1);
  }
- e->dispatch(e,1,0,0,NULL,0);puts("10 filter paths: direct Touch, 5-cent/0.1-percent accumulated Q-Links, echo handover and stopped Classic clamp feedback PASS");return 0;
+ /* Humanizer hardware aliases use the same established direct/fine split. */
+ for(int timing=0;timing<2;timing++){
+  int touch=find(timing?"human_timing_touch":"human_velocity_touch"),fine=find(timing?"human_timing_fine":"human_velocity_fine"),original=find(timing?"human_timing":"human_velocity");
+  e->set(e,touch,.371234f);assert(fabsf(physical(e,original)-30*.371234f)<.0001f);
+  assert(fabsf(e->get(e,touch)-.371234f)<2e-6f);
+  float raw=e->get(e,fine);int start=roundf(physical(e,fine));
+  for(int n=0;n<12;n++){raw+=1.f/128;e->set(e,fine,raw);assert(roundf(physical(e,fine))==start+n+1);}
+  assert(fabsf(physical(e,original)-(start+12)/(timing?4.f:10.f))<1e-5f);
+ }
+ e->dispatch(e,1,0,0,NULL,0);puts("10 filter paths: direct Touch, 5-cent/0.1-percent accumulated Q-Links, echo handover and stopped Classic clamp feedback plus Humanizer fine/direct aliases PASS");return 0;
 }

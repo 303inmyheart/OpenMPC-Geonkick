@@ -3038,3 +3038,10 @@ o9_cutoff_fine
 o9_cutoff_touch
 o9_res_fine
 o9_res_touch
+human_on
+human_velocity
+human_timing
+human_velocity_fine
+human_timing_fine
+human_velocity_touch
+human_timing_touch

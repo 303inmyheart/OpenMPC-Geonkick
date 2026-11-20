@@ -7,13 +7,13 @@ import shadow_skin
 layouts,_=shadow_skin.parse_layout(ROOT/'layout.conf');layouts={l['name']:l for l in layouts}
 params=json.loads((ROOT/'params.json').read_text())['params'];ids={p['key']:i for i,p in enumerate(params)}
 p=next((ROOT/'build/skin').glob('*/Plugin Skins/TUI.json'));page=json.loads(p.read_text())['pageData'];defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
-q=json.loads((p.parent/'Q-Links.json').read_text());maps=q['Screen Mode Q-Links']['map'];tabs=page['tabs'];assert len(tabs)==25
+q=json.loads((p.parent/'Q-Links.json').read_text());maps=q['Screen Mode Q-Links']['map'];tabs=page['tabs'];assert len(tabs)==26
 assert {t['fnKeyIndex'] for t in tabs}==set(range(6))
-assert [sum(t['fnKeyIndex']==k for t in tabs) for k in range(6)]==[3,6,6,6,1,3]
+assert [sum(t['fnKeyIndex']==k for t in tabs) for k in range(6)]==[3,6,6,6,1,4]
 assert {(m['Tab']-1,m['SubTab']-1) for m in maps}=={(t['fnKeyIndex'],t['fnKeySubIndex']) for t in tabs}
 for layer in range(1,4):
  assert [t['componentName'].split('|')[1] for t in tabs if t['fnKeyIndex']==layer]==[f'L{layer} {kind}{osc}' for osc in range(1,4) for kind in ('OSC','FX')]
-assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS']
+assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['SYNTH|MIX','EFFECTS|EFFECTS','HUMANIZER|HUMANIZER','PRESETS|PRESETS']
 points={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 for t in tabs:
  source,bank=t['componentName'].split('|');children=defs[t['componentName']]['componentsData']
@@ -36,7 +36,7 @@ for t in tabs:
    assert c['bounds']['acceptsHWFocus']=='No'
    assert not any(a.get('handler')=='Q-Link' for a in d.get('actions',[])),(bank,'non-rotary hardware focus')
  print(t['tabName'],':',', '.join(params[i]['key'] for i in assigned) or 'touch only')
-print('25 pages reachable on six keys; only rotary Q-Links; selectors/sliders/points touch-only; full native bounds PASS')
+print('26 pages reachable on six keys; only rotary Q-Links; selectors/sliders/points touch-only; full native bounds PASS')
 
 # The native eight-button grid must be centred inside the actual painted field.
 from skin_design import PRESET_FRAME

@@ -16,7 +16,7 @@ extern Effect *VSTPluginMain(Callback);
 static intptr_t host(Effect*e,int32_t op,int32_t i,intptr_t v,void*p,float o){(void)e;(void)i;(void)v;(void)p;(void)o;return op==1?2400:0;}
 static int find(const char*k){for(int i=0;i<NPARAMS;i++)if(!strcmp(PARAMS[i].key,k))return i;assert(0);return -1;}
 int main(void){
- Effect *e=VSTPluginMain(host);assert(e);char input[65536],before[65536],after[65536];int n=snprintf(input,sizeof input,"GKMP6");
+ Effect *e=VSTPluginMain(host);assert(e);char input[65536],before[65536],after[65536];int n=snprintf(input,sizeof input,"GKMP7");
  for(int i=0;i<GP_COUNT;i++){
   const char *key=gparams[i].key;float v=gparams[i].def;int osc,j;char kind,tail;
   if(sscanf(key,"f%d_%c_%c%d",&osc,&kind,&tail,&j)==4){if(tail=='x')v=j/15.f;else if(tail=='y')v=.23f+.013f*j;else v=tail=='c'?-.27f:.43f;}

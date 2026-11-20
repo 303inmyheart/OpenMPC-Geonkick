@@ -168,6 +168,19 @@ for prefix in ('',*[f'o{o}_' for o in range(1,10)]):
 STORED_PARAMS+=FILTER_PARAMS
 
 
+HUMAN_PARAMS=[]
+start=len(params)
+opt('human_on','Humanizer',['Off','On'])
+p('human_velocity','Velocity Variation',0,30,5,unit='%',legacy=True)
+p('human_timing','Timing Variation',0,30,5,unit='ms',legacy=True)
+HUMAN_PARAMS.extend(params[start:]);STORED_PARAMS+=HUMAN_PARAMS
+p('human_velocity_fine','Velocity Variation',0,300,50,display='int',nudge_pct=10,dynamic_display=True)
+p('human_timing_fine','Timing Variation',0,120,20,display='int',nudge_pct=10,dynamic_display=True)
+p('human_velocity_touch','Velocity Variation Touch',0,1,1/6,legacy=True,dynamic_display=True)
+p('human_timing_touch','Timing Variation Touch',0,1,1/6,legacy=True,dynamic_display=True)
+TOUCH_BINDINGS.update(human_velocity_fine='human_velocity_touch',human_timing_fine='human_timing_touch')
+
+
 def generate():
     (ROOT/'params.json').write_text(json.dumps(dict(name='Geonkick MPC',params=params),indent=2)+'\n')
     # Engine uses this independent, plain table rather than wrapper-private types.
@@ -176,7 +189,7 @@ def generate():
        'static const GParam gparams[] = {']
     for x in STORED_PARAMS:
         h.append('    {"%s", %sf, %sf, %sf, %d},'%(x['key'],float(x['min']),float(x['max']),float(x['default']),bool(x.get('options'))))
-    h+=['};',f'#define GP_COUNT {len(STORED_PARAMS)}',f'#define LEGACY_GP_COUNT {CONTROL_COUNT}', '#define GKMP4_GP_COUNT 385', '#define GKMP5_GP_COUNT 1521',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
+    h+=['};',f'#define GP_COUNT {len(STORED_PARAMS)}',f'#define LEGACY_GP_COUNT {CONTROL_COUNT}', '#define GKMP4_GP_COUNT 385', '#define GKMP5_GP_COUNT 1521', '#define GKMP6_GP_COUNT 1551',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
         f'#define PLOT_WAVE_LEVELS {PLOT_WAVE_LEVELS}',f'#define PLOT_ENV_LEVELS {PLOT_ENV_LEVELS}']
     # Compile-time immutable lookup: growing curve storage must not turn each
     # physical/proxy read into a scan through 1500 entries on audio/UI threads.
@@ -317,6 +330,12 @@ qlink_bounds=column
             target=(osc-1)*2+mode
             lines.append(f'enum_h cx=1050 cy=270 sw=110 sh=34 label="MODE" key=o{osc}_{kind}_mode when=ui_point_target:{target}')
     lines += ['qlinks "ENVELOPE" = -,-,-,-,-,-,-,-,-,-,-,-,length_ms,-,-,-']
+    lines += ['\n[tab HUMANIZER]',
+              'frame x=24 y=104 w=1230 h=590 title="GEONKICK / HUMANIZER"',
+              'enum_h cx=640 cy=215 sw=150 sh=38 label="PER-HIT HUMANIZER" key=human_on',
+              'knob cx=420 cy=390 r=46 bw=300 ns=18 vs=24 label="VELOCITY VARIATION (%)" key=human_velocity_fine',
+              'knob cx=860 cy=390 r=46 bw=300 ns=18 vs=24 label="TIMING VARIATION (ms)" key=human_timing_fine',
+              'qlinks "HUMANIZER" = -,-,-,-,-,-,-,-,-,-,-,-,human_velocity_fine,human_timing_fine,-,-']
     # The physical Hz/seconds controls remain for state/old automation. Visible
     # controls use appended fine pitch and millisecond adapters, never reindexing.
     import re

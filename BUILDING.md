@@ -327,3 +327,27 @@ idle CLASSIC clamp feedback. Optional filter_compat_test.c takes old/new shared
 libraries; against the archived0.0.18 ARM64 binary,30 old-project fixtures yield
 maximum sample difference0. No firmware binaries or private data are fixtures.
 No new locks/allocations/synthesis/UI calls are added to the host audio callback.
+
+
+0.0.20 appends3 stored Humanizer fields and4 fine/direct adapters (3047 VST
+parameters, old3040 frozen). GKMP7 stores1554 values; GKMP6 consumes1551 and
+loads Humanizer OFF without changing its filter modes. Original humanizer.c and
+qx_randomizer.h are reused at note time, with the original1% /0.25ms random
+resolution. Fractional velocity-amount limits clamp the original randomizer's
+rounded final bucket to the requested integer-velocity bound.
+
+A fixed64-entry sorted pending array holds arrival-time cache references and
+sample deadlines. At most64 entries shift per event; idle/disabled playback
+only checks a zero count. Start transfers the reference to a voice. Gate note /
+channel cancellation, Panic, preset/reset/state and bounded overflow drop every
+retired reference. Cut/steal tails begin when the delayed note actually starts.
+No allocation, thread sleep, wall-clock scheduler or DSP generation enters the
+host audio callback. No fixed latency is introduced when disabled/zero timing.
+Original PRNGs are initialized once per instance; transient random phase and
+pending MIDI are not serialized. Only the three amounts/enable values are saved.
+
+humanizer_test.c verifies64 full captured shifted/scaled hits, zero/off exactness,
+new-synthesis-free amount edits, pending cache lifetime, Gate/channel behavior,
+Cut onset, dense overflow/Panic/reset and GKMP6 migration. Existing actual-VST
+fine/direct test also covers both Humanizer knobs. Navigation now has26 pages
+under the same six keys, MASTER MIX/FX/HUMANIZER/PRESETS. Only knobs get Q-Links.

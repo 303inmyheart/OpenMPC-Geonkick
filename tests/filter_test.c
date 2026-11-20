@@ -53,12 +53,12 @@ int main(void){
   snprintf(key,sizeof key,"%sfilter_model",prefix);set(a,key,0);snprintf(key,sizeof key,"%scutoff_touch",prefix);set(a,key,1);snprintf(key,sizeof key,"%scutoff",prefix);assert(get(a,key)==8000);
   snprintf(key,sizeof key,"%scutoff_touch",prefix);set(a,key,0);snprintf(key,sizeof key,"%scutoff",prefix);assert(get(a,key)==30);
  }
- assert(api->get_param(a,"state",state,sizeof state)>0);assert(!strncmp(state,"GKMP6 ",6));api->set_param(b,"state",state);api->get_param(b,"state",again,sizeof again);assert(!strcmp(state,again));
+ assert(api->get_param(a,"state",state,sizeof state)>0);assert(!strncmp(state,"GKMP7 ",6));api->set_param(b,"state",state);api->get_param(b,"state",again,sizeof again);assert(!strcmp(state,again));
  strcpy(legacy,state);memcpy(legacy,"GKMP5",5);char *end=legacy+6;for(int j=0;j<GKMP5_GP_COUNT;j++)strtof(end,&end);*end=0;api->set_param(b,"state",legacy);
  for(int j=0;j<10;j++){char prefix[24]="";if(j)snprintf(prefix,sizeof prefix,"o%d_",j);snprintf(key,sizeof key,"%sfilter_model",prefix);assert(get(b,key)==0);snprintf(key,sizeof key,"%scutoff_wide",prefix);assert(get(b,key)==30);}
  /* A currently sounding cached hit does not change when a new filter renders. */
  set(a,"reset",1);set(b,"reset",1);set(a,"filter_on",1);set(b,"filter_on",1);ready(a);ready(b);float x[8192],y[8192];note(a);note(b);render(a,x,256);render(b,y,256);for(int j=0;j<512;j++)assert(x[j]==y[j]);
  set(a,"cutoff_touch",1);set(a,"res_touch",1);ready(a);render(a,x,4096);render(b,y,4096);for(int j=0;j<8192;j++){assert(isfinite(x[j])&&fabsf(x[j])<=.71);assert(x[j]==y[j]);}
  note(a);render(a,x,4096);float energy=0;for(int j=0;j<8192;j++){assert(isfinite(x[j])&&fabsf(x[j])<=.71);energy+=x[j]*x[j];}assert(energy>.01);
- api->destroy(a);api->destroy(b);puts("CLASSIC bit-identical; 10 independent WIDE paths, fine/touch bounds, old GKMP5 -> CLASSIC, GKMP6 roundtrip and held-hit continuity PASS");return 0;
+ api->destroy(a);api->destroy(b);puts("CLASSIC bit-identical; 10 independent WIDE paths, fine/touch bounds, old GKMP5 -> CLASSIC, GKMP7 roundtrip and held-hit continuity PASS");return 0;
 }

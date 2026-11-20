@@ -2,67 +2,26 @@
 
 Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live III; new builds require separate validation.
 
-1. **0.0.1: first playable prototype** — original DSP isolated; nine oscillators,
-   three layers, global filter/drive, eight starting sounds, eight-voice playback,
-   native pages/Q-Links, MPC program bank, Sounds tile and project state.
-2. **Device validation** — installer, pad notes/velocity, layer/oscillator
-   subpages, wheel and Q-Link synchronization, preset browser, Sounds tile,
-   project save/reload, multiple instances. Measure live worker CPU during real
-   time parameter edits, as well as the official audio-thread benchmark.
-   - **0.0.2 implemented offline:** independent original filter and drive per
-     oscillator, amp attack controls, nine FX subpages, 184 append-only
-     parameters and migration of 0.0.1 project chunks. Native sanitizers and
-     ARM64 shared-library/engine tests pass. No hardware claim yet.
-   - **0.0.3 implemented offline:** visual SYNTH page with actual completed-hit
-     waveform, amplitude/pitch envelope, editing controls and three oscillator
-     modules. Native FilmStrip displays, UI-thread notifications, old-state
-     migration, gray/green layout and actual-DSP offline preview. Device UI
-     verification is the next gate; free point/Bezier editing remains pending.
-   - **0.0.4:** 432 two-pixel waveform columns, finer vertical levels and corrected
-     native text/captions. Approved update and app restart completed; on-screen
-     plugin review is pending because MPC restarted into the track-type selector.
-   - **0.0.5:** fine 5-cent frequency steps, millisecond timing, corrected cropped
-     envelopes/decay length, conditional OSC controls and scoped captions. Native
-     and ARM64 offline tests; hardware acceptance remains required.
-   - **0.0.6:** asynchronous UI notifications outside the rendering thread,
-     separate view/audio generations, exact cached audio on view switches and
-     smoothed output gain. Slow-UI regression passes in an isolated Live III
-     host; MPC-app listening/interaction acceptance is still required.
-   - **0.0.7 candidate:** derived-display automation disabled, curve feedback
-     deferred during gestures, synthesis requests coalesced and intermediate
-     results published. Native/ARM64 regression tests pass. Verify graph repaint
-     and real edit-time CPU/audio before claiming the issue fixed.
-   - **0.0.8 candidate:** rounded fine-input boundary fix and shared graph
-     invalidation replacing column notifications. Native/ARM64 checks pass;
-     actual MPC redraw, hidden-page behavior and page return are experimental
-     until tested. No reliable native current-tab callback is established.
-   - **0.0.9 candidate:** shared refresh retained with one quiet-time host rebind;
-     transparent larger horizontal slider targets. Temporary real-input
-     observation for the remaining jumps; real MPC acceptance still required.
-   - **0.0.10 candidate:** actual accumulated input stream reproduced, fine
-     deltas tracked without the absolute-jump cutoff, gesture writes serialized
-     and synchronous self-echo ignored. 0.0.9 graph/audio improvement confirmed
-     by user; fine-control acceptance for 0.0.10 remains pending.
-   - **0.0.11 candidate:** direct continuous touch handles, fine Q-Links/wheel
-     and shared physical values; user confirmed the changes work.
-   - **0.0.12 prepared locally:** native five-point Amp/Pitch editor for all nine
-     oscillators, Simple/Points modes, curve copying, fine/direct point entry and
-     GKMP4 state. Not installed at the user’s request; native gesture/geometry
-     acceptance remains pending.
-3. **Sound editing parity** — original arbitrary and Bezier envelopes,
-   full useful filter range, sample loading, external preset import,
-   graphical point editing and preview/export. First prototype: native fixed
-   five-level/four-time envelope for selected oscillator amplitude/pitch,
-   explicit custom-envelope state/migration and safe point/time ordering.
-   Variable insertion/deletion and cubic curvature are implemented in 0.0.17 below;
-   freely draggable desktop Bezier handles still need further UI work.
-   See [feasibility](docs/ENVELOPE-EDITOR.md).
-4. **Kit architecture** — sixteen independent drums, pad/key/channel mapping,
-   per-drum choke/mute/solo, kit persistence, practical navigation. Decide output
-   routing within the MPC VST host's actual capabilities; do not promise desktop
-   multichannel parity before verification.
-5. **Release** — visual refinement, public fork and source review, reproducible
-   build workflow, exact hardware-tested release, benchmark evidence, catalog PR.
+## Current plan
+
+1. **Stable base and device controls** — working through0.0.19, confirmed by
+   the user on Live III. Continue checking each new build separately.
+2. **Point envelopes** —2–16 points with cubic curvature, waveform overlay,
+   absolute XY editing and numbered selection are implemented. Free Bezier
+   control handles / arbitrary tap-to-insert remain deferred extensions.
+3. **Sound-engine parity** — WIDE/CLASSIC filters completed and accepted0.0.19;
+   Humanizer is the current0.0.20 task. Original extra modulation envelopes
+   (filter cutoff/resonance, drive, noise density, pitch shift) remain to be
+   considered and exposed in useful increments. See [engine audit](docs/ENGINE-PARITY.md).
+4. **Samples, presets, export** — sample loading first, then original preset /
+   sound-bank interchange and practical audio export.
+5. **Drumkits** — sixteen independent instruments, pad mapping, choke/mute/solo,
+   kit persistence/navigation. Verify host routing before promising multi-outs.
+6. **Public release** — final hardware regression, exact release-binary Store
+   benchmark, source/fork/reproducible build review, release and catalog PR.
+
+Historical build notes follow; the latest entries override older pending items.
+A formal Store benchmark remains reserved for the finished release binary.
 
 The remaining JC303 feature-parity items stay deferred. Following targets:
 Fire, Wolf Shaper, BYOD navigation feasibility review, then Surge.
@@ -227,3 +186,30 @@ replacement. Necessary MPC application restart completed; active/running and
 installed library hash matches the tested package. User's0.0.19 hearing/touch
 acceptance remains pending. Phase3 filter part is implemented; remaining engine
 parity review and phase4 sample/preset work are the next roadmap items.
+
+
+##0.0.20 — original Humanizer
+
+User confirmed0.0.19 working. Add MASTER/HUMANIZER between FX and PRESETS:
+Off/On (touch only), velocity0..30% and timing0..30ms, two rotary-only Q-Links.
+Use the original GPL humanizer/randomizer; add fixed bounded sample scheduling
+for this port's cached-hit playback. Default/presets/older states are OFF.
+
+Pending hits pin their arrival sound, velocity, tuning and playback mode. Cut
+acts at the delayed onset. Gate note/channel matching, Panic, reset/state and
+bounded overflow cancel pending references safely. No allocation, sleep or
+synthesis wait occurs on the audio thread. Humanizer edits skip resynthesis.
+GKMP7 stores1554 values; GKMP6 still consumes1551. Old3040 VST identities frozen,
+total3047; six main keys retained, MASTER has four subpages (26 pages total).
+
+Next: hardware timing/velocity and saved-state acceptance; then remaining
+original sound-envelope controls, followed by sample/preset work. No Store
+benchmark or public release of this development build.
+
+
+0.0.20 deployment completed:1640 plugin files staged/hash-verified, previous
+0.0.19 backed up locally; settings unchanged during replacement. Necessary MPC
+application restart completed active/running; installed binary hash matches the
+package. Native sanitizers/full ARM64 and current package checker pass (0warnings).
+Actual0.0.19/current libraries render30 GKMP6 old-project fixtures with maximum
+sample difference0. New Humanizer hardware/hearing acceptance remains pending.

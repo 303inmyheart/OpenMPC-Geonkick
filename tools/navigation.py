@@ -13,7 +13,7 @@ import shadow_skin
 from PIL import Image,ImageDraw,ImageFont
 GROUPS=[('SOUND',[f'SYNTH|LAYER {l}' for l in range(1,4)])]
 for l in range(1,4):GROUPS.append((f'LAYER {l}',[f'LAYER {l}|L{l} {kind}{o}' for o in range(1,4) for kind in ('OSC','FX')]))
-GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS'])]
+GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['SYNTH|MIX','EFFECTS|EFFECTS','HUMANIZER|HUMANIZER','PRESETS|PRESETS'])]
 LOCATION={name:(main,sub,title) for main,(title,names) in enumerate(GROUPS) for sub,name in enumerate(names)}
 POINT_KEYS={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 def widgets(layout,bank):return [w for w in layout['widgets'] if not w.get('banks') or bank in w['banks'].split('|')]
@@ -97,5 +97,5 @@ def generate():
         for row,group in enumerate(knob_groups(byname['SYNTH'],'LAYER 1')):
             for col,w in enumerate(group):target[f'Q-Link {13+col-4*row}']=ids[w['key']]
     path.write_text(json.dumps(doc,indent=2)+'\n');qpath.write_text(json.dumps(q,indent=2)+'\n')
-    print('25 pages under six keys: SOUND, LAYER1–3, ENVELOPE, MASTER; rotary-only Q-Links, RowTopDown frames; touch-only points/selectors.')
+    print('26 pages under six keys: SOUND, LAYER1–3, ENVELOPE, MASTER; rotary-only Q-Links, RowTopDown frames; touch-only points/selectors.')
 if __name__=='__main__':generate()

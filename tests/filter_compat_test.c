@@ -14,9 +14,9 @@ struct Effect {int32_t magic;intptr_t(*dispatch)(Effect*,int32_t,int32_t,intptr_
 typedef struct {int32_t type,size,frame,flags,len,offset;unsigned char m[4];char x[4];} ME;
 typedef struct {int32_t n;intptr_t r;void *ev[2];} EV;
 static intptr_t host(Effect*e,int32_t op,int32_t i,intptr_t v,void*p,float o){(void)e;(void)i;(void)v;(void)p;(void)o;return op==1?2400:0;}
-static void put(float*p,const char*k,float v){for(int i=0;i<GKMP5_GP_COUNT;i++)if(!strcmp(gparams[i].key,k)){p[i]=v;return;}assert(0);}
+static void put(float*p,const char*k,float v){for(int i=0;i<GP_COUNT;i++)if(!strcmp(gparams[i].key,k)){p[i]=v;return;}assert(0);}
 static void block(Effect*e,float *out){float l[128],r[128],*buf[]={l,r};e->render(e,NULL,buf,128);if(out)for(int i=0;i<128;i++){out[i*2]=l[i];out[i*2+1]=r[i];}}
-int main(int argc,char**argv){assert(argc==3);void *libs[2];Effect *e[2];
+int main(int argc,char**argv){assert(argc==3||argc==4);int extended=argc==4 && !strcmp(argv[3],"GKMP6"),count=extended?GKMP6_GP_COUNT:GKMP5_GP_COUNT;void *libs[2];Effect *e[2];
  for(int j=0;j<2;j++){libs[j]=dlopen(argv[j+1],RTLD_NOW|RTLD_LOCAL);if(!libs[j]){puts(dlerror());return 1;}Effect*(*entry)(Callback)=dlsym(libs[j],"VSTPluginMain");assert(entry);e[j]=entry(host);assert(e[j]);}
  float p[GP_COUNT],out[2][16384];char text[65536],key[48];double maxerr=0;
  for(int target=0;target<10;target++)for(int type=0;type<3;type++){
@@ -28,7 +28,8 @@ int main(int argc,char**argv){assert(argc==3);void *libs[2];Effect *e[2];
   char prefix[24]="";if(target)snprintf(prefix,sizeof prefix,"o%d_",target);
   snprintf(key,sizeof key,"%sfilter_on",prefix);put(p,key,1);snprintf(key,sizeof key,"%sfilter_type",prefix);put(p,key,type);
   snprintf(key,sizeof key,"%scutoff",prefix);put(p,key,type==0?200:type==1?3000:8000);snprintf(key,sizeof key,"%sq",prefix);put(p,key,type==2?10:100);
-  int n=snprintf(text,sizeof text,"GKMP5");for(int i=0;i<GKMP5_GP_COUNT;i++)n+=snprintf(text+n,sizeof text-n," %.9g",p[i]);
+  if(extended){snprintf(key,sizeof key,"%scutoff_wide",prefix);put(p,key,type==0?20:type==1?1000:20000);snprintf(key,sizeof key,"%sq_wide",prefix);put(p,key,type==0?.5f:type==1?1:20);}
+  int n=snprintf(text,sizeof text,extended?"GKMP6":"GKMP5");for(int i=0;i<count;i++)n+=snprintf(text+n,sizeof text-n," %.9g",p[i]);
   for(int j=0;j<2;j++){e[j]->dispatch(e[j],24,0,n+1,text,0);}
   for(int k=0;k<100;k++){for(int j=0;j<2;j++)block(e[j],NULL);usleep(4000);}
   ME m={1,sizeof m,0,0,0,0,{0x90,60,127,0},{0}};EV event={1,0,{&m,0}};
@@ -37,5 +38,5 @@ int main(int argc,char**argv){assert(argc==3);void *libs[2];Effect *e[2];
   assert(energy>1e-6);
  }
  for(int j=0;j<2;j++){e[j]->dispatch(e[j],1,0,0,NULL,0);dlclose(libs[j]);}
- printf("Actual0.0.18 -> current VST,30 old-project filter fixtures (global+9osc x3types): max audio difference %.9g PASS\n",maxerr);return 0;
+ printf("Actual old/current VST,30 old-project filter fixtures (global+9osc x3types): max audio difference %.9g PASS\n",maxerr);return 0;
 }

@@ -88,6 +88,12 @@ def panel_background(layout,bank,children,defs,skin):
     elif name=='ENVELOPE':
         card((70,72,1210,225));card((70,228,1210,423));card((70,424,1210,508));card((70,510,1256,625))
         text(d,(90,240),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,240),'SELECT POINT NUMBER / DRAG AMBER POINT',12,AMBER,'rm')
+    elif name=='HUMANIZER':
+        card((70,72,1210,190));card((210,205,620,465));card((660,205,1070,465))
+        text(d,(420,423),'VELOCITY  +/-  AMOUNT',13,MUTED)
+        text(d,(860,423),'DELAY  0 TO MAXIMUM',13,MUTED)
+        text(d,(640,510),'RANDOM VARIATION PER HIT  /  ORIGINAL GEONKICK HUMANIZER',14,INK)
+        text(d,(640,545),'Starts OFF. Existing notes keep their sound. Timing never moves a hit earlier.',13,MUTED)
     elif name=='PRESETS':
         card(PRESET_FRAME);text(d,(640,515),'EIGHT STARTING POINTS  /  SHAPE YOUR OWN SOUND',13,MUTED)
     # Group headings are static; actual conditional names remain inside native

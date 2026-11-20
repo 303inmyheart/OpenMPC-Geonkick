@@ -12,7 +12,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.19 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.20 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
@@ -80,9 +80,9 @@ Implemented:
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The 0.0.15 Percussion Lab palette uses graphite, lime and amber.
-- Versioned GKMP6 project state with 1551 stored values, including independent
-  point lists and Bezier ordinates for all 18 curves. All 2970 previous VST
-  parameter identities remain unchanged. GKMP1–5 states migrate with their
+- Versioned GKMP7 project state with 1554 stored values, including independent
+  point lists and Bezier ordinates for all 18 curves. All 3040 previous VST
+  parameter identities remain unchanged. GKMP1–6 states migrate with their
   original sound and old five-point data; variable editing converts them lazily.
   Full 16-point states are tested through the actual VST chunk API.
 - Graph refresh uses one derived revision signal instead of per-column host
@@ -137,10 +137,10 @@ zero gain. On the PRESETS page, RESET INIT restores Init even if Init is already
 the selected preset; selecting the same preset value alone does not reload it.
 
 First-prototype limits: one drum per instance and stereo output, no 16-drum kit
-editor, sample import, arbitrary graphical envelope editor or humanizer.
-Simple Amp and Pitch envelopes use attack/decay and pitch-time controls.
-The SYNTH graph displays the completed sound; the separate ENVELOPE page edits
-five fixed linear points. Free insertion/deletion and Bezier handles are pending. It depicts the completed
+editor, sample import or original preset interchange. Amp/Pitch support2–16
+points, insertion/deletion, cubic curvature and absolute XY editing over the
+waveform. Free Bezier control handles and arbitrary tap-to-insert are pending.
+The Humanizer is available from0.0.20. The SYNTH graph displays the completed sound. It depicts the completed
 single-hit buffer before output gain, not a real-time oscilloscope of playing
 voices; the amber envelope is normalized independently to 0–1. The view updates
 after synthesis completes, with host notifications on a separate 100 ms display
@@ -200,3 +200,21 @@ permission. Plugin files and binary checksum were verified, the previous folder
 was backed up locally, and the MPC application restarted active/running.
 New cutoff/resonance hearing and Touch acceptance remain pending; no formal
 Store CPU benchmark has been performed for this development binary.
+
+
+0.0.20 adds the original **Humanizer** under MASTER → HUMANIZER: optional
+velocity variation0–30% and positive timing variation0–30ms. It starts OFF.
+Only the two knobs have Q-Links; Touch is continuous and hardware input is fine.
+The native page has the same Percussion Lab design. Timing uses a bounded
+sample scheduler with pinned sound caches, not sleeps or per-hit synthesis;
+Gate/Panic/reset cancel pending notes and Cut occurs at the randomized onset.
+See [Humanizer guide](docs/HUMANIZER.md) and [test plan](TESTPLAN-0.0.20-DE.md).
+New hardware acceptance is still required; no Store benchmark is claimed.
+
+
+![Humanizer — offline native-skin preview, not an MPC screenshot](docs/screenshots/humanizer.png)
+
+
+0.0.20 was installed under standing plugin-update permission; plugin hashes and
+running MPC application were verified. Humanizer hearing/Touch acceptance on
+Live III remains pending. The user confirmed the preceding0.0.19 filter build.

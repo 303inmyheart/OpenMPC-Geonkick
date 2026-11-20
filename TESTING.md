@@ -1,3 +1,17 @@
+# Current verification —0.0.20
+
+Native ASan/UBSan/leaks and actual ARM64 shared-library/QEMU suites pass.
+Humanizer checks include64 shifted/scaled captured-hit comparisons, Off/zero
+exactness, note/channel Gate cancellation, cache pinning during sound edits,
+bounded overflow/Panic/reset, Cut-at-onset and GKMP6 migration. Both new fine /
+direct controls pass actual-VST raw input/echo checks. Thirty actual0.0.19/current
+old-project fixtures have maximum audio difference0 with Humanizer Off.
+New Humanizer hardware/hearing acceptance remains pending; user confirmed0.0.19
+filters working. No formal Store benchmark. See TESTPLAN-0.0.20-DE.md.
+
+Historical notes follow; their older pending items are superseded by the newer
+roadmap and build-specific test plans.
+
 # Test status — 2026-11-13
 
 Offline only:

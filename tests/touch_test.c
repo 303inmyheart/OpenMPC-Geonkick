@@ -12,7 +12,7 @@ struct Effect { int32_t magic;intptr_t(*dispatch)(Effect*,int32_t,int32_t,intptr
  void(*set)(Effect*,int32_t,float);float(*get)(Effect*,int32_t);int32_t np,npar,ni,no,flags;intptr_t r1,r2;int32_t a,b,c;float io;void *obj,*user;int32_t uid,ver;
  void(*render)(Effect*,float**,float**,int32_t); };
 extern Effect *VSTPluginMain(Callback);
-static int is_touch(int i){size_t n=strlen(PARAMS[i].key);return n>=6&&!strcmp(PARAMS[i].key+n-6,"_touch")&&!strstr(PARAMS[i].key,"cutoff_touch")&&!strstr(PARAMS[i].key,"res_touch");}
+static int is_touch(int i){size_t n=strlen(PARAMS[i].key);return strncmp(PARAMS[i].key,"human_",6)&&n>=6&&!strcmp(PARAMS[i].key+n-6,"_touch")&&!strstr(PARAMS[i].key,"cutoff_touch")&&!strstr(PARAMS[i].key,"res_touch");}
 static intptr_t host(Effect *e,int32_t op,int32_t i,intptr_t v,void *p,float o){(void)v;(void)p;if(op==0&&i>=0&&i<NPARAMS&&is_touch(i))e->set(e,i,o);return op==1?2400:0;}
 static int find(const char *key){for(int i=0;i<NPARAMS;i++)if(!strcmp(key,PARAMS[i].key))return i;assert(0);return 0;}
 static void block(Effect *e){float l[128],r[128],*out[]={l,r};e->render(e,NULL,out,128);}

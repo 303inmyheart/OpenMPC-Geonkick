@@ -49,8 +49,9 @@ try:
     env_tab=next(t for t in page['tabs'] if t['componentName']=='ENVELOPE|ENVELOPE')
     preset_tab=next(t for t in page['tabs'] if t['componentName']=='PRESETS|PRESETS')
     mix_tab=next(t for t in page['tabs'] if t['componentName']=='SYNTH|MIX')
+    human_tab=next(t for t in page['tabs'] if t['componentName']=='HUMANIZER|HUMANIZER')
     fx_tab=next(t for t in page['tabs'] if t['componentName']=='EFFECTS|EFFECTS')
-    for filename,tab,wave in [('presets',preset_tab,0),('mix',mix_tab,0),('master-fx',fx_tab,0),('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0),('envelope-free',env_tab,0)]:
+    for filename,tab,wave in [('presets',preset_tab,0),('mix',mix_tab,0),('master-fx',fx_tab,0),('humanizer',human_tab,0),('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0),('envelope-free',env_tab,0)]:
         if filename=='envelope-simple':set_value('reset',1);settle()
         if filename=='envelope-amp':set_value('o1_a_mode',1);settle()
         if filename=='envelope-pitch':set_value('o1_p_mode',1);settle()
