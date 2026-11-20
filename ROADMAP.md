@@ -196,3 +196,34 @@ Recommended next functional task: phase3 sound-engine parity, beginning with a
 stable useful filter range/resonance expansion. Check gain, parameter transitions
 and old-project behavior. Then remaining original-engine differences; sample
 loading and external presets follow in phase4, kits in phase5.
+
+
+##0.0.19 — phase3 filter range/resonance
+
+- WIDE20 Hz–20 kHz, Q0.5–20, stable trapezoidal LP/HP/BP on the global filter
+  and nine oscillator filters. Cached coefficients, double state precision;
+  band-pass centre gain normalized. CLASSIC retains old arithmetic/ranges.
+- Independent touch-only model selector on each FX page; cutoff5-cent hardware
+  steps / continuous logarithmic Touch; resonance0.1-percent steps / direct Touch.
+  Existing Q-Link row/frame structure and historical first CC seed are retained.
+- Old GKMP1–5 states load CLASSIC automatically; new Init uses WIDE. Factory
+  hats keep CLASSIC. GKMP6/1551 values; original2970 VST IDs unchanged, total3040.
+- Native sanitizer and actual ARM64/QEMU tests include162 independent-response
+  fixtures and host controls. Actual0.0.18 vs current libraries render30 legacy
+  project fixtures with zero sample difference. Existing held hits remain exact
+  while filter edits render asynchronously. No formal Store benchmark.
+
+Next: actual MPC cutoff/resonance/mode and hearing acceptance, then remaining
+engine-parity review (including which original sound-editing functions are still
+useful). Phase4 sample loading and original preset interchange follow; full kit
+architecture stays phase5. Existing free Bezier handle/tap-to-insert limitations
+are unchanged.0.0.18 was confirmed installed via read-only version check before
+this update; the user reported it working. No touch acceptance for0.0.19 claimed yet.
+
+
+0.0.19 deployment completed under standing permission:1626 plugin files staged
+and hash-verified, previous0.0.18 backed up locally, settings unchanged during
+replacement. Necessary MPC application restart completed; active/running and
+installed library hash matches the tested package. User's0.0.19 hearing/touch
+acceptance remains pending. Phase3 filter part is implemented; remaining engine
+parity review and phase4 sample/preset work are the next roadmap items.

@@ -56,10 +56,11 @@ refresh remains, so the completed line/sound follow after the short quiet interv
 ADD still uses a button; arbitrary tap-to-insert is not implemented.
 
 First activation of a legacy POINTS curve keeps its existing five-point data.
-Variable editing copies it lazily. GKMP5 stores 1521 values, including eighteen
+Variable editing copies it lazily. GKMP6 stores1551 values, including eighteen
 2–16-point lists with independent Bezier control ordinates. The original 1782
 VST indices/ranges/defaults remain unchanged. GKMP1/2/3/4 load without losing
-their simple or original custom envelopes. New GKMP5 states require 0.0.17+.
+their simple or original custom envelopes. GKMP5 states require0.0.17+; new GKMP6 states require0.0.19+. The added filter
+fields do not change the point data.
 The actual shared VST uses an opt-in 64 KiB state buffer; larger complete curves
 are roundtrip-tested instead of relying only on direct engine calls.
 

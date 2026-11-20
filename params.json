@@ -27031,6 +27031,686 @@
       "default": 0,
       "live": true,
       "legacy": true
+    },
+    {
+      "key": "filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o1_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o1_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o1_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o1_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o1_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o1_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o1_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o2_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o2_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o2_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o2_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o2_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o2_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o2_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o3_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o3_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o3_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o3_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o3_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o3_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o3_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o4_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o4_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o4_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o4_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o4_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o4_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o4_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o5_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o5_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o5_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o5_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o5_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o5_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o5_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o6_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o6_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o6_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o6_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o6_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o6_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o6_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o7_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o7_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o7_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o7_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o7_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o7_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o7_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o8_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o8_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o8_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o8_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o8_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o8_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o8_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o9_filter_model",
+      "name": "Filter Model",
+      "min": 0,
+      "max": 1,
+      "default": 1,
+      "options": [
+        "Classic",
+        "Wide"
+      ]
+    },
+    {
+      "key": "o9_cutoff_wide",
+      "name": "Wide Cutoff",
+      "min": 20,
+      "max": 20000,
+      "default": 8000,
+      "unit": "Hz",
+      "legacy": true
+    },
+    {
+      "key": "o9_q_wide",
+      "name": "Wide Q",
+      "min": 0.5,
+      "max": 20,
+      "default": 1,
+      "legacy": true
+    },
+    {
+      "key": "o9_cutoff_fine",
+      "name": "Cutoff",
+      "min": 0,
+      "max": 2392,
+      "default": 2075,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o9_cutoff_touch",
+      "name": "Cutoff Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o9_res_fine",
+      "name": "Resonance",
+      "min": 0,
+      "max": 1000,
+      "default": 188,
+      "display": "int",
+      "nudge_pct": 10,
+      "dynamic_display": true,
+      "legacy": true
+    },
+    {
+      "key": "o9_res_touch",
+      "name": "Resonance Touch",
+      "min": 0,
+      "max": 1,
+      "default": 0,
+      "dynamic_display": true,
+      "legacy": true
     }
   ]
 }

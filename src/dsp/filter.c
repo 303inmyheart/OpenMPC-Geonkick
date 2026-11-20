@@ -91,6 +91,7 @@ gkick_filter_init(struct gkick_filter *filter)
 
         gkick_filter_lock(filter);
         filter->queue_empty = true;
+        filter->wide_s1 = filter->wide_s2 = 0; filter->wide_fc = -1;
         memset(filter->queue_l, 0, sizeof(filter->queue_l));
         memset(filter->queue_b, 0, sizeof(filter->queue_b));
         memset(filter->queue_h, 0, sizeof(filter->queue_h));
@@ -262,6 +263,30 @@ gkick_filter_val(struct gkick_filter *filter,
 		f = filter->cutoff_freq * env_val;
         gkick_real F = 2.0f * sin(M_PI * f / filter->sample_rate);
 	gkick_real q_env_val = gkick_envelope_get_value(filter->q_env, env_x);
+        if(filter->wide) {
+                /* MPC trapezoidal-integrator SVF, original C implementation.
+                 * Mathematical reference: Andrew Simper, Cytomic, 2013:
+                 * https://www.cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
+                 * Cache coefficients: no tan() per constant-cutoff sample. */
+                double fc=fmin(20000,fmin(.49*filter->sample_rate,fmax(20,f)));
+                double quality=fmin(20,fmax(.5,filter->wide_q*q_env_val));
+                if(fc!=filter->wide_fc || quality!=filter->wide_cached_q) {
+                        double g=tan(M_PI*fc/filter->sample_rate),k=1/quality;
+                        filter->wide_a1=1/(1+g*(g+k));
+                        filter->wide_a2=g*filter->wide_a1;filter->wide_a3=g*filter->wide_a2;
+                        filter->wide_k=k;filter->wide_fc=fc;filter->wide_cached_q=quality;
+                }
+                double delta=in_val-filter->wide_s2;
+                double band=filter->wide_a1*filter->wide_s1+filter->wide_a2*delta;
+                double low=filter->wide_s2+filter->wide_a2*filter->wide_s1+filter->wide_a3*delta;
+                filter->wide_s1=2*band-filter->wide_s1;filter->wide_s2=2*low-filter->wide_s2;
+                double output=filter->type==GEONKICK_FILTER_HIGH_PASS?in_val-filter->wide_k*band-low:
+                        filter->type==GEONKICK_FILTER_BAND_PASS?filter->wide_k*band:low;
+                if(!isfinite(output) || !isfinite(filter->wide_s1) || !isfinite(filter->wide_s2)) {
+                        filter->wide_s1=filter->wide_s2=0;output=0;
+                }
+                *out_val=(gkick_real)output;gkick_filter_unlock(filter);return GEONKICK_OK;
+        }
 	gkick_real Q;
 	if (q_env_val > 0) {
 		Q = filter->coefficients[1] * (1.0f / q_env_val);
@@ -297,4 +322,14 @@ gkick_filter_val(struct gkick_filter *filter,
         gkick_filter_unlock(filter);
 
         return GEONKICK_OK;
+}
+
+/* MPC configuration runs on the synthesis worker, never the host audio thread. */
+void gkick_filter_set_wide(struct gkick_filter *filter, int enabled, double q)
+{
+        if(!filter)return;
+        gkick_filter_lock(filter);
+        filter->wide=enabled!=0;filter->wide_q=isfinite(q)?fmin(20,fmax(.5,q)):1;
+        filter->wide_fc=-1;
+        gkick_filter_unlock(filter);
 }

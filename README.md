@@ -4,13 +4,15 @@ The MPC adapter, build scripts and interface are AI-generated. The user has test
 problems. The user confirmed the real value jumps are resolved in 0.0.10; a brief
 visual knob rebound remained. Version 0.0.11 separates direct continuous Touch
 handles from fine Q-Link/data-wheel handles on the same physical parameter.
-The user confirmed the 0.0.11 changes work. The user confirmed that 0.0.12 point handles can be dragged in two dimensions.
+The user confirmed the 0.0.11 changes work. The user confirmed that0.0.12 point handles can be dragged in two dimensions
+and later reported the corrected0.0.18 build working; its installed version
+was verified read-only before the0.0.19 update.
 Version 0.0.13 adds the completed sound waveform behind those handles and removes
 point-editing Q-Link assignments; the combined view still needs device acceptance. The original Geonkick DSP is the
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.18 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.19 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
@@ -78,9 +80,9 @@ Implemented:
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The 0.0.15 Percussion Lab palette uses graphite, lime and amber.
-- Versioned GKMP5 project state with 1521 stored values, including independent
-  point lists and Bezier ordinates for all 18 curves. All 1782 previous VST
-  parameter identities remain unchanged. GKMP1–4 states migrate with their
+- Versioned GKMP6 project state with 1551 stored values, including independent
+  point lists and Bezier ordinates for all 18 curves. All 2970 previous VST
+  parameter identities remain unchanged. GKMP1–5 states migrate with their
   original sound and old five-point data; variable editing converts them lazily.
   Full 16-point states are tested through the actual VST chunk API.
 - Graph refresh uses one derived revision signal instead of per-column host
@@ -145,9 +147,12 @@ after synthesis completes, with host notifications on a separate 100 ms display
 thread rather than on the audio thread. Native display behavior and performance
 still need confirmation on a real MPC; the source desktop GUI is not embedded.
 Pink noise is omitted because the pinned
-upstream implementation returns zero. The original state-variable filter is
-restricted to 30–8000 Hz and resonance 10–1000 to keep its discrete-time update
-stable at the MPC engine's 44.1 kHz. This needs revisiting for full parity.
+upstream implementation returns zero. The CLASSIC state-variable filter retains its original30–8000 Hz /10–1000
+controls.0.0.19 adds WIDE20 Hz–20 kHz filtering with bounded Q0.5–20, a normalized
+resonance percentage and fine hardware / direct Touch cutoff and resonance.
+Older GKMP1–5 projects load CLASSIC automatically; new Init instances use WIDE.
+The two starting hat sounds retain CLASSIC so their existing sound is unchanged.
+See [filter guide](docs/FILTERS.md).
 
 Point-editor feasibility and limits: [ENVELOPE-EDITOR.md](docs/ENVELOPE-EDITOR.md).
 
@@ -178,3 +183,20 @@ stopped, including a debounced second high event from finger release. Point
 selection/status now notify the host without waiting for synthesis. Hardware
 interaction acceptance remains required. Existing sound/state/Q-Link behavior
 and quiet-time waveform feedback remain in place.
+
+
+0.0.19 adds independent **CLASSIC / WIDE** selection to MASTER/FX and all nine
+oscillator FX pages. WIDE uses a stable trapezoidal state-variable filter with
+cached coefficients,20 Hz–20 kHz cutoff and Q0.5–20. Q-Links step cutoff in5 cents
+and resonance in0.1%; Touch sweeps continuously. Old normalized automation ranges
+and all previous VST identities are retained. Thirty actual0.0.18-vs-current old
+project fixtures produce identical audio in the ARM64 regression. Tests are
+functional checks, not a formal Store benchmark. New filter hardware/hearing
+acceptance remains required; see [0.0.19 test guide](TESTPLAN-0.0.19-DE.md).
+
+
+0.0.19 is installed on the user's Live III under renewed standing update
+permission. Plugin files and binary checksum were verified, the previous folder
+was backed up locally, and the MPC application restarted active/running.
+New cutoff/resonance hearing and Touch acceptance remain pending; no formal
+Store CPU benchmark has been performed for this development binary.

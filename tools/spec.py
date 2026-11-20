@@ -151,6 +151,23 @@ for j in range(16):
 
 
 
+#0.0.19 wide filter model. Existing physical/automation identities remain frozen.
+FILTER_PARAMS=[]
+for prefix in ('',*[f'o{o}_' for o in range(1,10)]):
+    start=len(params)
+    opt(prefix+'filter_model','Filter Model',['Classic','Wide'],default=1)
+    p(prefix+'cutoff_wide','Wide Cutoff',20,20000,8000,unit='Hz',legacy=True)
+    p(prefix+'q_wide','Wide Q',0.5,20,1,legacy=True)
+    FILTER_PARAMS.extend(params[start:])
+    p(prefix+'cutoff_fine','Cutoff',0,2392,2075,display='int',nudge_pct=10,dynamic_display=True,legacy=True)
+    p(prefix+'cutoff_touch','Cutoff Touch',0,1,0,dynamic_display=True,legacy=True)
+    p(prefix+'res_fine','Resonance',0,1000,188,display='int',nudge_pct=10,dynamic_display=True,legacy=True)
+    p(prefix+'res_touch','Resonance Touch',0,1,0,dynamic_display=True,legacy=True)
+    TOUCH_BINDINGS[prefix+'cutoff_fine']=prefix+'cutoff_touch'
+    TOUCH_BINDINGS[prefix+'res_fine']=prefix+'res_touch'
+STORED_PARAMS+=FILTER_PARAMS
+
+
 def generate():
     (ROOT/'params.json').write_text(json.dumps(dict(name='Geonkick MPC',params=params),indent=2)+'\n')
     # Engine uses this independent, plain table rather than wrapper-private types.
@@ -159,7 +176,7 @@ def generate():
        'static const GParam gparams[] = {']
     for x in STORED_PARAMS:
         h.append('    {"%s", %sf, %sf, %sf, %d},'%(x['key'],float(x['min']),float(x['max']),float(x['default']),bool(x.get('options'))))
-    h+=['};',f'#define GP_COUNT {len(STORED_PARAMS)}',f'#define LEGACY_GP_COUNT {CONTROL_COUNT}', '#define GKMP4_GP_COUNT 385',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
+    h+=['};',f'#define GP_COUNT {len(STORED_PARAMS)}',f'#define LEGACY_GP_COUNT {CONTROL_COUNT}', '#define GKMP4_GP_COUNT 385', '#define GKMP5_GP_COUNT 1521',f'#define PLOT_COLUMNS {PLOT_COLUMNS}',
         f'#define PLOT_WAVE_LEVELS {PLOT_WAVE_LEVELS}',f'#define PLOT_ENV_LEVELS {PLOT_ENV_LEVELS}']
     # Compile-time immutable lookup: growing curve storage must not turn each
     # physical/proxy read into a scan through 1500 entries on audio/UI threads.
@@ -311,6 +328,18 @@ qlink_bounds=column
            .replace('label="ATTACK"','label="ATTACK (ms)"').replace('label="DECAY"','label="DECAY (ms)"')
            .replace('label="PITCH TIME"','label="PITCH TIME (ms)"').replace('label="PITCH DROP"','label="PITCH DROP (st)"') for line in lines]
     lines=[line.replace('label="NOISE DENSITY"','label="NOISE DENSITY (%)"') for line in lines]
+    lines=[re.sub(r'key=((?:o[1-9]_)?)(cutoff|q)(?=\s|$)',lambda m:'key='+m[1]+('cutoff_fine' if m[2]=='cutoff' else 'res_fine'),line) if line.startswith('knob ') else line for line in lines]
+    lines=[re.sub(r'\b((?:o[1-9]_)?)(cutoff|q)\b',lambda m:m[1]+('cutoff_fine' if m[2]=='cutoff' else 'res_fine'),line) if line.startswith('qlinks ') and (' FX' in line or '"EFFECTS"' in line) else line for line in lines]
+    # The touch-only model selector occupies its own small bottom strip on FX.
+    insertion=[]
+    for line in lines:
+        if line.startswith('qlinks ') and (' FX' in line or '"EFFECTS"' in line):
+            prefix=re.search(r'o[1-9]_',line)
+            key=(prefix[0] if prefix else '')+'filter_model'
+            bank=re.search(r'qlinks "([^"\n]+)"',line)[1]
+            insertion.append(f'enum_h cx=640 cy=665 sw=150 sh=30 label="FILTER MODEL / OLD PROJECTS USE CLASSIC" key={key}'+(' banks="'+bank+'"' if bank!='EFFECTS' else ''))
+        insertion.append(line)
+    lines=insertion
     (ROOT/'layout.conf').write_text('\n'.join(lines)+'\n')
 
 if __name__=='__main__':generate()

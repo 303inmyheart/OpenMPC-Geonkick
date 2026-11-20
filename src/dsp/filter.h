@@ -31,6 +31,10 @@
 #define GEONKICK_DEFAULT_FILTER_FACTOR      (1.0f)
 
 struct gkick_filter {
+        /* MPC WIDE TPT state. CLASSIC equations/queues remain unchanged. */
+        int wide;
+        double wide_q,wide_s1,wide_s2,wide_fc,wide_cached_q;
+        double wide_a1,wide_a2,wide_a3,wide_k;
         enum gkick_filter_type type;
         int sample_rate;
 
@@ -55,6 +59,8 @@ struct gkick_filter {
         bool mutex_init_ok;
         pthread_mutex_t lock;
 };
+
+void gkick_filter_set_wide(struct gkick_filter *filter, int enabled, double q);
 
 enum geonkick_error
 gkick_filter_new(struct gkick_filter **filter, int sample_rate);

@@ -38,13 +38,13 @@ int main(void){
   set(a,"free_bank",4);set(a,"edit_l1",.3333333f);assert(get(a,"free_select")==13);
   set(a,"edit_t1",.9f);validate(a,o,k?'p':'a',16);
  }
- state(a,saved);assert(!strncmp(saved,"GKMP5 ",6));assert(strlen(saved)>8192);
+ state(a,saved);assert(!strncmp(saved,"GKMP6 ",6));assert(strlen(saved)>8192);
  api->set_param(b,"state",saved);state(b,again);assert(!strcmp(saved,again));
  /* Malformed point lists reject the entire state atomically. */
  float values[GP_COUNT];char *end=saved+6;for(int i=0;i<GP_COUNT;i++)values[i]=strtof(end,&end);
  int bad[]={idx("f1_a_n"),idx("f1_a_x0"),idx("f1_a_x1"),idx("f1_a_x15")};float invalid[]={1,.1f,0,.9f};
  for(int badi=0;badi<4;badi++){
-  int n=snprintf(legacy,sizeof legacy,"GKMP5");for(int i=0;i<GP_COUNT;i++)n+=snprintf(legacy+n,sizeof legacy-n," %.9g",i==bad[badi]?invalid[badi]:values[i]);
+  int n=snprintf(legacy,sizeof legacy,"GKMP6");for(int i=0;i<GP_COUNT;i++)n+=snprintf(legacy+n,sizeof legacy-n," %.9g",i==bad[badi]?invalid[badi]:values[i]);
   api->set_param(a,"state",legacy);state(a,again);assert(!strcmp(saved,again));
  }
  /* Real GKMP4 layout: old curves survive, extension migrates lazily. */
@@ -81,5 +81,5 @@ int main(void){
  set(a,"plot_osc",0);set(a,"plot_env",0);
  /* Legacy automation and COPY SIMPLE remain authoritative, not stale curves. */
  set(a,"o1_a_l2",.17f);assert(get(a,"f1_a_n")==0);set(a,"free_add",1);assert(get(a,"f1_a_n")==6);set(a,"point_copy",1);assert(get(a,"f1_a_n")==0);
- api->destroy(a);api->destroy(b);puts("18 variable envelopes, 2..16 points, cubic split, touch viewport, bounds, atomic GKMP5/GKMP4 migration and no-synthesis selection PASS");return 0;
+ api->destroy(a);api->destroy(b);puts("18 variable envelopes, 2..16 points, cubic split, touch viewport, bounds, atomic GKMP6/GKMP4 migration and no-synthesis selection PASS");return 0;
 }

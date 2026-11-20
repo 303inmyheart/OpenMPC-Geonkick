@@ -103,6 +103,7 @@ static float clampf(float v,float lo,float hi) { return fminf(hi,fmaxf(lo,v)); }
 static void set_param(void *inst,const char *key,const char *text);
 #include "point_editor.h"
 #include "free_envelope.h"
+#include "filter_controls.h"
 
 /* Worker-owned DSP setup. All allocations and upstream mutexes remain here. */
 static void configure(Engine *e,const float *p) {
@@ -147,8 +148,8 @@ static void configure(Engine *e,const float *p) {
 
         o->filter_enabled=OVAL("filter_on")>0;
         gkick_filter_set_type(o->filter,(int)OVAL("filter_type"));
-        gkick_filter_set_cutoff_freq(o->filter,OVAL("cutoff"));
-        gkick_filter_set_factor(o->filter,OVAL("q"));
+        char filter_prefix[8];snprintf(filter_prefix,sizeof filter_prefix,"o%d_",i+1);
+        filter_configure(o->filter,p,filter_prefix);
         o->distortion->enabled=OVAL("drive_on")>0;
         o->distortion->type=(int)OVAL("drive_type");
         o->distortion->drive=OVAL("drive");
@@ -157,8 +158,7 @@ static void configure(Engine *e,const float *p) {
     }
     s->filter_enabled=value(p,"filter_on")>0;
     gkick_filter_set_type(s->filter,(int)value(p,"filter_type"));
-    gkick_filter_set_cutoff_freq(s->filter,value(p,"cutoff"));
-    gkick_filter_set_factor(s->filter,value(p,"q"));
+    filter_configure(s->filter,p,"");
     s->distortion->enabled=value(p,"drive_on")>0;
     s->distortion->type=(int)value(p,"drive_type");
     s->distortion->drive=value(p,"drive");
@@ -256,7 +256,7 @@ static void preset(Engine *e,int which) {
         put(e,"o2_on",1); put(e,"o2_wave",4); put(e,"o2_level",0.65); put(e,"o2_sweep",0); put(e,"o2_decay",0.23); break;
     case 4: case 5:
         put(e,"o1_wave",4); put(e,"o1_sweep",0); put(e,"length",which==4?0.1:0.65); put(e,"o1_decay",which==4?0.075:0.6);
-        put(e,"filter_on",1); put(e,"filter_type",1); put(e,"cutoff",6500); break;
+        put(e,"filter_on",1); put(e,"filter_type",1); put(e,"cutoff",6500);put(e,"cutoff_wide",6500);put(e,"filter_model",0); break;
     case 6:
         put(e,"length",0.5); put(e,"o1_wave",1); put(e,"o1_freq",370); put(e,"o1_level",0.35); put(e,"o1_sweep",0); put(e,"o1_fm",0.6);
         put(e,"o2_on",1); put(e,"o2_freq",541); put(e,"o2_sweep",0); put(e,"o2_decay",0.45); break;
@@ -308,6 +308,7 @@ static void midi(void *inst,const uint8_t *msg,int len) {
 }
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
+    if(filter_virtual_set(e,key,text))return;
     if(free_xy_set(e,key,text))return;
     if(free_virtual_set(e,key,text))return;
     if(point_virtual_set(e,key,text))return;
@@ -332,13 +333,15 @@ static void set_param(void *inst,const char *key,const char *text) {
         else if(!strncmp(text,"GKMP2 ",6))count=184;
         else if(!strncmp(text,"GKMP3 ",6))count=LEGACY_GP_COUNT;
         else if(!strncmp(text,"GKMP4 ",6))count=GKMP4_GP_COUNT;
-        else if(!strncmp(text,"GKMP5 ",6))count=GP_COUNT;
+        else if(!strncmp(text,"GKMP5 ",6))count=GKMP5_GP_COUNT;
+        else if(!strncmp(text,"GKMP6 ",6))count=GP_COUNT;
         else return;
         float p[GP_COUNT];const char *s=text+6;char *end;
         for(int i=0;i<GP_COUNT;i++)p[i]=gparams[i].def;
         for(int i=0;i<count;i++) { p[i]=strtof(s,&end); if(end==s||!isfinite(p[i])||p[i]<gparams[i].lo||p[i]>gparams[i].hi)return; s=end; }
         while(*s==' ')s++;
         if(*s || !free_validate(p))return;
+        if(count<=GKMP5_GP_COUNT)filter_migrate(p);
         atomic_fetch_add(&e->revision,1);
         for(int i=0;i<GP_COUNT;i++)atomic_store(&e->values[i],gparams[i].discrete?roundf(p[i]):p[i]);
         atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); stop_all(e); e->edit_time_valid=0;memset(e->dirty,1,sizeof e->dirty);e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1; return;
@@ -359,7 +362,7 @@ static void set_param(void *inst,const char *key,const char *text) {
     else {
         if(point_key_changed)point_prepare(e,&point,v);
         atomic_store(&e->values[i],v);
-        e->dirty[i]=1;
+        e->dirty[i]=1;filter_legacy_changed(e,key,v);
         if(point_key_changed){point_changed(e,&point);e->edit_time_valid=0;
             if(point.field=='l'||point.field=='t')free_store(e,point.osc,point.kind,"n",0);
             e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;
@@ -393,6 +396,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
     /* Wrapper serializes this call with MIDI/render. The display thread can
      * adopt a completed sound even while the host isn't processing audio. */
+    int filter_result=filter_virtual_get(e,key,buf,len);if(filter_result>0)return filter_result;
     int xy_result=free_xy_get(e,key,buf,len);if(xy_result>0)return xy_result;
     int free_result=free_virtual_get(e,key,buf,len);if(free_result>0)return free_result;
     int point_result=point_virtual_get(e,key,buf,len);if(point_result>0)return point_result;
@@ -431,7 +435,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     if(!strcmp(key,"synthesis_count"))return snprintf(buf,len,"%u",atomic_load(&e->synthesis_count));
     if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",(e->slots[e->current].revision!=atomic_load(&e->audio_revision) || e->slots[e->current].view_revision!=atomic_load(&e->view_revision)));
     if(!strcmp(key,"state")) {
-        int n=snprintf(buf,len,"GKMP5");
+        int n=snprintf(buf,len,"GKMP6");
         for(int i=0;i<GP_COUNT && n<len;i++)n+=snprintf(buf+n,len-n," %.9g",atomic_load(&e->values[i]));
         return n<len?n:0;
     }

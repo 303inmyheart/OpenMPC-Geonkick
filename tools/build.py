@@ -37,6 +37,7 @@ def prepare():
     if 'CANONICAL_CONTINUOUS_ECHO' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-canonical-continuous-echo.patch after mpc-accumulated-fine-input.patch.')
     if 'ENGINE_CHUNK_CAPACITY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-envelope-state-capacity.patch.')
     if 'IDLE_ACTION_RELEASE' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-idle-action-release.patch.')
+    if 'FILTER_CONTROL_FEEDBACK' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-filter-control-feedback.patch.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()

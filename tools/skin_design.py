@@ -84,7 +84,7 @@ def panel_background(layout,bank,children,defs,skin):
     elif name.startswith('LAYER') or name=='EFFECTS':
         card((58,72,1222,270));card((58,305,1222,513))
         line(d,[(60,86),(60,253)],CYAN,3);line(d,[(60,319),(60,496)],AMBER,3)
-        text(d,(640,570),'FILTER  /  DRIVE   ·   '+('GLOBAL PROCESSING' if name=='EFFECTS' else 'OSCILLATOR PROCESSING'),13,MUTED)
+        text(d,(640,615),'FILTER  /  DRIVE   ·   '+('GLOBAL PROCESSING' if name=='EFFECTS' else 'OSCILLATOR PROCESSING'),13,MUTED)
     elif name=='ENVELOPE':
         card((70,72,1210,225));card((70,228,1210,423));card((70,424,1210,508));card((70,510,1256,625))
         text(d,(90,240),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,240),'SELECT POINT NUMBER / DRAG AMBER POINT',12,AMBER,'rm')

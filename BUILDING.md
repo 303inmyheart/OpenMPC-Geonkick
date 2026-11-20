@@ -14,7 +14,8 @@ patches/mpc-graph-rebind-and-input-observation.patch and
 patches/mpc-accumulated-fine-input.patch, followed by
 patches/mpc-canonical-continuous-echo.patch and finally
 patches/mpc-envelope-state-capacity.patch, then
-patches/mpc-idle-action-release.patch, in that order. The wrapper is not copied into this repository.
+patches/mpc-idle-action-release.patch, then
+patches/mpc-filter-control-feedback.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
 `mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
@@ -297,3 +298,32 @@ thread UI call, graph callback burst or synthesis wait is added.
 idle_action_test.c reproduces the stopped-host cache, repeated taps and the
 finger-up high pulse after the first reset, and echoes notifications back to the
 actual shared VST. No formal Store benchmark is implied by these checks.
+
+
+0.0.19 appends30 physical filter fields and40 fine/direct proxies (3040 VST
+parameters, old2970 frozen). GKMP6 stores1551 values. GKMP5 still consumes exactly
+1521 values and every older header migrates all10 models to CLASSIC; WIDE fields
+are seeded from the old frequency and bounded equivalent Q. New Init defaults
+to WIDE; the two starting hat presets explicitly stay CLASSIC. Each model keeps
+its own frequency/resonance fields. filter_controls.h maps continuous Touch and
+fine5-cent /0.1-percent controls to that model without quantizing saved physical
+values on echoes. Existing raw legacy changes also propagate their frequency /
+bounded equivalent Q to WIDE when active; legacy projects themselves stay CLASSIC.
+
+filter.c retains the original CLASSIC arithmetic. WIDE uses an original C
+implementation of the trapezoidal state-variable equations, with double state /
+coefficient precision and cached tan-based coefficients for constant envelopes.
+Mathematical reference: Andrew Simper, Cytomic,2013,
+https://www.cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf . No third-party
+implementation source/library was copied or bundled. License remains GPL-3.0-or-later.
+Band-pass is normalized by damping to unit gain at its centre; LP/HP resonance
+still intentionally increases their peak, and the existing final limiter remains.
+
+filter_test.c compares162 cutoff/Q/type cases against an independently derived
+bilinear biquad, checks exact CLASSIC recurrence, all10 paths, old-state migration
+and continuity of a held cached hit during new synthesis. filter_controls_test.c
+uses the actual shared VST for Touch, accumulated raw Q-Link steps, echoes and
+idle CLASSIC clamp feedback. Optional filter_compat_test.c takes old/new shared
+libraries; against the archived0.0.18 ARM64 binary,30 old-project fixtures yield
+maximum sample difference0. No firmware binaries or private data are fixtures.
+No new locks/allocations/synthesis/UI calls are added to the host audio callback.
