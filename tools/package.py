@@ -38,7 +38,7 @@ dest=root/'build/releases'
 build.run([sys.executable,release_tools/'tools/release.py','--so',binary,'--skin',skin,
            '--entry',root/'build/pluginlist-entry.xml','--version',cfg['version'],
            '--id',cfg['id'],'--repo',cfg['repo'],'--license',cfg['license'],
-           '--requires',cfg['requires'],'--about',cfg['about'],'--extra',str(notice)+':LICENSES.txt','-o',dest])
+           '--requires',cfg['requires'],'--about',cfg['about'],'--user-data','.sample-folder','--extra',str(notice)+':LICENSES.txt','-o',dest])
 archive=dest/f'Geonkick-MPC-{cfg["version"]}-mpc-aarch64.zip'
 build.run([sys.executable,release_tools/'tools/catalog_check.py',archive,'--catalog','--require-portable','--expect-id',cfg['id'],'--expect-repo',cfg['repo']])
 with zipfile.ZipFile(archive) as z:

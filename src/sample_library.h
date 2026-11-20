@@ -21,7 +21,14 @@ static void sample_collect(Engine *e) {
 }
 static void sample_hold(Engine *e,int pad){atomic_fetch_add(&e->samples.readers,1);for(int i=0;i<9;i++)e->worker_samples[i]=atomic_load(&e->samples.assets[pad][i]);}
 static void sample_release(Engine *e){atomic_fetch_sub(&e->samples.readers,1);}
-static void sample_init(Engine *e) {
+static void sample_init(Engine *e,const char *dir) {
+    snprintf(e->samples.default_folder,sizeof e->samples.default_folder,"/nvme");
+    if(dir && dir[0]=='/' && snprintf(e->samples.preference_file,sizeof e->samples.preference_file,"%s/.sample-folder",dir)<PATH_MAX) {
+        FILE *f=fopen(e->samples.preference_file,"rb");
+        if(f){char path[PATH_MAX];size_t n=fread(path,1,sizeof path-1,f);int complete=feof(f);fclose(f);path[n]=0;
+            if(complete && n>0 && path[0]=='/' && !memchr(path,0,n) && !strchr(path,'\n') && !strchr(path,'\r'))snprintf(e->samples.default_folder,sizeof e->samples.default_folder,"%s",path);}
+    }else e->samples.preference_file[0]=0;
+
     atomic_init(&e->samples.busy,0);atomic_init(&e->samples.readers,0);atomic_init(&e->samples.retired,NULL);atomic_init(&e->samples.reply,NULL);atomic_init(&e->samples.pending,0);atomic_init(&e->samples.write,0);atomic_init(&e->samples.read,0);
     snprintf(e->samples.status,sizeof e->samples.status,"OPEN STORAGE TO BROWSE");
     for(int p=0;p<PADS;p++){for(int l=0;l<3;l++)atomic_init(&e->sound_focus[p][l],l*3);
@@ -65,12 +72,27 @@ static int sample_enqueue(Engine *e,int action,const char *path,int page) {
     if(action==SAMPLE_LOAD)q->stamp=atomic_fetch_add(&e->samples.generation[q->pad][q->osc],1)+1;
     atomic_fetch_add(&e->samples.pending,1);atomic_store(&e->samples.write,w+1);snprintf(e->samples.status,sizeof e->samples.status,action==SAMPLE_LOAD?"LOADING SAMPLE...":"READING FOLDER...");sample_notify(e);return 1;
 }
+static int sample_save_default(Engine *e,const char *path,char *status,size_t size) {
+    if(!e->samples.preference_file[0]){snprintf(status,size,"NO SETTINGS DIRECTORY");return 0;}
+    if(strchr(path,'\n') || strchr(path,'\r')){snprintf(status,size,"FOLDER NAME UNSUPPORTED");return 0;}
+    char temporary[PATH_MAX];if(snprintf(temporary,sizeof temporary,"%s.XXXXXX",e->samples.preference_file)>=PATH_MAX){snprintf(status,size,"PATH TOO LONG");return 0;}
+    int fd=mkstemp(temporary);if(fd<0){snprintf(status,size,"CANNOT SAVE DEFAULT");return 0;}
+    FILE *f=fdopen(fd,"wb");int ok=0;
+    if(f){size_t n=strlen(path);ok=fwrite(path,1,n,f)==n;if(fclose(f))ok=0;}else close(fd);
+    if(ok)ok=rename(temporary,e->samples.preference_file)==0;
+    if(!ok)unlink(temporary);
+    snprintf(status,size,ok?"DEFAULT FOLDER SAVED":"CANNOT SAVE DEFAULT");return ok;
+}
 static void sample_worker(Engine *e) {
     sample_collect(e);if(atomic_load(&e->samples.reply))return;
     unsigned r=atomic_load(&e->samples.read);if(r==atomic_load(&e->samples.write))return;
     SampleRequest q=e->samples.requests[r%SAMPLE_REQUESTS];atomic_store(&e->samples.busy,1);atomic_store(&e->samples.read,r+1);
     SampleReply *reply=calloc(1,sizeof *reply);if(!reply){atomic_fetch_sub(&e->samples.pending,1);atomic_store(&e->samples.busy,0);return;}reply->pad=q.pad;reply->osc=q.osc;reply->stamp=q.stamp;
     if(q.action==SAMPLE_SCAN)reply->view=sample_scan(q.path,q.page,reply->status,sizeof reply->status);
+    else if(q.action==SAMPLE_DEFAULT){char resolved[PATH_MAX];struct stat st;
+        if(!realpath(q.path,resolved)||stat(resolved,&st)||!S_ISDIR(st.st_mode))snprintf(reply->status,sizeof reply->status,"FOLDER NOT AVAILABLE");
+        else if(sample_save_default(e,resolved,reply->status,sizeof reply->status))snprintf(reply->default_folder,sizeof reply->default_folder,"%s",resolved);
+    }
     else reply->asset=sample_read_wave(q.path,reply->status,sizeof reply->status);
     atomic_store(&e->samples.reply,reply);atomic_store(&e->samples.busy,0);
 }
@@ -79,6 +101,7 @@ static void sample_poll(Engine *e) {
     sample_collect(e); /* normal-priority display path also cleans during slow IO */
     SampleReply *r=atomic_exchange(&e->samples.reply,NULL);if(!r)return;
     snprintf(e->samples.status,sizeof e->samples.status,"%s",r->status);
+    if(r->default_folder[0])snprintf(e->samples.default_folder,sizeof e->samples.default_folder,"%s",r->default_folder);
     if(r->view){free(e->samples.view);e->samples.view=r->view;r->view=NULL;}
     if(r->asset) {
         int pad=r->pad,osc=r->osc;SampleAsset *old=atomic_load(&e->samples.assets[pad][osc]);size_t oldbytes=old?(size_t)old->count*4:0;
@@ -122,7 +145,8 @@ static int sample_set(Engine *e,const char *key,const char *text) {
     if(strncmp(key,"sample_",7))return 0;
     char *end;float pressed=strtof(text,&end);if(end==text||*end||!isfinite(pressed)||pressed<.5f)return 1;
     SampleView *v=e->samples.view;const char *folder=v?v->path:"/nvme";
-    if(!strcmp(key,"sample_open"))sample_enqueue(e,SAMPLE_SCAN,folder,v?v->page:0);
+    if(!strcmp(key,"sample_open"))sample_enqueue(e,SAMPLE_SCAN,e->samples.default_folder,0);
+    else if(!strcmp(key,"sample_set_default")){if(v)sample_enqueue(e,SAMPLE_DEFAULT,v->path,0);else{snprintf(e->samples.status,sizeof e->samples.status,"OPEN A FOLDER FIRST");sample_notify(e);}}
     else if(!strcmp(key,"sample_root"))sample_enqueue(e,SAMPLE_SCAN,"/",0);
     else if(!strcmp(key,"sample_up")){char path[PATH_MAX];snprintf(path,sizeof path,"%s",folder);char *slash=strrchr(path,'/');if(slash && slash!=path)*slash=0;else snprintf(path,sizeof path,"/");sample_enqueue(e,SAMPLE_SCAN,path,0);}
     else if(!strcmp(key,"sample_prev") || !strcmp(key,"sample_next")){if(v)sample_enqueue(e,SAMPLE_SCAN,v->path,v->page+(!strcmp(key,"sample_next")?1:-1));}

@@ -36,7 +36,7 @@ int main(void) {
  for(int i=0;i<NPARAMS;i++)if(!strncmp(PARAMS[i].key,"viz_",4)||!strcmp(PARAMS[i].key,"ui_env_focus")||!strcmp(PARAMS[i].key,"graph_revision")) {
   assert(e->dispatch(e,26,i,0,NULL,0)==0);derived++;
  }
- assert(derived==2594);assert(e->dispatch(e,26,fine,0,NULL,0)==1);
+ assert(derived==5186);assert(e->dispatch(e,26,fine,0,NULL,0)==1);
  assert(e->dispatch(e,26,find("o1_freq"),0,NULL,0)==1);
  usleep(250000);atomic_store(&graph_reports,0);
  for(int k=0;k<90;k++) {
@@ -46,6 +46,6 @@ int main(void) {
  assert(atomic_load(&control_reports)>0);float final=e->get(e,fine);
  for(int k=0;k<250 && !atomic_load(&graph_reports);k++) { block(e);usleep(10000); }
  assert(atomic_load(&graph_reports)>0);for(int k=0;k<50 && !atomic_load(&rebinds);k++)usleep(10000);assert(atomic_load(&rebinds)>0 && atomic_load(&rebinds)<=2);assert(atomic_load(&column_reports)==0);assert(fabsf(e->get(e,fine)-final)<1e-6f);
- printf("2594 display values non-automatable; zero column callbacks; shared refresh and one host rebind after gesture, direct value reads and frequency echoes PASS\n");
+ printf("5186 display values non-automatable; zero column callbacks; shared refresh and one host rebind after gesture, direct value reads and frequency echoes PASS\n");
  e->dispatch(e,1,0,0,NULL,0);return 0;
 }

@@ -12,7 +12,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.23 includes sixteen independent pad sounds and WAV sample import per
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.24 includes sixteen independent pad sounds and WAV sample import per
 oscillator. Original preset/soundbank conversion is the following phase and will
 use native MPC presets and the Sounds browser.
 
@@ -296,3 +296,13 @@ Installer/catalog validation:0 warnings; privacy scan passed.
 verified, prior0.0.22 backed up locally, settings unchanged during replacement.
 MPC application restarted active/running. Sample/browser/Sound-tab hardware
 acceptance remains pending. Installer validation:0warnings; privacy scan passed.
+
+0.0.24 corrects the remaining shared SOUND waveform: each layer now has its own
+cached trace, alongside its local envelope. MASTER/SAMPLES adds SET DEFAULT and
+OPEN DEFAULT for a persistent sample start folder. No folder path enters presets.
+
+0.0.24 was installed with1858 package files verified; the previous plugin was
+backed up, settings were unchanged during replacement, and the MPC application
+returned active/running with the packaged binary. Native sanitizer and actual
+ARM64/QEMU suites and the installer checker pass; fresh on-device waveform and
+default-folder acceptance is pending. No final-release Store benchmark.

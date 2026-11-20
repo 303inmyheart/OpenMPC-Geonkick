@@ -22,3 +22,8 @@ borrowed views enable a bounded source-end fade and cache exactly unchanged
 semitone factors. The adapter detaches borrowed buffers before upstream teardown.
 This leaves ordinary oscillators and owned buffers on their prior paths. No
 libsndfile dependency or external audio assets have been added.
+
+0.0.24 adds optional per-layer taps to the existing synthesizer sample loop.
+Oscillators/FM/filter state are advanced once; original mixed synthesis remains
+the audio path. The worker reduces these taps into cached waveform peaks, before
+shared master filter/drive, with no per-tab re-synthesis.

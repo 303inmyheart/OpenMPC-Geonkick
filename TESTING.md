@@ -1,4 +1,15 @@
-# Current verification —0.0.23
+# Current verification —0.0.24
+
+Per-layer waveform peaks are checked against an independent isolated-layer mixed
+output: each active layer matches exactly, both inactive layers stay silent.
+Reads of all three cached waveform/envelope views start zero synthesis jobs.
+Default folder selection survives complete engine destruction/recreation and
+project restore; the preference path is absent from project state. Existing sample
+imports, codecs, state, RT guards and VST migration remain in the full native
+sanitizer and actual ARM64/QEMU suites. Hardware acceptance is separate.
+See TESTPLAN-0.0.24-DE.md; no formal Store benchmark.
+
+# Previous verification —0.0.23
 
 Native ASan/UBSan/leak and actual ARM64/QEMU suites cover the new sample pipeline.
 WAV PCM8/16/24/32, float32/64, extensible, first-channel handling, five-rate analytic
@@ -516,3 +527,9 @@ Installer/catalog validation:0 warnings; privacy scan passed.
 verified, prior0.0.22 backed up locally, settings unchanged during replacement.
 MPC application restarted active/running. Sample/browser/Sound-tab hardware
 acceptance remains pending. Installer validation:0warnings; privacy scan passed.
+
+0.0.24 was installed with1858 package files verified; the previous plugin was
+backed up, settings were unchanged during replacement, and the MPC application
+returned active/running with the packaged binary. Native sanitizer and actual
+ARM64/QEMU suites and the installer checker pass; fresh on-device waveform and
+default-folder acceptance is pending. No final-release Store benchmark.

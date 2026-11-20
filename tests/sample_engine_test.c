@@ -55,6 +55,14 @@ int main(void) {
  set(a,"sample_pick0","1");ready(a);api->get_param(a,"sample_status",text,sizeof text);assert(strstr(text,"NO WAV"));
  set(a,"sample_up","1");ready(a);set(a,"sample_next","1");ready(a);api->get_param(a,"sample_page",text,sizeof text);assert(!strcmp(text,"2 / 2"));
  set(a,"sample_prev","1");ready(a);api->get_param(a,"sample_page",text,sizeof text);assert(!strcmp(text,"1 / 2"));
+ /* Default folder survives plugin recreation, remains independent of kit
+  * state, and opening it returns there after navigating elsewhere. */
+ void *preferences=api->create(dir);assert(preferences);set(preferences,"sample_directory",nested);ready(preferences);
+ set(preferences,"sample_set_default","1");ready(preferences);api->get_param(preferences,"sample_status",text,sizeof text);assert(strstr(text,"DEFAULT FOLDER SAVED"));
+ state(preferences,again);assert(!strstr(again,dir));api->destroy(preferences);preferences=api->create(dir);assert(preferences);
+ set(preferences,"sample_directory",dir);ready(preferences);set(preferences,"sample_open","1");ready(preferences);api->get_param(preferences,"sample_folder",text,sizeof text);assert(!strcmp(text,"nested"));
+ set(preferences,"state",again);set(preferences,"sample_open","1");ready(preferences);api->get_param(preferences,"sample_folder",text,sizeof text);assert(!strcmp(text,"nested"));api->destroy(preferences);
+ char prefpath[300];snprintf(prefpath,sizeof prefpath,"%s/.sample-folder",dir);assert(!unlink(prefpath));
  for(int i=0;i<10;i++)unlink(files[i]);rmdir(nested);
  /* Fast reset cancels a queued load for this slot; clearing leaves OSC off. */
  sample_in_audio=1;set(a,"sample_import_path",path);set(a,"reset","1");sample_in_audio=0;ready(a);assert(get(a,"o1_sample_on")==0);set(a,"sample_import_path",path);ready(a);sample_in_audio=1;set(a,"sample_clear","1");sample_in_audio=0;ready(a);assert(get(a,"o1_sample_on")==0 && get(a,"o1_on")==0);
@@ -64,8 +72,19 @@ int main(void) {
  assert(get(a,"sound_l1_focus")==1 && get(a,"sound_l2_focus")==4 && get(a,"sound_l3_focus")==8);
  assert(get(a,"sound_l1_context")==2 && get(a,"sound_l2_context")==8 && get(a,"sound_l3_context")==16);
  assert(get(a,"viz_l1_e_431")==0 && get(a,"viz_l2_e_0")<.02f && get(a,"viz_l3_e_431")>.7f);
+ /* Independent per-layer waveform peaks must follow the actual audible
+  * layer. The isolated layer exactly matches the mixed waveform, while the
+  * other two stay silent; shared master effects are disabled in Init. */
+ set(b,"reset","1");number(b,"length",.1f);number(b,"o4_on",1);number(b,"o7_on",1);number(b,"o4_freq",83);number(b,"o7_freq",150);
+ for(int active=1;active<=3;active++){
+   for(int l=1;l<=3;l++){snprintf(key,sizeof key,"layer%d",l);number(b,key,l==active?1:0);}ready(b);
+   int nonzero=0;for(int col=0;col<432;col++)for(int ch=0;ch<2;ch++){
+     snprintf(key,sizeof key,"viz_%c_%d",ch?'n':'p',col);float mix=get(b,key);
+     for(int l=1;l<=3;l++){snprintf(key,sizeof key,"viz_l%d_%c_%d",l,ch?'n':'p',col);float tap=get(b,key);assert(fabsf(tap-(l==active?mix:0))<1e-6f);if(l==active&&tap>0)nonzero++;}
+   }assert(nonzero>100);
+ }
  unsigned jobs=get(a,"synthesis_count");int target=get(a,"plot_osc");
- for(int l=1;l<=3;l++)for(int c=0;c<432;c++){snprintf(key,sizeof key,"viz_l%d_e_%d",l,c);assert(get(a,key)>=0 && get(a,key)<=1);}
+ for(int l=1;l<=3;l++)for(int c=0;c<432;c++)for(int ch=0;ch<3;ch++){snprintf(key,sizeof key,"viz_l%d_%c_%d",l,"epn"[ch],c);assert(get(a,key)>=0 && get(a,key)<=1);}
  assert(get(a,"plot_osc")==target && get(a,"synthesis_count")==jobs);
  state(a,saved);assert(strstr(saved," VIEW1 "));set(b,"state",saved);state(b,again);assert(!strcmp(saved,again));assert(get(b,"sound_l1_focus")==1 && get(b,"sound_l2_focus")==4);
  number(a,"o3_sample_on",1);assert(get(a,"sound_l1_focus")==2 && get(a,"plot_osc")==2);number(a,"o3_sample_on",0);

@@ -396,3 +396,14 @@ absolute source paths.10MiB PCM budget +16MiB wrapper chunk capacity. No sample
 content/dependency is included in the installer. Newest wrapper patch enables
 DYNAMIC_PARAM_UNITS only here; fine/direct frequency handles report semitones
 when they control a sample and otherwise retain their old Hz metadata.
+
+0.0.24 sets MODULE_SUBDIR to "." so the existing wrapper resolves the plugin
+directory dynamically. The worker saves the chosen sample default folder via
+private temporary file + atomic rename to `.sample-folder` there. The installer
+manifest declares that file as user_data so upgrades retain it. It is generated
+only by the user action and never bundled or copied into project/preset state.
+Layer waveform peaks are cached during existing synthesis and copied for view-only
+refreshes, not recalculated by reading a tab.
+
+Run native and ARM64 builds sequentially: preparation regenerates shared
+parameter headers, so concurrent compiler invocations are not independent.

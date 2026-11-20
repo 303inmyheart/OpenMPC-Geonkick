@@ -21,7 +21,7 @@
 #include "sample_types.h"
 typedef struct {
     atomic_int refs; int size; float *data; unsigned revision,view_revision;
-    unsigned char plot[3][PLOT_COLUMNS],layer_plot[3][PLOT_COLUMNS];
+    unsigned char plot[3][PLOT_COLUMNS],layer_plot[3][PLOT_COLUMNS],layer_wave[3][2][PLOT_COLUMNS];
 } Cache;
 typedef struct { int slot,note,channel,pad,gate; double pos,step; float gain; unsigned age; } Voice;
 typedef struct {
@@ -211,12 +211,17 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
     /* Mirrors the upstream gkick_synth_process sample loop, including limiting.
      * A short boundary fade prevents truncation clicks at the fixed sound end. */
     float dt=s->length/c->size;
+    float peaks[3][2][PLOT_COLUMNS]={0};
     for(int i=0;i<c->size;i++) {
-        float x=gkick_synth_get_value(s,i*dt);
+        float layers[3];float x=gkick_synth_get_value_layers(s,i*dt,layers);
         x=isfinite(x)?clampf(x,-1,1):0;
         float fade=fminf(1,i/32.f)*edge_gain((c->size-1-i)/(float)(EDGE_SAMPLES-1));
         c->data[i]=x*fade;
+        int col=((long long)(i+1)*PLOT_COLUMNS-1)/c->size;
+        for(int l=0;l<3;l++){float y=isfinite(layers[l])?layers[l]*fade:0;peaks[l][0][col]=fmaxf(peaks[l][0][col],y);peaks[l][1][col]=fmaxf(peaks[l][1][col],-y);}
     }
+    for(int l=0;l<3;l++)for(int k=0;k<2;k++)for(int c0=0;c0<PLOT_COLUMNS;c0++)
+        c->layer_wave[l][k][c0]=(unsigned char)roundf(clampf(peaks[l][k][c0],0,1)*(PLOT_WAVE_LEVELS-1));
 }
 static void make_plot(Engine *e,Cache *c,const float *p) {
     struct gkick_synth *s=e->synth;
@@ -286,7 +291,7 @@ static void *worker(void *arg) {
         if(slot>=0) {
             Cache *c=&e->slots[slot];
             if(rev!=done[pad]) {next_synthesis=worker_clock_ns()+33000000u;synthesize(e,c,p,rev);}
-            else {configure(e,p);c->size=e->slots[held[pad]].size;c->revision=rev;memcpy(c->data,e->slots[held[pad]].data,c->size*sizeof(float));}
+            else {configure(e,p);c->size=e->slots[held[pad]].size;c->revision=rev;memcpy(c->data,e->slots[held[pad]].data,c->size*sizeof(float));memcpy(c->layer_wave,e->slots[held[pad]].layer_wave,sizeof c->layer_wave);}
             make_plot(e,c,p);c->view_revision=view;
             atomic_store(&c->refs,2); /* worker + ready/current, per pad */
             drop(e,atomic_exchange(&e->ready[pad],slot));drop(e,held[pad]);
@@ -322,9 +327,8 @@ static void preset(Engine *e,int which) {
 #include "kit_controls.h"
 
 static void *create(const char *dir) {
-    (void)dir;
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
-    sample_init(e);
+    sample_init(e,dir);
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
     for(int pad=0;pad<PADS;pad++) {
@@ -506,6 +510,8 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         if(!strcmp(field,"context")){char k[32];snprintf(k,sizeof k,"o%d_wave",o+1);return snprintf(buf,len,"%d",2*o+(at(e,k)>=4 && !atomic_load(&e->samples.source[atomic_load(&e->selected)][o])));}
     }
     if(sscanf(key,"viz_l%d_e_%d%c",&layer,&column,&extra)==2 && layer>=1&&layer<=3 && column>=0&&column<PLOT_COLUMNS)return snprintf(buf,len,"%.9g",e->slots[e->current].layer_plot[layer-1][column]/(float)(PLOT_ENV_LEVELS-1));
+    char wave_channel;
+    if(sscanf(key,"viz_l%d_%c_%d%c",&layer,&wave_channel,&column,&extra)==3 && layer>=1&&layer<=3 && (wave_channel=='p'||wave_channel=='n') && column>=0&&column<PLOT_COLUMNS)return snprintf(buf,len,"%.9g",e->slots[e->current].layer_wave[layer-1][wave_channel=='n'][column]/(float)(PLOT_WAVE_LEVELS-1));
     if(!strncmp(key,"viz_",4)) {
         char channel,trailing;int column;
         if(sscanf(key,"viz_%c_%d%c",&channel,&column,&trailing)!=2 || column<0 || column>=PLOT_COLUMNS)return 0;

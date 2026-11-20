@@ -483,4 +483,8 @@ geonkick_synth_get_osc_sample(struct gkick_synth *synth,
 
 
 
+
+/* MPC worker visualization taps, before shared master effects. */
+gkick_real gkick_synth_get_value_layers(struct gkick_synth *synth, gkick_real t, gkick_real layers[3]);
+
 #endif // SYNTHESIZER_H

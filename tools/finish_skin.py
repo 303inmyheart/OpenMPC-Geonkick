@@ -125,7 +125,7 @@ for tab in page['tabs']:
     children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'plot_grid.png'},shadow_skin._bounds(70,122,920,220),'Plot background'))
     for column in range(PLOT_COLUMNS):
         for channel,height,y in [('p',96,145),('n',96,241),('e',192,145)]:
-            child=shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_l{tab["fnKeySubIndex"]+1}_e_{column}'] if channel=='e' and tab['fnKeySubIndex']<3 else ids[f'viz_{channel}_{column}'],100+column*PLOT_WIDTH,y+86,PLOT_WIDTH,height,focus='No')
+            child=shadow_skin._placed('gkPlot_'+channel,'Graph',ids[f'viz_l{tab["fnKeySubIndex"]+1}_{channel}_{column}'] if tab['fnKeySubIndex']<3 else ids[f'viz_{channel}_{column}'],100+column*PLOT_WIDTH,y+86,PLOT_WIDTH,height,focus='No')
             child['bounds']['additionalInvalidatingHandles'].append('Parameter '+str(ids['graph_revision']))
             children.append(child)
 # Keep each caption INSIDE its native control so conditional visibility remains

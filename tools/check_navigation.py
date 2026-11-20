@@ -100,6 +100,9 @@ for layer in range(1,4):
  assert len(curves)==432
  mapped={m['value'] for c in curves for m in c['handle remapping']['map'] if m['key']=='Data'}
  assert mapped=={f'Parameter {ids[f"viz_l{layer}_e_{col}"]}' for col in range(432)}
+ for channel in ('p','n'):
+  wave={m['value'] for c in children if c['componentData']['type']=='gkPlot_'+channel for m in c.get('handle remapping',{}).get('map',[]) if m['key']=='Data'}
+  assert wave=={f'Parameter {ids[f"viz_l{layer}_{channel}_{col}"]}' for col in range(432)}
  assert any(any(m['key']=='Data' and m['value']==f'Parameter {ids[f"sound_l{layer}_focus"]}' for m in c.get('handle remapping',{}).get('map',[])) for c in children)
 page_samples=defs['SAMPLES|SAMPLES']['componentsData']
 for row in range(8):

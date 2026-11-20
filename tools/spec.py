@@ -211,6 +211,12 @@ for layer in range(1,4):
     for column in range(PLOT_COLUMNS):
         p(f'viz_l{layer}_e_{column}',f'Layer{layer} Curve{column}',0,1,0,live=True,legacy=True)
 
+# Append-only metadata: preserve every 0.0.23 parameter identity.
+for layer in range(1,4):
+    for channel in ("p","n"):
+        for column in range(PLOT_COLUMNS):
+            p(f"viz_l{layer}_{channel}_{column}",f"Layer{layer} Wave{channel}{column}",0,1,0,live=True,legacy=True)
+opt("sample_set_default","Set Default Folder",["Off","Go"],momentary=True,debounce_ms=180)
 
 
 def generate():
@@ -382,9 +388,10 @@ qlink_bounds=column
               'qlinks "KIT" = -,-,-,-,-,-,-,-,-,-,-,-,kit_base,kit_output,-,-']
     lines += ['\n[tab SAMPLES]',
               'frame x=24 y=104 w=1230 h=590 title="GEONKICK / SAMPLE LIBRARY"',
-              'button cx=200 cy=200 w=240 h=36 label="OPEN STORAGE" key=sample_open',
-              'button cx=460 cy=200 w=220 h=36 label="DRIVES" key=sample_root',
-              'button cx=690 cy=200 w=180 h=36 label="UP" key=sample_up',
+              'button cx=185 cy=200 w=210 h=36 label="OPEN DEFAULT" key=sample_open',
+              'button cx=390 cy=200 w=180 h=36 label="SET DEFAULT" key=sample_set_default',
+              'button cx=580 cy=200 w=180 h=36 label="DRIVES" key=sample_root',
+              'button cx=740 cy=200 w=100 h=36 label="UP" key=sample_up',
               'readout cx=410 cy=250 w=660 h=30 tsize=20 key=sample_folder',
               'enum_h cx=1040 cy=210 sw=104 sh=32 rows=3 label="PAD OSCILLATOR" key=plot_osc',
               'enum_h cx=1040 cy=340 sw=115 sh=32 label="SOURCE" key=sample_source',

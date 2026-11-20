@@ -22,6 +22,11 @@ for source,name in [(build.MPC/'tools/host_test.c','host_test'),(build.ROOT/'tes
             # Allow the same checks to await our actual asynchronous UI path.
             source_text=source.read_text().replace('for (int k = 0; k < blocks; k++) a->pr(a, ip, o, 128);',
                 'for (int k = 0; k < blocks; k++) a->pr(a, ip, o, 128); usleep(30000);')
+            # A synchronous upstream assertion cannot assume a10ms reporter
+            # thread has run after only30ms, particularly under QEMU load.
+            # Await the actual MIDI feedback with a bounded1s deadline.
+            source_text=source_text.replace('        CHECK(automated[q] > 0,',
+                '        for(int wait=0;wait<100 && !automated[q];wait++)usleep(10000);\n        CHECK(automated[q] > 0,')
             source=dest/'host_test_async.c';source.write_text(source_text)
         obj=dest/(name+'.o')
         build.run([cc,*f,'-Dmain=plugin_test_main','-c',source,'-o',obj])

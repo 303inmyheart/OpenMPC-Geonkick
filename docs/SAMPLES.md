@@ -1,10 +1,13 @@
-# Samples — Geonkick MPC0.0.23
+# Samples — Geonkick MPC0.0.24
 
 1. Select the sound on MASTER → KIT. Open MASTER → SAMPLES and choose the target
    oscillator (L1/1–L3/3). Each of the16 pads can retain samples on all9 oscillators.
-2. Press OPEN STORAGE (starts at internal storage). DRIVES opens the filesystem
+2. Press OPEN DEFAULT (initially internal storage). DRIVES opens the filesystem
    root for other mounted storage. Tap folders to enter them; UP returns. The
-   list shows folders and.wav files,8 at a time, with PREVIOUS/NEXT page buttons.
+   Press SET DEFAULT to remember the currently open folder across plugin/app
+   restarts. This preference stays in the plugin folder, outside projects and
+   presets; it does not change MPC global settings.
+   The list shows folders and.wav files,8 at a time, with PREVIOUS/NEXT page buttons.
 3. Tap a WAV to select it, then LOAD / REPLACE OSC. Loading happens in the worker.
    A failed/unsupported file leaves the existing asset unchanged. The target is
    the pad/oscillator selected when Load was pressed. Resetting/replacing that
@@ -20,7 +23,7 @@
    CLEAR SAMPLE frees that asset and turns the chosen oscillator off.
 6. Save the MPC project or native plugin preset: audio is embedded. The source
    WAV can subsequently be removed. Folder paths and browser navigation are not
-   stored. Saving/loading entire large sample presets is a host state operation,
+   stored in presets/projects. Saving/loading entire large sample presets is a host state operation,
    intended with transport stopped; interactive file import is worker-driven.
 
 Supported: little-endian RIFF/WAVE PCM8/16/24/32, IEEE float32/64 and extensible
@@ -39,7 +42,10 @@ per pad and learned note map remain unchanged. Optional VIEW1 remembers the thre
 layer targets; SMP1 contains unique pad/oscillator assets, source mode, count,
 filename and float PCM. These extensions require0.0.23 or newer.
 
-SOUND tabs each show the remembered oscillator/envelope for their own layer.
+SOUND tabs each show their own layer waveform and its remembered oscillator/envelope.
+Layer waveforms are tapped during the existing synthesis pass, after oscillator
+FX and layer gain, before the shared master filter/drive. MIX and ENVELOPE keep
+the combined final waveform; muted layers correctly show silence.
 Their quick sliders follow the same target. Editing an oscillator selects it
 for that layer; switching tabs itself only displays the already cached view.
 No new synthesis or per-column host callback is required on tab switching.

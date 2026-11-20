@@ -18,10 +18,14 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
    shared worker/caches and complete kit/project persistence. User confirmed the
    learned hardware mapping in0.0.22 works. Stereo output;16 shared voices.
 5. **Samples, presets and soundbanks** —0.0.23 implements WAV loading per pad / oscillator;
-   new hardware acceptance is pending. Next:
+   WAV import confirmed working on Live III. 0.0.24 separates the green SOUND
+   waveforms by layer and adds a persistent default sample folder; these changes
+   need fresh device acceptance. Next:
    then original.gkick sounds and complete.gkit banks using the pad architecture.
    User requirement: integrate presets/banks with the native MPC preset system
    and Sounds browser; saving/loading should follow the MPC workflow.
+   Remove MASTER/PRESETS when native Init/factory sounds replace that page;
+   keep old parameter/program identities for existing projects.
    Later: audio export, mute/solo/choke groups, copying and other kit management.
    Verify host routing before promising multi-outs or dedicated pad automation.
 6. **Public release** — small on-screen KIT/pad-learning tutorial, final hardware regression, exact release-binary Store
@@ -338,3 +342,15 @@ learning tutorial, remaining quality review and exact final-binary benchmark.
 verified, prior0.0.22 backed up locally, settings unchanged during replacement.
 MPC application restarted active/running. Sample/browser/Sound-tab hardware
 acceptance remains pending. Installer validation:0warnings; privacy scan passed.
+
+0.0.24: SOUND layer waveforms now separated as well as envelopes (the0.0.23
+waveform still showed the full mix). Worker-only peak taps, cached on tab changes.
+Persistent default audio folder via SET DEFAULT / OPEN DEFAULT; plugin-local
+preference, excluded from project/preset state. Native MPC presets/banks remain
+next; short KIT learning tutorial before release.
+
+0.0.24 was installed with1858 package files verified; the previous plugin was
+backed up, settings were unchanged during replacement, and the MPC application
+returned active/running with the packaged binary. Native sanitizer and actual
+ARM64/QEMU suites and the installer checker pass; fresh on-device waveform and
+default-folder acceptance is pending. No final-release Store benchmark.

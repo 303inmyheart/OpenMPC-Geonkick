@@ -1419,9 +1419,10 @@ gkick_synth_process(struct gkick_synth *synth)
 }
 
 gkick_real
-gkick_synth_get_value(struct gkick_synth *synth,
-                      gkick_real t)
+gkick_synth_get_value_layers(struct gkick_synth *synth,
+                             gkick_real t, gkick_real layers[3])
 {
+        if (layers) for (int l = 0; l < 3; l++) layers[l] = 0;
         gkick_real val = 0.0f;
         gkick_real env_x = 0.0f;
         gkick_real fm_val = 0.0f;
@@ -1438,16 +1439,19 @@ gkick_synth_get_value(struct gkick_synth *synth,
                         } else {
                                 gkick_real group_ampl
                                         = synth->osc_groups_amplitude[i / GKICK_OSC_GROUP_SIZE];
-                                val += group_ampl * gkick_osc_value(synth->oscillators[i],
-                                                                    t,
-                                                                    synth->length);
+                                gkick_real part = group_ampl * gkick_osc_value(synth->oscillators[i],
+                                                                            t, synth->length);
+                                val += part;
+                                if (layers) layers[i / GKICK_OSC_GROUP_SIZE] += part;
                         }
                         gkick_osc_increment_phase(synth->oscillators[i], t, synth->length);
                 }
         }
 
         env_x = t / synth->length;
-        val *= synth->amplitude * gkick_envelope_get_value(synth->envelope, env_x);
+        gkick_real gain = synth->amplitude * gkick_envelope_get_value(synth->envelope, env_x);
+        val *= gain;
+        if (layers) for (int l = 0; l < 3; l++) layers[l] *= gain;
         if (synth->filter_enabled)
                 gkick_filter_val(synth->filter, val, &val, env_x);
 
@@ -1457,6 +1461,12 @@ gkick_synth_get_value(struct gkick_synth *synth,
                 gkick_distortion_val(synth->distortion, val, &val, env_x);
 
         return val;
+}
+
+gkick_real
+gkick_synth_get_value(struct gkick_synth *synth, gkick_real t)
+{
+        return gkick_synth_get_value_layers(synth, t, NULL);
 }
 
 void
