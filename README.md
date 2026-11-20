@@ -12,12 +12,13 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.22 includes sixteen independent pad sounds within one instrument instance.
-It remains a development port; sample/preset-bank import is the following phase.
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.23 includes sixteen independent pad sounds and WAV sample import per
+oscillator. Original preset/soundbank conversion is the following phase and will
+use native MPC presets and the Sounds browser.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
 ENVELOPE and MASTER. Each layer alternates OSC1/FX1, OSC2/FX2, OSC3/FX3. MASTER
-contains KIT, MIX, global FX and PRESETS; the point editor has its own key. Q-Links
+contains KIT, SAMPLES, MIX, global FX and PRESETS; the point editor has its own key. Q-Links
 control rotary knobs only; switches, selectors, sliders and point editing remain
 touch-only. The historical MIDI CC table and all parameter/state IDs are retained.
 Native/ARM64 and isolated Live III signal-boundary tests pass; actual on-device
@@ -94,7 +95,7 @@ Implemented:
   playback/tuning controls. The 0.0.15 Percussion Lab palette uses graphite, lime and amber.
 - GKMP9 project/preset state stores all16 sounds (1551 physical values each),
   selection and routing/output settings. Default pad rows are compacted; the
-  VST chunk capacity is1MiB. Complete kits larger than64KiB are tested through
+  VST chunk capacity is16MiB, with embedded PCM samples and saved layer focus. Complete kits larger than64KiB are tested through
   actual VST close/reopen. GKMP1–7 migrate to pad1 in Single mode; GKMP8 retains its full kit and chromatic routing. All previous
   3040 control identities/ranges remain; seven0.0.20 Humanizer slots are inert,
   hidden compatibility reservations and cannot be automated.
@@ -150,8 +151,9 @@ rendered into the sound. Layer 1 is audible by default; layers 2 and 3 start at
 zero gain. On the PRESETS page, INIT SELECTED PAD restores Init even if Init is already
 the selected preset; selecting the same preset value alone does not reload it.
 
-Current limits: stereo output; no sample import, original preset/soundbank
-interchange, choke groups, mute/solo or per-pad audio outputs yet. Shared
+Current limits: stereo output; WAV import (first channel, first4seconds,
+10MiB of decoded PCM per instance). Original preset/soundbank interchange,
+choke groups, mute/solo and per-pad audio outputs remain pending. Shared
 editing/automation parameters address the selected pad; dedicated per-pad
 host automation is not exposed. In 16 Pads mode each assigned note triggers
 its sound without chromatic transposition; Key Track remains for Single mode. Amp/Pitch support2–16
@@ -221,7 +223,36 @@ Store CPU benchmark has been performed for this development binary.
 
 
 
-## Current development build —0.0.22
+## Current development build —0.0.23
+
+MASTER → SAMPLES opens a native read-only folder/file browser. Select a pad on
+KIT and an oscillator on SAMPLES, press OPEN STORAGE, enter folders and select a
+WAV, then LOAD / REPLACE OSC. The selected oscillator becomes a Sample source;
+its pitch starts at the file’s original speed and its Amp curve is initialized
+flat. Other oscillators/effects are retained. Layer gain is retained: enable a
+silent layer yourself when loading into Layer2/3. New samples extend sound length
+if necessary, up to4seconds. CLEAR disables that oscillator and removes its asset.
+
+WAV PCM8/16/24/32 and float32/64, including WAVE extensible, are supported.
+Sources are resampled to44.1kHz with the original-style linear conversion; the
+first channel is used for multi-channel files. Float data outside full scale is
+clipped; non-finite data is rejected. A short one-shot end fade avoids abrupt
+nonzero sample endings. Existing five-cent Q-Link/direct Touch pitch controls are
+retained; Sample mode displays semitone offset instead of oscillator Hz.
+
+Every SOUND layer page now has its own remembered oscillator, curve and matching
+quick sliders. Changing SOUND tabs displays that layer’s envelope immediately,
+without triggering synthesis. AMP/PITCH choice stays shared; ENVELOPE and MIX
+retain their separate explicit target selector. A single shared graph revision
+still controls quiet-time refresh; no per-column host notification burst is added.
+
+Samples are embedded in the native MPC project/plugin state, with no dependency
+on the original file after saving. GKMP9 keeps the existing1551-value pad rows and
+adds optional VIEW1/SMP1 extensions. Older versions cannot load those extensions.
+No third-party sample audio is bundled. See [sample guide](docs/SAMPLES.md) and
+[test plan](TESTPLAN-0.0.23-DE.md).
+
+![Native sample page — offline preview, not an MPC screenshot](docs/screenshots/samples.png)
 
 MASTER → KIT now learns the actual hardware pad-note map rather than assuming
 that sixteen physical pads always send sixteen consecutive notes. Select
@@ -243,7 +274,7 @@ this port does not enable or execute it for MIDI hits.
 
 ![Kit foundation — offline native-skin preview, not an MPC screenshot](docs/screenshots/kit.png)
 
-See [pad guide](docs/PADS.md), [test plan](TESTPLAN-0.0.22-DE.md) and
+See [pad guide](docs/PADS.md), [test plan](TESTPLAN-0.0.23-DE.md) and
 [roadmap](ROADMAP.md). Native sanitizers and actual ARM64/QEMU regressions pass;
 Live III acceptance for this new build is pending. No final Store benchmark or
 public Geonkick release is claimed.
@@ -260,3 +291,8 @@ that assumption with learned note maps; new Live III learn acceptance is pending
 previous0.0.21 backed up locally, settings unchanged during replacement. MPC
 application restarted active/running. Actual hardware-learn acceptance pending.
 Installer/catalog validation:0 warnings; privacy scan passed.
+
+0.0.23 deployed on Live III:1856 plugin files and stripped binary checksum
+verified, prior0.0.22 backed up locally, settings unchanged during replacement.
+MPC application restarted active/running. Sample/browser/Sound-tab hardware
+acceptance remains pending. Installer validation:0warnings; privacy scan passed.

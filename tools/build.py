@@ -39,6 +39,7 @@ def prepare():
     if 'IDLE_ACTION_RELEASE' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-idle-action-release.patch.')
     if 'FILTER_CONTROL_FEEDBACK' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-filter-control-feedback.patch.')
     if 'CONTROL_CONTEXT_REV' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-control-context.patch.')
+    if 'DYNAMIC_PARAM_UNITS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-sample-dynamic-units.patch last.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()

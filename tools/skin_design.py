@@ -94,6 +94,9 @@ def panel_background(layout,bank,children,defs,skin):
         text(d,(955,475),'16 INDEPENDENT SOUNDS / STEREO OUT',12,MUTED)
         text(d,(955,535),'PRESS HARDWARE PADS 01-16 IN ORDER',11,MUTED)
         text(d,(365,495),'Selection edits a sound. PLAY auditions it.',12,MUTED)
+    elif name=='SAMPLES':
+        card((60,72,810,606));card((830,72,1240,606))
+        text(d,(1040,540),'WAV / MONO CH1 / FIRST 4 SECONDS',11,MUTED)
     elif name=='PRESETS':
         card(PRESET_FRAME);text(d,(640,515),'EIGHT STARTING POINTS  /  SHAPE YOUR OWN SOUND',13,MUTED)
     # Group headings are static; actual conditional names remain inside native

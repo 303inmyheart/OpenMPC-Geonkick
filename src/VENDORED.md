@@ -4,7 +4,7 @@ Copied from https://github.com/quamplex/geonkick at
 `462fed9bd8c48579a8819e7b360f8a2999b246fc` (Geonkick 3.9.0),
 directory `src/dsp/src`, including its Quamplex DSP Tools headers.
 Copyright Iurie Nistor and contributors; GPL-3.0-or-later. See LICENSE
-and original per-file notices. The original C files are initially unmodified.
+and original per-file notices. Port changes are documented below; the original per-file license notices remain.
 
 The MPC adapter uses the oscillator, envelope, filter, distortion and synthesizer
 code directly. It replaces desktop hosting, the global worker and playback with
@@ -14,3 +14,11 @@ Pink noise is not offered: upstream's implementation currently returns zero.
 
 Local adapters, build scripts and UI are separate from the vendored files.
 The OpenMPC wrapper remains an external MIT-licensed build dependency.
+
+
+Sample integration adds non-owning worker-only views of the original sample
+buffer. Buffers now initialize port-only fade/pitch-cache fields to disabled;
+borrowed views enable a bounded source-end fade and cache exactly unchanged
+semitone factors. The adapter detaches borrowed buffers before upstream teardown.
+This leaves ordinary oscillators and owned buffers on their prior paths. No
+libsndfile dependency or external audio assets have been added.

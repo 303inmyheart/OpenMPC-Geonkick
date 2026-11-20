@@ -13,7 +13,7 @@ static float filter_coordinate(Engine *e,const char *prefix,int resonance){
  return logf(filter_at(e,prefix,wide?"cutoff_wide":"cutoff")/20.f)/logf(1000);
 }
 static int filter_virtual_get(Engine *e,const char *key,char *buf,int len){
- char prefix[8],copy[64];const char *suffix;int display=0;size_t n=strlen(key);
+ char prefix[32],copy[64];const char *suffix;int display=0;size_t n=strlen(key);
  if(n>=8 && !strcmp(key+n-8,"_display")){if(n-8>=sizeof copy)return 0;memcpy(copy,key,n-8);copy[n-8]=0;key=copy;display=1;}
  if(!filter_decode(key,prefix,&suffix))return 0;
  int resonance=!strncmp(suffix,"res_",4),fine=strstr(suffix,"_fine")!=NULL;
@@ -28,7 +28,7 @@ static int filter_virtual_get(Engine *e,const char *key,char *buf,int len){
  return snprintf(buf,len,"%.9g",result);
 }
 static int filter_virtual_set(Engine *e,const char *key,const char *text){
- char prefix[8];const char *suffix;if(!filter_decode(key,prefix,&suffix))return 0;
+ char prefix[32];const char *suffix;if(!filter_decode(key,prefix,&suffix))return 0;
  char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return 1;
  int resonance=!strncmp(suffix,"res_",4),fine=strstr(suffix,"_fine")!=NULL,wide=filter_at(e,prefix,"filter_model")>0;
  float current=filter_coordinate(e,prefix,resonance),scale=resonance?1000:log2f(1000)*240;
@@ -41,7 +41,7 @@ static int filter_virtual_set(Engine *e,const char *key,const char *text){
 }
 static void filter_migrate(float *p){
  for(int j=0;j<10;j++){
-  char prefix[8]="",key[48];if(j)snprintf(prefix,sizeof prefix,"o%d_",j);
+  char prefix[32]="",key[48];if(j)snprintf(prefix,sizeof prefix,"o%d_",j);
   filter_key(key,prefix,"filter_model");p[index_of(key)]=0;
   filter_key(key,prefix,"cutoff_wide");p[index_of(key)]=filter_value(p,prefix,"cutoff");
   filter_key(key,prefix,"q_wide");p[index_of(key)]=clampf(filter_value(p,prefix,"q")/10,.5f,20);
@@ -56,7 +56,7 @@ static void filter_configure(struct gkick_filter *f,const float *p,const char *p
 /* Old automation keeps its original range. In WIDE it also updates the same
  * frequency / bounded equivalent Q; old projects themselves stay CLASSIC. */
 static void filter_legacy_changed(Engine *e,const char *key,float v){
- char prefix[8]="",target[48];const char *suffix=key;
+ char prefix[32]="",target[48];const char *suffix=key;
  if(key[0]=='o' && key[1]>='1'&&key[1]<='9'&&key[2]=='_'){memcpy(prefix,key,3);prefix[3]=0;suffix=key+3;}
  if(strcmp(suffix,"cutoff") && strcmp(suffix,"q"))return;
  if(filter_at(e,prefix,"filter_model")<=0)return;

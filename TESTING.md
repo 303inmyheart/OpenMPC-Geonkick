@@ -1,25 +1,23 @@
-# Current verification —0.0.22
+# Current verification —0.0.23
 
-Native ASan/UBSan/leaks and actual ARM64 shared-library/QEMU suites pass.
-Sixteen independent physical states/curves, all assigned MIDI notes, outside-note
-silence, mixed-signal two-instance oracle, per-pad Cut/Gate, raw fine-input context
-handover, saved kit >64KiB through actual VST close/reopen, atomic malformed-state
-rejection, legacy GKMP7 migration and retired-Humanizer inertness are covered.
-Previous touch, filter, points, short-hit/Cut boundaries and blocked-UI audio tests
-remain passing. The control-context kit test serializes104262bytes; the fully populated
-16×18×16-point fixture serializes238537bytes. The VST supports1MiB. Only final-release binaries receive a formal Store benchmark.
+Native ASan/UBSan/leak and actual ARM64/QEMU suites cover the new sample pipeline.
+WAV PCM8/16/24/32, float32/64, extensible, first-channel handling, five-rate analytic
+resampling,4s cap and exact float/base64 round trips. Independent sample playback
+reference max error~3e-8; original held notes remain bit-identical during imports.
 
-Live III acceptance of this new build is pending. The user accepted the previous
-0.0.19 filters and asked to remove0.0.20 Humanizer. See TESTPLAN-0.0.22-DE.md.
+Per-pad/oscillator assets survive source-file removal and full project restore.
+Malformed, failed, duplicate/stale and over-budget imports do not replace a valid
+sound. Real VST3.77MB embedded-state close/reopen, source toggles, dynamic pitch
+units and audible MIDI are exercised;15 four-second sources exceed the10MiB
+budget and reject atomically. Link-wrapped malloc/calloc/realloc/free/fopen/opendir
+assert they are not called from the render/MIDI/action audio test context.
+Native file rows, folders and paging are covered. Separate SOUND-layer curve
+columns match their remembered targets; reading/changing a view does not synthesize.
+Legacy filters, Q-Link/Touch, point editing, routing, Cut/short tails, blocked-UI
+feedback and scalar/project migration remain in the suite. No formal Store benchmark.
 
-New pad-map suite reproduces the reported physical pad8 note36 -> sound1 issue
-and unreachable sound2 with a constructed nonchromatic16-note fixture. This
-fixture is not a captured Live III MIDI trace; actual hardware notes were not logged. Learned routing then
-matches all16 independent single-sound audio captures. Actual VST MIDI delivery,
-preview/zero/repeat isolation, cancel/partial persistence, duplicate rejection,
-first-step status invalidation, complete GKMP9 map close/reopen and GKMP8 exact
-routing migration pass natively and onARM64/QEMU. No new synthesis is requested
-by learning. Live III learned-map acceptance is pending.
+Hardware sample/browser/curve acceptance for this new build is pending. The user
+accepted the preceding0.0.22 learned pad mapping. See TESTPLAN-0.0.23-DE.md.
 
 Historical notes follow; their older pending items are superseded by the newer
 roadmap and build-specific test plans.
@@ -513,3 +511,8 @@ restarted active/running. New pad/kit hearing and Touch acceptance is pending.
 previous0.0.21 backed up locally, settings unchanged during replacement. MPC
 application restarted active/running. Actual hardware-learn acceptance pending.
 Installer/catalog validation:0 warnings; privacy scan passed.
+
+0.0.23 deployed on Live III:1856 plugin files and stripped binary checksum
+verified, prior0.0.22 backed up locally, settings unchanged during replacement.
+MPC application restarted active/running. Sample/browser/Sound-tab hardware
+acceptance remains pending. Installer validation:0warnings; privacy scan passed.

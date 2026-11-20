@@ -1,0 +1,16 @@
+diff --git a/wrapper/vst2_wrap.c b/wrapper/vst2_wrap.c
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -1136,6 +1136,12 @@
+         if (idx >= 0 && idx < NPARAMS) param_name_text(w, idx, p, 32);
+         return 1;
+     case effGetParamLabel:
++#if defined(DYNAMIC_PARAM_UNITS) && DYNAMIC_PARAM_UNITS
++        if(idx>=0 && idx<NPARAMS) {
++            char key[96],unit[16];snprintf(key,sizeof key,"%s_unit",PARAMS[idx].key);
++            if(eng_get(w,key,unit,sizeof unit)>0){copy_str(p,unit,8);return 1;}
++        }
++#endif
+         if (idx >= 0 && idx < NPARAMS) copy_str(p, PARAMS[idx].unit, 8);
+         return 1;
+     case effGetParamDisplay:

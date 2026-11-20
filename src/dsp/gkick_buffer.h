@@ -28,6 +28,8 @@
 
 struct gkick_buffer {
         gkick_real *buff;
+        unsigned edge_fade; /* MPC borrowed one-shot samples only; default0 */
+        float cached_pitch,cached_factor;
 
         /**
          * Real allocated fixed size, alwayse bigger than current size.

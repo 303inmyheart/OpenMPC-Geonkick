@@ -318,8 +318,19 @@ gkick_real
 gkick_osc_func_sample(struct gkick_buffer *sample,
                       float semitones)
 {
-        float factor = exp2f(semitones / 12.0f);
-        return gkick_buffer_stretch_get_next(sample, factor);
+        float factor;
+        if(sample->edge_fade && sample->cached_pitch==semitones)factor=sample->cached_factor;
+        else{factor=exp2f(semitones/12.f);if(sample->edge_fade){sample->cached_pitch=semitones;sample->cached_factor=factor;}}
+        float position=sample->floatIndex;
+        float v=gkick_buffer_stretch_get_next(sample, factor);
+        if(sample->edge_fade) {
+                /* Smooth the source end even when the cached sound continues
+                 * beyond it. Fade at most5ms / one quarter of playback length. */
+                float tail=fminf(221.f,fmaxf(2.f,sample->size/factor*.25f));
+                float t=fminf(1.f,fmaxf(0.f,((float)sample->size-1-position)/factor/(tail-1)));
+                v*=t*t*(3-2*t);
+        }
+        return v;
 }
 
 void

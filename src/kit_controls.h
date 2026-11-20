@@ -136,8 +136,8 @@ static void kit_load(Engine *e,const char *text) {
             for(int i=0;i<pad;i++)if(notes[i]==notes[pad])goto finish;
         }
     }
-    if(*kit_spaces(s))goto finish;
     memcpy(rows[(int)selected],first,sizeof first);
+    SampleRestore *samples=sample_restore_read(s,(const float (*)[GP_COUNT])rows);if(!samples)goto finish;
     atomic_fetch_add(&e->revision,1);stop_all(e);
     for(int pad=0;pad<PADS;pad++) {
         int changed=0;
@@ -150,6 +150,7 @@ static void kit_load(Engine *e,const char *text) {
     e->kit_mode=(int)mode;e->kit_base=(int)base;e->kit_output=output;e->kit_mapping=(int)mapping;
     memcpy(e->kit_notes,notes,sizeof notes);e->kit_learn=0;e->kit_learn_count=0;e->kit_learn_done=0;e->kit_duplicate=0;
     atomic_store(&e->selected,(int)selected);e->values=e->pad_values[(int)selected];e->current=e->pad_current[(int)selected];
+    sample_restore_commit(e,samples);sample_restore_free(samples);
     kit_feedback(e);++e->display_revision;++e->control_context;
     atomic_fetch_add(&e->revision,1);
 finish:
@@ -169,5 +170,5 @@ static int kit_save(Engine *e,char *out,int len) {
     KIT_APPEND(" MAP1 %d",e->kit_mapping);
     for(int pad=0;pad<PADS;pad++)KIT_APPEND(" %d",e->kit_notes[pad]);
 #undef KIT_APPEND
-    return n;
+    return sample_state_append(e,out,len,n);
 }

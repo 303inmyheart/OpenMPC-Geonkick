@@ -15,14 +15,22 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
    at the user's request. See [engine audit](docs/ENGINE-PARITY.md).
 4. **Pad foundation before import** —0.0.21 implements16 independent sounds,
    editing selection, consecutive MIDI-note mapping, per-pad Poly/Cut/Gate,
-   shared worker/caches and complete kit/project persistence. New hardware
-   acceptance is pending. Stereo output;16 shared voices. No sample import yet.
-5. **Samples, presets and soundbanks** — next: sample loading per selected pad,
+   shared worker/caches and complete kit/project persistence. User confirmed the
+   learned hardware mapping in0.0.22 works. Stereo output;16 shared voices.
+5. **Samples, presets and soundbanks** —0.0.23 implements WAV loading per pad / oscillator;
+   new hardware acceptance is pending. Next:
    then original.gkick sounds and complete.gkit banks using the pad architecture.
+   User requirement: integrate presets/banks with the native MPC preset system
+   and Sounds browser; saving/loading should follow the MPC workflow.
    Later: audio export, mute/solo/choke groups, copying and other kit management.
    Verify host routing before promising multi-outs or dedicated pad automation.
-6. **Public release** — final hardware regression, exact release-binary Store
+6. **Public release** — small on-screen KIT/pad-learning tutorial, final hardware regression, exact release-binary Store
    benchmark, source/fork/reproducible build review, release and catalog PR.
+
+Before release: add a small in-plugin tutorial on MASTER/KIT for pad learning,
+including stopping playback, selecting a bank, pressing1–16 in order and learning
+again after note-layout changes. Sound-tab envelope following was moved forward
+into0.0.23 at the user’s request.
 
 Historical build notes follow; the latest entries override older pending items.
 A formal Store benchmark remains reserved for the finished release binary.
@@ -284,3 +292,49 @@ default unless the user explicitly chooses to import/replace note routing.
 previous0.0.21 backed up locally, settings unchanged during replacement. MPC
 application restarted active/running. Actual hardware-learn acceptance pending.
 Installer/catalog validation:0 warnings; privacy scan passed.
+
+
+## Current0.0.23 task — samples and Sound-tab envelopes
+
+User accepted0.0.22 hardware mapping. Continue sample import per pad/oscillator.
+Include Sound-tab-specific envelope targets/display now (user moved this forward
+from the pre-release list); do not implement the previously skipped extra
+filter/resonance modulation envelopes. Preserve quiet-time redraw/audio caches.
+
+Before the release build: add a short on-screen tutorial explaining hardware
+pad learning/routing. This tutorial is requested but remains deferred.
+
+User clarification during0.0.23: upcoming presets/banks MUST use native MPC
+preset management/Sounds browser. Keep the sample-file browser scoped to audio
+files; do not replace the native MPC preset workflow with a new preset browser.
+
+
+## 0.0.23 — WAV sample import and Sound-tab curve following
+
+- MASTER/SAMPLES native folder/file list,8 visible rows, paging/up/drives,
+  per-pad/oscillator import. Filesystem/decoding stay on the existing worker.
+  No competing preset browser: future preset/bank work MUST remain MPC-native.
+- WAV PCM8/16/24/32, float32/64 and extensible; first channel,44.1kHz conversion,
+  first4seconds;10MiB decoded PCM per instance. Failed/invalid/stale imports leave
+  existing sound data intact. Import replaces the chosen oscillator’s source and
+  initializes flat Amp / original-speed pitch, retaining other oscillators/FX.
+- Synth/Sample source selectors and sample labels on layer pages. Sample pitch
+  keeps existing fine/direct controls, now in semitones; matching dynamic units.
+  Constant pitch avoids repeated exponential evaluation. One-shot source endings
+  fade smoothly even if the total cached sound is longer than the source file.
+- Immutable asset ownership / deferred reclamation, generation-stamped requests,
+  consistent snapshots, held-note cache lifetime. Samples are embedded in VIEW1 /
+  SMP1 state extensions (16MiB VST capacity), not external absolute paths.
+- SOUND LAYER1/2/3 tabs each bind their remembered oscillator’s curve and sliders.
+  All three curves are baked with the completed cache; tab switches need no new
+  synthesis. Shared quiet-time invalidation remains. Tutorial still deferred to
+  before the release build, as requested; extra modulation-envelope work stays skipped.
+
+Next: hardware sample/browser/curve acceptance, then original presets/banks via
+native MPC preset management and Sounds. Before release: small on-screen KIT
+learning tutorial, remaining quality review and exact final-binary benchmark.
+
+0.0.23 deployed on Live III:1856 plugin files and stripped binary checksum
+verified, prior0.0.22 backed up locally, settings unchanged during replacement.
+MPC application restarted active/running. Sample/browser/Sound-tab hardware
+acceptance remains pending. Installer validation:0warnings; privacy scan passed.

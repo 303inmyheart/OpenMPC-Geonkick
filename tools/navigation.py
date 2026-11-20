@@ -13,7 +13,7 @@ import shadow_skin
 from PIL import Image,ImageDraw,ImageFont
 GROUPS=[('SOUND',[f'SYNTH|LAYER {l}' for l in range(1,4)])]
 for l in range(1,4):GROUPS.append((f'LAYER {l}',[f'LAYER {l}|L{l} {kind}{o}' for o in range(1,4) for kind in ('OSC','FX')]))
-GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['KIT|KIT','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS'])]
+GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['KIT|KIT','SAMPLES|SAMPLES','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS'])]
 LOCATION={name:(main,sub,title) for main,(title,names) in enumerate(GROUPS) for sub,name in enumerate(names)}
 POINT_KEYS={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 def widgets(layout,bank):return [w for w in layout['widgets'] if not w.get('banks') or bank in w['banks'].split('|')]
@@ -97,6 +97,12 @@ def generate():
         draw.text((1225,35),f'{sub+1}/{len(GROUPS[main][1])}',font=ImageFont.truetype(str(ROOT/'art/DejaVuSans.ttf'),14),anchor='rm',fill='#a8bfc4')
         im.save(path.parent/filename)
         children.insert(0,shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':filename},shadow_skin._bounds(0,0,1280,70),'Navigation'))
+    # Bank-specific art may paint over the shared title. Keep this readonly
+    # header above the whole bank without covering any interactive controls.
+    for tab in page['tabs']:
+        children=defs[tab['componentName']]['componentsData']
+        headers=[c for c in children if any(m['key']=='Data' and m['value']==f"Parameter {ids['kit_title']}" for m in c.get('handle remapping',{}).get('map',[]))]
+        children[:]=[c for c in children if c not in headers]+headers
     assert set(LOCATION)=={t['componentName'] for t in page['tabs']}
     page['tabs'].sort(key=lambda t:(t['fnKeyIndex'],t['fnKeySubIndex']));maps.sort(key=lambda m:(m['Tab'],m['SubTab']))
     q['Screen Mode Q-Links']['map']=maps
@@ -108,5 +114,5 @@ def generate():
         for row,group in enumerate(knob_groups(byname['SYNTH'],'LAYER 1')):
             for col,w in enumerate(group):target[f'Q-Link {13+col-4*row}']=ids[w['key']]
     path.write_text(json.dumps(doc,indent=2)+'\n');qpath.write_text(json.dumps(q,indent=2)+'\n')
-    print('26 pages under six keys: SOUND, LAYER1–3, ENVELOPE, MASTER; rotary-only Q-Links, RowTopDown frames; touch-only points/selectors.')
+    print('27 pages under six keys: SOUND, LAYER1–3, ENVELOPE, MASTER; rotary-only Q-Links, RowTopDown frames; touch-only points/selectors.')
 if __name__=='__main__':generate()

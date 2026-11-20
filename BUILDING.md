@@ -15,7 +15,7 @@ patches/mpc-accumulated-fine-input.patch, followed by
 patches/mpc-canonical-continuous-echo.patch and finally
 patches/mpc-envelope-state-capacity.patch, then
 patches/mpc-idle-action-release.patch, then
-patches/mpc-filter-control-feedback.patch and patches/mpc-control-context.patch, in that order. The wrapper is not copied into this repository.
+patches/mpc-filter-control-feedback.patch and patches/mpc-control-context.patch, then patches/mpc-sample-dynamic-units.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
 `mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
@@ -369,3 +369,30 @@ all notes0..127, integer/unique, before publishing any part of a state. Earlier
 kits default the saved table to their original chromatic base. Learning UI flags
 and partial staging are not serialized. New KIT footer and note-map controls are
 Touch only; header/grid/rotary bounds remain checked.
+
+
+0.0.23 retains all previous3056 VST entries and1551 stored floats per pad;4413
+parameters total after sample controls and3×432 readonly layer curves. The new
+viz_l* fields are graph parameters: no per-column notifications. Sound tab
+component bindings choose their own layer data, so no host tab-event workaround
+or synthesis is required. Matching local focus/context drives overview sliders.
+
+Sample assets are immutable float32 plus pre-encoded base64/name. One worker does
+folder IO and WAVE decoding. A fixed request ring, outstanding-reply counter and
+per-slot generation token coordinate UI adoption. Source asset pointers are read
+inside the existing seqlock snapshot; reader epochs and retired stacks defer
+freeing to worker/normal display. Current/held audio voices only read rendered
+cache slots, never file/sample assets. Preset/clear actions retire, never free on
+audio. Borrowed gkick_buffer views are detached before owning DSP teardown.
+Only source buffers enable end fading/cached exact pitch factors; ordinary DSP
+buffers default those additions off. Constant sample pitch needs only a2-point
+shift table; arbitrary Pitch curves keep the existing baked table.
+
+GKMP9 optionally appends `VIEW1` plus16×3 layer-focus indices, then `SMP1 records`
+and unique `(pad osc source count hexname base64)` records. Empty assets use
+count0 and `- -`; decoded PCM is finite/full-scale float32,2..176400 frames.
+Validate all records/byte limits before publishing any state. Names contain no
+absolute source paths.10MiB PCM budget +16MiB wrapper chunk capacity. No sample
+content/dependency is included in the installer. Newest wrapper patch enables
+DYNAMIC_PARAM_UNITS only here; fine/direct frequency handles report semitones
+when they control a sample and otherwise retain their old Hz metadata.

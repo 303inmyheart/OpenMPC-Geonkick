@@ -36,6 +36,8 @@ gkick_buffer_new(struct gkick_buffer **buffer, int size)
                 gkick_log_error("can't allocate memory");
                 return;
         }
+        (*buffer)->edge_fade = 0;
+        (*buffer)->cached_pitch = NAN;(*buffer)->cached_factor = 1;
         (*buffer)->max_size = size;
         (*buffer)->size = (*buffer)->max_size;
         (*buffer)->currentIndex = 0;

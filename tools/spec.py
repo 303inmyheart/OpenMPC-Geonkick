@@ -190,6 +190,27 @@ p('kit_title','Edited Sound',0,1,0,display='string',live=True,legacy=True,poll=F
 opt('kit_mapping','Note Map',['Chromatic','Learned'],refresh_display=True)
 opt('kit_learn','Learn Hardware Pads',['Off','Learn 16'],refresh_display=True)
 p('kit_learn_status','Learn Status',0,1,0,display='string',live=True,legacy=True,poll=False)
+# Append-only sample metadata and independent SOUND-layer displays. PCM lives
+# outside the physical float table in the validated SMP1 project extension.
+for o in range(1,10):
+    opt(f'o{o}_sample_on',f'O{o} Source',['Synth','Sample'],refresh_display=True)
+    p(f'o{o}_sample_name',f'O{o} Sample',0,1,0,display='string',live=True,legacy=True,poll=False)
+    opt(f'o{o}_source_view',f'O{o} Source View',['Tone','Noise','Sample'],live=True,legacy=True)
+opt('sample_source','Sample Source',['Synth','Sample'],refresh_display=True)
+p('sample_name','Sample Name',0,1,0,display='string',live=True,legacy=True,poll=False)
+for key,label in [('open','Open Storage'),('root','Drives'),('up','Up'),('prev','Previous Files'),('next','Next Files'),('load','Load Sample'),('clear','Clear Sample')]:
+    opt('sample_'+key,label,['Off','Go'],momentary=True,debounce_ms=180)
+for key,label in [('folder','Folder'),('status','Import Status'),('page','File Page')]:
+    p('sample_'+key,label,0,1,0,display='string',live=True,legacy=True,poll=False)
+for row in range(8):
+    opt(f'sample_pick{row}',f'File Row{row+1}',['Off','Pick'],momentary=True,debounce_ms=180)
+    p(f'sample_row{row}',f'File Name{row+1}',0,1,0,display='string',live=True,legacy=True,poll=False)
+for layer in range(1,4):
+    opt(f'sound_l{layer}_focus',f'Layer{layer} Envelope',[f'L{l} / {o}' for l in range(1,4) for o in range(1,4)],live=True,legacy=True)
+    opt(f'sound_l{layer}_context',f'Layer{layer} Context',[str(i) for i in range(18)],live=True,legacy=True)
+    for column in range(PLOT_COLUMNS):
+        p(f'viz_l{layer}_e_{column}',f'Layer{layer} Curve{column}',0,1,0,live=True,legacy=True)
+
 
 
 def generate():
@@ -248,27 +269,29 @@ qlink_bounds=column
     def knob(k,label,x,y,b=''):
         lines.append(f'knob cx={x} cy={y} r=36 bw=212 ns=17 vs=22 key={k} label="{label}"'+b)
     lines += ['enum_h cx=526 cy=190 sw=86 sh=36 label="ENVELOPE FOCUS: LAYER / OSCILLATOR" key=plot_osc banks="MIX"',
-              'readout cx=526 cy=190 w=220 h=32 tsize=20 box=0 key=plot_osc banks="LAYER 1|LAYER 2|LAYER 3"',
               'enum_h cx=1126 cy=175 sw=105 sh=30 rows=2 label="ENVELOPE" key=plot_env',
               'frame x=70 y=226 w=920 h=202 title=""']
     # Native read-only plot components are added by finish_skin.py so the port
     # can use its own shared display strips without a Chromium build dependency.
     lines.append('knob cx=1126 cy=335 r=30 bw=180 ns=16 vs=20 label="DURATION" key=length')
     lines.append('knob cx=1126 cy=615 r=24 bw=150 ns=14 vs=18 label="OUTPUT" key=volume')
+    for layer in range(1,4):lines.append(f'readout cx=526 cy=190 w=220 h=32 tsize=20 box=0 key=sound_l{layer}_focus banks="LAYER {layer}"')
     for o in range(9):
-        k=f'o{o+1}_';when=f' when=plot_osc:{o}'
+        layer=o//3+1;k=f'o{o+1}_';when=f' when=sound_l{layer}_focus:{o}'
         for suffix,label,x in [('attack','ATTACK',178),('decay','DECAY',476),('sweep','PITCH DROP',774),('sweep_time','PITCH TIME',1072)]:
-            condition=when if suffix in ('attack','decay') else f' when=ui_env_focus:{o*2}'
-            lines.append(f'slider_h cx={x} cy=440 w=210 h=16 ns=13 vs=17 label="{label}" key={k}{suffix}'+condition+' banks="LAYER 1|LAYER 2|LAYER 3"')
-        lines.append(f'slider_h cx=774 cy=440 w=210 h=16 ns=13 vs=17 label="NOISE DENSITY" key={k}density when=ui_env_focus:{o*2+1}'+' banks="LAYER 1|LAYER 2|LAYER 3"')
+            condition=when if suffix in ('attack','decay') else f' when=sound_l{layer}_context:{o*2}'
+            lines.append(f'slider_h cx={x} cy=440 w=210 h=16 ns=13 vs=17 label="{label}" key={k}{suffix}'+condition+f' banks="LAYER {layer}"')
+        lines.append(f'slider_h cx=774 cy=440 w=210 h=16 ns=13 vs=17 label="NOISE DENSITY" key={k}density when=sound_l{layer}_context:{o*2+1}'+f' banks="LAYER {layer}"')
     for l in range(3):
         bank=f'LAYER {l+1}';b=f' banks="{bank}"'
         lines.append(f'slider_h cx=1126 cy=513 w=180 h=16 ns=12 vs=16 label="LAYER {l+1} GAIN" key=layer{l+1}'+b)
         for o in range(3):
             ix=l*3+o+1;k=f'o{ix}_';x=o*300
             lines.append(f'enum_h cx={92+x} cy=538 sw=34 sh=30 label="OSC {o+1}" key={k}on'+b)
-            lines.append(f'enum_h cx={252+x} cy=538 sw=52 sh=30 rows=2 label="" key={k}wave options="SIN,SQR,TRI,SAW,WHT,BRN"'+b)
-            lines.append(f'knob cx={124+x} cy=615 r=24 bw=130 ns=14 vs=18 label="FREQUENCY" key={k}freq'+b)
+            lines.append(f'enum_h cx={252+x} cy=538 sw=52 sh=30 rows=2 label="" key={k}wave options="SIN,SQR,TRI,SAW,WHT,BRN" when={k}sample_on:0'+b)
+            lines.append(f'readout cx={252+x} cy=552 w=168 h=46 tsize=12 key={k}sample_name when={k}sample_on:1'+b)
+            lines.append(f'knob cx={124+x} cy=615 r=24 bw=130 ns=14 vs=18 label="FREQUENCY" key={k}freq when={k}sample_on:0'+b)
+            lines.append(f'knob cx={124+x} cy=615 r=24 bw=130 ns=14 vs=18 label="SAMPLE PITCH (st)" key={k}freq when={k}sample_on:1'+b)
             lines.append(f'knob cx={260+x} cy=615 r=24 bw=130 ns=14 vs=18 label="LEVEL" key={k}level'+b)
         first=l*3+1
         lines.append(f'qlinks "{bank}" = o{first}_freq,o{first}_level,-,-,o{first+1}_freq,o{first+1}_level,-,-,o{first+2}_freq,o{first+2}_level,-,-,length,volume,-,-')
@@ -289,18 +312,21 @@ qlink_bounds=column
             ix=l*3+o+1;k=f'o{ix}_';bank=f'L{l+1} OSC{o+1}';b=f' banks="{bank}"'
             lines.append(f'frame x=24 y=104 w=1230 h=590 title="LAYER {l+1} / OSCILLATOR {o+1}"'+b)
             lines.append(f'enum_h cx=178 cy=220 sw=90 sh=34 label="OSCILLATOR" key={k}on'+b)
+            lines.append(f'enum_h cx=178 cy=290 sw=90 sh=28 label="SOURCE" key={k}sample_on'+b)
             knob(k+'attack','AMP ATTACK',476,205,b)
             knob(f'layer{l+1}','LAYER LEVEL',774,205,b)
-            lines.append(f'enum_h cx=1072 cy=205 sw=90 sh=32 rows=3 label="WAVE" key={k}wave'+b)
+            lines.append(f'enum_h cx=1072 cy=205 sw=90 sh=32 rows=3 label="SYNTH WAVE / SAMPLE" key={k}wave when={k}sample_on:0'+b)
+            lines.append(f'readout cx=1072 cy=215 w=250 h=42 tsize=18 key={k}sample_name when={k}sample_on:1'+b)
             controls=[('freq','FREQUENCY'),('level','LEVEL'),('decay','AMP DECAY'),('sweep','PITCH DROP'),('sweep_time','PITCH TIME'),('phase','PHASE'),('density','NOISE DENSITY'),('fm','FM TO NEXT OSC')]
             for i,(s,label) in enumerate(controls):
                 x,y=178+(i%4)*298,370+(i//4)*200
                 if s=='fm':
                     if o==0:knob(k+s,'FM -> OSC 2',x,y,b+f' when=o{ix+1}_on:1')
                 elif s=='density':
-                    for mode in (4,5):knob(k+s,label,774,570,b+f' when={k}wave:{mode}')
+                    knob(k+s,label,774,570,b+f' when={k}source_view:1')
                 elif s in ('freq','sweep','sweep_time','phase'):
-                    for mode in range(4):knob(k+s,label,x,y,b+f' when={k}wave:{mode}')
+                    knob(k+s,label,x,y,b+f' when={k}source_view:0')
+                    if s!='phase':knob(k+s,'SAMPLE PITCH (st)' if s=='freq' else label,x,y,b+f' when={k}source_view:2')
                 else:knob(k+s,label,x,y,b)
             lines.append(f'qlinks "{bank}" = {k}freq,{k}level,-,-,{k}attack,{k}decay,-,-,layer{l+1},{k}wave,-,-,{k}on,-,-,-')
         for o in range(3):
@@ -354,6 +380,24 @@ qlink_bounds=column
               'enum_h cx=365 cy=660 sw=122 sh=34 label="LEARN HARDWARE PADS" key=kit_learn',
               'readout cx=955 cy=650 w=460 h=34 tsize=20 key=kit_learn_status',
               'qlinks "KIT" = -,-,-,-,-,-,-,-,-,-,-,-,kit_base,kit_output,-,-']
+    lines += ['\n[tab SAMPLES]',
+              'frame x=24 y=104 w=1230 h=590 title="GEONKICK / SAMPLE LIBRARY"',
+              'button cx=200 cy=200 w=240 h=36 label="OPEN STORAGE" key=sample_open',
+              'button cx=460 cy=200 w=220 h=36 label="DRIVES" key=sample_root',
+              'button cx=690 cy=200 w=180 h=36 label="UP" key=sample_up',
+              'readout cx=410 cy=250 w=660 h=30 tsize=20 key=sample_folder',
+              'enum_h cx=1040 cy=210 sw=104 sh=32 rows=3 label="PAD OSCILLATOR" key=plot_osc',
+              'enum_h cx=1040 cy=340 sw=115 sh=32 label="SOURCE" key=sample_source',
+              'readout cx=1040 cy=395 w=360 h=32 tsize=18 key=sample_name',
+              'button cx=1040 cy=465 w=330 h=48 label="LOAD / REPLACE OSC" key=sample_load',
+              'button cx=1040 cy=535 w=330 h=38 label="CLEAR SAMPLE" key=sample_clear',
+              'button cx=1040 cy=595 w=330 h=38 label="PLAY PAD" key=audition',
+              'readout cx=1040 cy=665 w=365 h=32 tsize=18 key=sample_status']
+    for row in range(8):lines.append(f'button cx=430 cy={300+43*row} w=700 h=39 tsize=21 talign=left label="" key=sample_pick{row} get=sample_row{row}')
+    lines += ['button cx=200 cy=660 w=235 h=36 label="PREVIOUS" key=sample_prev',
+              'readout cx=440 cy=660 w=190 h=32 tsize=18 key=sample_page',
+              'button cx=680 cy=660 w=235 h=36 label="NEXT" key=sample_next',
+              'qlinks "SAMPLES" = -,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-']
     # Every page displays which sound the shared editing controls belong to.
     shared=[]
     for line in lines:

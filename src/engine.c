@@ -18,13 +18,17 @@
 #define VOICES 16
 #define EDGE_SAMPLES 221 /* 5 ms, endpoints included at 44.1 kHz */
 #define SLOTS (PADS+VOICES+4)
+#include "sample_types.h"
 typedef struct {
     atomic_int refs; int size; float *data; unsigned revision,view_revision;
-    unsigned char plot[3][PLOT_COLUMNS];
+    unsigned char plot[3][PLOT_COLUMNS],layer_plot[3][PLOT_COLUMNS];
 } Cache;
 typedef struct { int slot,note,channel,pad,gate; double pos,step; float gain; unsigned age; } Voice;
 typedef struct {
     _Atomic float pad_values[PADS][GP_COUNT];
+    SampleManager samples;
+    SampleAsset *worker_samples[9];struct gkick_buffer sample_views[9];
+    atomic_int sound_focus[PADS][3];
     _Atomic float *values; /* selected row; only serialized host/audio entry points use it */
     atomic_uint pad_audio[PADS],pad_view[PADS];
     atomic_int selected;
@@ -121,6 +125,8 @@ static void set_param(void *inst,const char *key,const char *text);
 #include "point_editor.h"
 #include "free_envelope.h"
 #include "filter_controls.h"
+static void kit_feedback(Engine *e);
+#include "sample_library.h"
 
 /* Worker-owned DSP setup. All allocations and upstream mutexes remain here. */
 static void configure(Engine *e,const float *p) {
@@ -132,7 +138,11 @@ static void configure(Engine *e,const float *p) {
         struct gkick_oscillator *o=s->oscillators[i]; char key[40];
 #define OVAL(suffix) (snprintf(key,sizeof key,"o%d_%s",i+1,suffix),value(p,key))
         o->state=OVAL("on")>0?GEONKICK_OSC_STATE_ENABLED:GEONKICK_OSC_STATE_DISABLED;
-        o->func=wave[(int)OVAL("wave")];
+        o->func=wave[(int)OVAL("wave")];o->sample=NULL;
+        if(p[GP_COUNT+i]>0) {
+            o->func=GEONKICK_OSC_FUNC_SAMPLE;SampleAsset *a=e->worker_samples[i];
+            if(a){e->sample_views[i]=(struct gkick_buffer){.buff=a->data,.max_size=a->count,.size=a->count,.edge_fade=1,.cached_pitch=NAN,.cached_factor=1};o->sample=e->sample_views+i;}
+        }
         o->amplitude=OVAL("level");
         float base=OVAL("freq"), sweep=OVAL("sweep");
         float start=fminf(20000,base*exp2f(sweep/12));
@@ -163,9 +173,20 @@ static void configure(Engine *e,const float *p) {
         if(point_value(p,i,0,"mode")>0)free_apply(p,i,0,o->envelopes[GKICK_OSC_AMPLITUDE_ENVELOPE],1);
         if(point_value(p,i,1,"mode")>0){o->frequency=point_upper(base);free_apply(p,i,1,o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],o->frequency);}
 
+        if(p[GP_COUNT+i]>0) {
+            float table[FREE_TABLE];o->pitch_shift=120;
+            int points=OVAL("sweep")==0 && point_value(p,i,1,"mode")==0?2:FREE_TABLE;
+            for(int n=0;n<points;n++) {
+                float hz=o->frequency*gkick_envelope_get_value(o->envelopes[GKICK_OSC_FREQUENCY_ENVELOPE],n/(float)(points-1));
+                float semitones=12*log2f(fmaxf(.001f,hz)/55.f);
+                table[n]=.5f+clampf(semitones,-120,120)/240.f;
+            }
+            gkick_envelope_set_apply_type(o->envelopes[GKICK_OSC_PITCH_SHIFT_ENVELOPE],GEONKICK_ENVELOPE_APPLY_LINEAR);
+            gkick_envelope_set_table(o->envelopes[GKICK_OSC_PITCH_SHIFT_ENVELOPE],table,points);
+        }
         o->filter_enabled=OVAL("filter_on")>0;
         gkick_filter_set_type(o->filter,(int)OVAL("filter_type"));
-        char filter_prefix[8];snprintf(filter_prefix,sizeof filter_prefix,"o%d_",i+1);
+        char filter_prefix[32];snprintf(filter_prefix,sizeof filter_prefix,"o%d_",i+1);
         filter_configure(o->filter,p,filter_prefix);
         o->distortion->enabled=OVAL("drive_on")>0;
         o->distortion->type=(int)OVAL("drive_type");
@@ -202,6 +223,12 @@ static void make_plot(Engine *e,Cache *c,const float *p) {
     int osc=(int)value(p,"plot_osc");
     struct gkick_oscillator *selected=s->oscillators[osc];
     struct gkick_envelope *env=selected->envelopes[value(p,"plot_env")>0?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
+    struct gkick_oscillator *layer_osc[3];struct gkick_envelope *layer_env[3];int layer_remap[3];
+    for(int l=0;l<3;l++) {
+        int focus=(int)p[GP_COUNT+9+l];layer_osc[l]=s->oscillators[focus];
+        layer_env[l]=layer_osc[l]->envelopes[value(p,"plot_env")>0?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
+        layer_remap[l]=value(p,"plot_env")>0 && point_value(p,focus,1,"mode")>0;
+    }
     for(int column=0;column<PLOT_COLUMNS;column++) {
         int begin=(int)((long long)column*c->size/PLOT_COLUMNS);
         int end=(int)((long long)(column+1)*c->size/PLOT_COLUMNS);
@@ -213,6 +240,11 @@ static void make_plot(Engine *e,Cache *c,const float *p) {
         if(value(p,"plot_env")>0 && point_value(p,osc,1,"mode")>0)shape=(shape*selected->frequency-20)/(selected->frequency-20);
 
         c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*(PLOT_ENV_LEVELS-1));
+        for(int l=0;l<3;l++) {
+            float y=gkick_envelope_get_value(layer_env[l],(column+.5f)/PLOT_COLUMNS);
+            if(layer_remap[l])y=(y*layer_osc[l]->frequency-20)/(layer_osc[l]->frequency-20);
+            c->layer_plot[l][column]=(unsigned char)roundf(clampf(y,0,1)*(PLOT_ENV_LEVELS-1));
+        }
     }
 }
 static unsigned snapshot(Engine *e,int pad,float *p,unsigned *view) {
@@ -220,19 +252,24 @@ static unsigned snapshot(Engine *e,int pad,float *p,unsigned *view) {
     do {
         a=atomic_load(&e->revision);
         if(a&1) continue;
+        sample_hold(e,pad);
         for(int i=0;i<GP_COUNT;i++) p[i]=atomic_load(&e->pad_values[pad][i]);
+        for(int i=0;i<9;i++)p[GP_COUNT+i]=(float)atomic_load(&e->samples.source[pad][i]);
+        for(int l=0;l<3;l++)p[GP_COUNT+9+l]=(float)atomic_load(&e->sound_focus[pad][l]);
         unsigned audio=atomic_load(&e->pad_audio[pad]);
         *view=atomic_load(&e->pad_view[pad]);
         b=atomic_load(&e->revision);
         if(a==b) return audio;
+        sample_release(e);
     } while(true);
 }
 static uint64_t worker_clock_ns(void) { struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000000000u+t.tv_nsec; }
 static void *worker(void *arg) {
-    Engine *e=arg;unsigned done[PADS]={0},view_done[PADS]={0};float p[GP_COUNT];
+    Engine *e=arg;unsigned done[PADS]={0},view_done[PADS]={0};float p[SNAP_COUNT];
     int held[PADS]={0},cursor=0;uint64_t next_synthesis=0;
     pthread_setname_np(pthread_self(),"gk-render");
     while(atomic_load(&e->running)) {
+        sample_worker(e);
         /* One shared DSP and a global 30-start/s budget. Round-robin prevents
          * a continuously edited pad from starving the other fifteen sounds. */
         int selected=atomic_load(&e->selected),pad=-1;
@@ -243,7 +280,7 @@ static void *worker(void *arg) {
         }
         if(pad<0){usleep(2000);continue;}
         unsigned view,rev=snapshot(e,pad,p,&view);
-        if(rev!=done[pad] && worker_clock_ns()<next_synthesis){usleep(2000);continue;}
+        if(rev!=done[pad] && worker_clock_ns()<next_synthesis){sample_release(e);usleep(2000);continue;}
         int slot=-1;
         for(int i=0;i<SLOTS;i++){int free=0;if(atomic_compare_exchange_strong(&e->slots[i].refs,&free,-1)){slot=i;break;}}
         if(slot>=0) {
@@ -255,14 +292,15 @@ static void *worker(void *arg) {
             drop(e,atomic_exchange(&e->ready[pad],slot));drop(e,held[pad]);
             held[pad]=slot;done[pad]=rev;view_done[pad]=view;cursor=(pad+1)%PADS;
         }
-        usleep(2000);
+        sample_release(e);usleep(2000);
     }
+    sample_collect(e);
     for(int pad=0;pad<PADS;pad++)drop(e,held[pad]);
     return NULL;
 }
 
 static void preset(Engine *e,int which) {
-    ++e->control_context;
+    ++e->control_context;sample_reset_pad(e,atomic_load(&e->selected));
     for(int i=0;i<GP_COUNT;i++) atomic_store(&e->values[i],gparams[i].def);
     put(e,"preset",which);
     switch(which) {
@@ -286,6 +324,7 @@ static void preset(Engine *e,int which) {
 static void *create(const char *dir) {
     (void)dir;
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
+    sample_init(e);
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
     for(int pad=0;pad<PADS;pad++) {
@@ -297,7 +336,7 @@ static void *create(const char *dir) {
     for(int i=0;i<VOICES;i++)e->voices[i].slot=-1;
     for(int i=0;i<SLOTS;i++){atomic_init(&e->slots[i].refs,0);e->slots[i].data=calloc(MAX_SAMPLES,sizeof(float));if(!e->slots[i].data)goto fail;}
     if(gkick_synth_new(&e->synth,RATE)!=GEONKICK_OK)goto fail;
-    float p[GP_COUNT];unsigned view;snapshot(e,0,p,&view);synthesize(e,&e->slots[0],p,0);make_plot(e,&e->slots[0],p);
+    float p[SNAP_COUNT];unsigned view;snapshot(e,0,p,&view);synthesize(e,&e->slots[0],p,0);make_plot(e,&e->slots[0],p);sample_release(e);
     /* Initially every pad has the same Init: share immutable audio, not sixteen
      * startup renders. Edits replace only that pad's retained cache. */
     atomic_store(&e->slots[0].refs,PADS*2);e->current=0;
@@ -306,14 +345,16 @@ static void *create(const char *dir) {
     if(pthread_create(&e->worker,NULL,worker,e)!=0) { atomic_store(&e->running,false); goto fail; }
     return e;
 fail:
-    if(e->synth)gkick_synth_free(&e->synth);
+    if(e->synth){for(int i=0;i<9;i++)if(e->synth->oscillators[i])e->synth->oscillators[i]->sample=NULL;gkick_synth_free(&e->synth);}
+    sample_destroy(e);
     for(int i=0;i<SLOTS;i++)free(e->slots[i].data);
     free(e); return NULL;
 }
 static void destroy(void *inst) {
     Engine *e=inst; if(!e)return;
     atomic_store(&e->running,false); pthread_join(e->worker,NULL);
-    gkick_synth_free(&e->synth); for(int i=0;i<SLOTS;i++)free(e->slots[i].data); free(e);
+    for(int i=0;i<9;i++)e->synth->oscillators[i]->sample=NULL;
+    sample_destroy(e);gkick_synth_free(&e->synth); for(int i=0;i<SLOTS;i++)free(e->slots[i].data); free(e);
 }
 static void hit_pad(Engine *e,int pad,int note,int ch,int vel) {
     adopt(e);int playback=(int)pad_at(e,pad,"playback");
@@ -342,6 +383,7 @@ static void hit_pad(Engine *e,int pad,int note,int ch,int vel) {
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
     if(!strncmp(key,"human_",6))return; /* retired 0.0.20 slots are inert */
+    if(sample_set(e,key,text))return;
     if(kit_set(e,key,text))return;
     if(filter_virtual_set(e,key,text))return;
     if(free_xy_set(e,key,text))return;
@@ -379,6 +421,7 @@ static void set_param(void *inst,const char *key,const char *text) {
     else {
         if(point_key_changed)point_prepare(e,&point,v);
         atomic_store(&e->values[i],v);
+        if(!strcmp(key,"plot_osc"))atomic_store(&e->sound_focus[atomic_load(&e->selected)][(int)v/3],(int)v);
         e->dirty[i]=1;filter_legacy_changed(e,key,v);
         if(point_key_changed){point_changed(e,&point);e->edit_time_valid=0;
             if(point.field=='l'||point.field=='t')free_store(e,point.osc,point.kind,"n",0);
@@ -387,6 +430,7 @@ static void set_param(void *inst,const char *key,const char *text) {
         if(!strcmp(key,"plot_osc") || !strcmp(key,"plot_env") || !strcmp(key,"point_select")){e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;}
         int oscillator=0;char suffix[32];
         if(sscanf(key,"o%d_%31s",&oscillator,suffix)==2 && oscillator>=1 && oscillator<=9) {
+            atomic_store(&e->sound_focus[atomic_load(&e->selected)][(oscillator-1)/3],oscillator-1);
             int focus=index_of("plot_osc");
             if(atomic_load(&e->values[focus])!=oscillator-1) { atomic_store(&e->values[focus],oscillator-1);e->dirty[focus]=1;e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1; }
             if(!strcmp(suffix,"attack") || !strcmp(suffix,"decay")){point_store(e,oscillator-1,0,"mode",0);e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;}
@@ -413,6 +457,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
     if(!strcmp(key,"control_context"))return snprintf(buf,len,"%u",e->control_context);
     if(!strncmp(key,"human_",6))return snprintf(buf,len,"0");
+    int sample_result=sample_get(e,key,buf,len);if(sample_result>=0)return sample_result;
     int kit_result=kit_get(e,key,buf,len);if(kit_result>=0)return kit_result;
     /* Wrapper serializes this call with MIDI/render. The display thread can
      * adopt a completed sound even while the host isn't processing audio. */
@@ -420,13 +465,20 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     int xy_result=free_xy_get(e,key,buf,len);if(xy_result>0)return xy_result;
     int free_result=free_virtual_get(e,key,buf,len);if(free_result>0)return free_result;
     int point_result=point_virtual_get(e,key,buf,len);if(point_result>0)return point_result;
-    if(!strcmp(key,"display_rev")) { adopt(e);return snprintf(buf,len,"%u",e->display_revision+e->ui_revision); }
+    if(!strcmp(key,"display_rev")) { sample_poll(e);adopt(e);return snprintf(buf,len,"%u",e->display_revision+e->ui_revision); }
     if(!strcmp(key,"graph_revision"))return snprintf(buf,len,"%u",e->display_revision%1024);
     if(!strcmp(key,"ui_env_focus")) {
         int focus=(int)at(e,"plot_osc");char wave[32];snprintf(wave,sizeof wave,"o%d_wave",focus+1);
-        return snprintf(buf,len,"%d",2*focus+(at(e,wave)>=4));
+        return snprintf(buf,len,"%d",2*focus+(at(e,wave)>=4 && !atomic_load(&e->samples.source[atomic_load(&e->selected)][focus])));
     }
     size_t key_len=strlen(key);
+    if(key_len>5 && !strcmp(key+key_len-5,"_unit")) {
+        char original[64];if(key_len-5>=sizeof original)return 0;memcpy(original,key,key_len-5);original[key_len-5]=0;
+        int alias=alias_of(original),osc;
+        if(alias>=0 && galiases[alias].kind%3==0 && sscanf(galiases[alias].target,"o%d_freq",&osc)==1 && atomic_load(&e->samples.source[atomic_load(&e->selected)][osc-1]))return snprintf(buf,len,"st");
+        return 0;
+    }
+
     if(key_len>8 && !strcmp(key+key_len-8,"_display")) {
         char original[64];if(key_len-8>=sizeof original)return 0;
         memcpy(original,key,key_len-8);original[key_len-8]=0;
@@ -437,6 +489,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
                 int osc;char wave[32];
                 if(sscanf(galiases[alias].target,"o%d_freq",&osc)==1) {
                     snprintf(wave,sizeof wave,"o%d_wave",osc);
+                    if(atomic_load(&e->samples.source[atomic_load(&e->selected)][osc-1]))return snprintf(buf,len,"%+.2f st",12*log2f(physical/55.f));
                     if(at(e,wave)>=4)return snprintf(buf,len,"NO PITCH");
                 }
             }
@@ -446,6 +499,13 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         int i=index_of(original);if(i<0)return 0;
         return snprintf(buf,len,"%.3f",atomic_load(&e->values[i]));
     }
+    int layer,column;char extra,field[32];
+    if(sscanf(key,"sound_l%d_%31s%c",&layer,field,&extra)==2 && layer>=1 && layer<=3) {
+        int o=atomic_load(&e->sound_focus[atomic_load(&e->selected)][layer-1]);
+        if(!strcmp(field,"focus"))return snprintf(buf,len,"%d",o);
+        if(!strcmp(field,"context")){char k[32];snprintf(k,sizeof k,"o%d_wave",o+1);return snprintf(buf,len,"%d",2*o+(at(e,k)>=4 && !atomic_load(&e->samples.source[atomic_load(&e->selected)][o])));}
+    }
+    if(sscanf(key,"viz_l%d_e_%d%c",&layer,&column,&extra)==2 && layer>=1&&layer<=3 && column>=0&&column<PLOT_COLUMNS)return snprintf(buf,len,"%.9g",e->slots[e->current].layer_plot[layer-1][column]/(float)(PLOT_ENV_LEVELS-1));
     if(!strncmp(key,"viz_",4)) {
         char channel,trailing;int column;
         if(sscanf(key,"viz_%c_%d%c",&channel,&column,&trailing)!=2 || column<0 || column>=PLOT_COLUMNS)return 0;
@@ -466,6 +526,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
     Engine *e=inst;
+    for(unsigned i=0;i<SAMPLE_NOTIFY_COUNT;i++)if(e->samples.dirty&(UINT64_C(1)<<i)){e->samples.dirty&=~(UINT64_C(1)<<i);snprintf(key,len,"%s",sample_notifications[i]);return 1;}
     for(unsigned i=0;i<KIT_NOTIFY_COUNT;i++)if(e->kit_dirty&(1u<<i)){e->kit_dirty&=~(1u<<i);snprintf(key,len,"%s",kit_notifications[i]);return 1;}
     for(int i=0;i<GP_COUNT;i++)if(e->dirty[i]) { e->dirty[i]=0;snprintf(key,len,"%s",gparams[i].key);return 1; }
     for(int i=0;i<G_ALIAS_COUNT;i++)if(e->dirty_alias[i]) { e->dirty_alias[i]=0;snprintf(key,len,"%s",galiases[i].key);return 1; }

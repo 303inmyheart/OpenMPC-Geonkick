@@ -7,13 +7,13 @@ import shadow_skin
 layouts,_=shadow_skin.parse_layout(ROOT/'layout.conf');layouts={l['name']:l for l in layouts}
 params=json.loads((ROOT/'params.json').read_text())['params'];ids={p['key']:i for i,p in enumerate(params)}
 p=next((ROOT/'build/skin').glob('*/Plugin Skins/TUI.json'));page=json.loads(p.read_text())['pageData'];defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
-q=json.loads((p.parent/'Q-Links.json').read_text());maps=q['Screen Mode Q-Links']['map'];tabs=page['tabs'];assert len(tabs)==26
+q=json.loads((p.parent/'Q-Links.json').read_text());maps=q['Screen Mode Q-Links']['map'];tabs=page['tabs'];assert len(tabs)==27
 assert {t['fnKeyIndex'] for t in tabs}==set(range(6))
-assert [sum(t['fnKeyIndex']==k for t in tabs) for k in range(6)]==[3,6,6,6,1,4]
+assert [sum(t['fnKeyIndex']==k for t in tabs) for k in range(6)]==[3,6,6,6,1,5]
 assert {(m['Tab']-1,m['SubTab']-1) for m in maps}=={(t['fnKeyIndex'],t['fnKeySubIndex']) for t in tabs}
 for layer in range(1,4):
  assert [t['componentName'].split('|')[1] for t in tabs if t['fnKeyIndex']==layer]==[f'L{layer} {kind}{osc}' for osc in range(1,4) for kind in ('OSC','FX')]
-assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['KIT|KIT','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS']
+assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['KIT|KIT','SAMPLES|SAMPLES','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS']
 points={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 for t in tabs:
  source,bank=t['componentName'].split('|');children=defs[t['componentName']]['componentsData']
@@ -36,7 +36,7 @@ for t in tabs:
    assert c['bounds']['acceptsHWFocus']=='No'
    assert not any(a.get('handler')=='Q-Link' for a in d.get('actions',[])),(bank,'non-rotary hardware focus')
  print(t['tabName'],':',', '.join(params[i]['key'] for i in assigned) or 'touch only')
-print('26 pages reachable on six keys; only rotary Q-Links; selectors/sliders/points touch-only; full native bounds PASS')
+print('27 pages reachable on six keys; only rotary Q-Links; selectors/sliders/points touch-only; full native bounds PASS')
 
 # The native eight-button grid must be centred inside the actual painted field.
 from skin_design import PRESET_FRAME
@@ -91,3 +91,30 @@ for key in ('kit_mapping','kit_learn'):
    xx,yy,ww,hh=map(int,cell['bounds']['bounds'].split())
    assert x+w<=xx or xx+ww<=x or y+h<=yy or yy+hh<=y,'Learn controls overlap pad buttons'
 print('Learn/map selectors touch-only, inside panel, separate from pad buttons PASS')
+
+# Each SOUND layer uses its own cached envelope, never whichever layer was last
+# globally edited. Matching sliders/readout share the layer-local focus handle.
+for layer in range(1,4):
+ name=f'SYNTH|LAYER {layer}';children=defs[name]['componentsData']
+ curves=[c for c in children if c['componentData']['type']=='gkPlot_e']
+ assert len(curves)==432
+ mapped={m['value'] for c in curves for m in c['handle remapping']['map'] if m['key']=='Data'}
+ assert mapped=={f'Parameter {ids[f"viz_l{layer}_e_{col}"]}' for col in range(432)}
+ assert any(any(m['key']=='Data' and m['value']==f'Parameter {ids[f"sound_l{layer}_focus"]}' for m in c.get('handle remapping',{}).get('map',[])) for c in children)
+page_samples=defs['SAMPLES|SAMPLES']['componentsData']
+for row in range(8):
+ c=next(c for c in page_samples if any(m['key']=='Data' and m['value']==f'Parameter {ids[f"sample_pick{row}"]}' for m in c.get('handle remapping',{}).get('map',[])))
+ assert any(m['key']=='Text' and m['value']==f'Parameter {ids[f"sample_row{row}"]}' for m in c['handle remapping']['map'])
+ assert c['bounds']['acceptsHWFocus']=='No'
+for tabname in ('KIT|KIT','SAMPLES|SAMPLES'):
+ for c in defs[tabname]['componentsData']:
+  if not any(m['key']=='Data' and m['value']==f'Parameter {ids["audition"]}' for m in c.get('handle remapping',{}).get('map',[])):continue
+  x,y,w,h=map(int,c['bounds']['bounds'].split())
+  for part in defs[c['componentData']['type']]['componentsData']:
+   if part['componentData']['type']=='Button':assert part['bounds']['bounds']==f'0 0 {w} {h}','Aliased button assets/definitions across pages'
+print('Three layer-specific SOUND curves/targets; eight live-text touch-only file rows; independent audition button geometry PASS')
+
+for tab in tabs:
+ children=defs[tab['componentName']]['componentsData']
+ assert any(m['key']=='Data' and m['value']==f'Parameter {ids["kit_title"]}' for m in children[-1].get('handle remapping',{}).get('map',[])),'Header hidden by later bank artwork'
+print('Selected-pad header above every bank artwork PASS')

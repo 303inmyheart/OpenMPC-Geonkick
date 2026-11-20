@@ -50,8 +50,9 @@ try:
     preset_tab=next(t for t in page['tabs'] if t['componentName']=='PRESETS|PRESETS')
     mix_tab=next(t for t in page['tabs'] if t['componentName']=='SYNTH|MIX')
     kit_tab=next(t for t in page['tabs'] if t['componentName']=='KIT|KIT')
+    sample_tab=next(t for t in page['tabs'] if t['componentName']=='SAMPLES|SAMPLES')
     fx_tab=next(t for t in page['tabs'] if t['componentName']=='EFFECTS|EFFECTS')
-    for filename,tab,wave in [('presets',preset_tab,0),('mix',mix_tab,0),('master-fx',fx_tab,0),('kit',kit_tab,0),('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0),('envelope-free',env_tab,0)]:
+    for filename,tab,wave in [('presets',preset_tab,0),('mix',mix_tab,0),('master-fx',fx_tab,0),('kit',kit_tab,0),('samples',sample_tab,0),('synth',page['tabs'][0],0),('osc-tone',osc_tab,0),('osc-noise',osc_tab,4),('osc-sample',osc_tab,0),('envelope-simple',env_tab,0),('envelope-amp',env_tab,0),('envelope-pitch',env_tab,0),('envelope-free',env_tab,0)]:
         if filename=='envelope-simple':set_value('reset',1);settle()
         if filename=='envelope-amp':set_value('o1_a_mode',1);settle()
         if filename=='envelope-pitch':set_value('o1_p_mode',1);settle()
@@ -59,6 +60,7 @@ try:
             set_value('plot_env',0);set_value('o1_a_mode',1)
             for _ in range(5):set_value('free_add',1);time.sleep(.2)
             set_value('free_select',2);set_value('free_bend',.65);settle()
+        if filename=='osc-sample':set_value('o1_sample_on',1);settle()
         if wave:set_value('o1_wave',wave);settle()
         values={i:get(e,i) for i in range(len(params))}
         state={i:round(values[i]*(len(p['options'])-1)) for i,p in enumerate(params) if p.get('options')}
