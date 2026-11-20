@@ -1,3 +1,5 @@
+> Historisch: Der Humanizer wurde mit0.0.21 auf Nutzerwunsch entfernt. Für aktuelle Builds TESTPLAN-0.0.21-DE.md verwenden.
+
 # Geonkick MPC0.0.20 — Humanizer prüfen
 
 1. MASTER → HUMANIZER öffnen. Init/alte Projekte zeigen OFF. Nur VELOCITY und

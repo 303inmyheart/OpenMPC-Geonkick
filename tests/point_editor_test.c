@@ -36,7 +36,7 @@ int main(void){
  set(a,"point_select","0");set(a,"point_time_drag","0.8");assert(fabsf(get(a,"o7_p_t3")-0.0001f)<1e-7);
  char display[80];api->get_param(a,"point_time_fine_display",display,sizeof display);assert(strstr(display,"START"));
  /* Full state keeps points/modes/fractions and older 186-value chunks stay Simple. */
- assert(api->get_param(a,"state",state,sizeof state)>0);assert(!strncmp(state,"GKMP7 ",6));
+ assert(api->get_param(a,"state",state,sizeof state)>0);assert(!strncmp(state,"GKMP8 ",6));
  set(b,"state",state);assert(api->get_param(b,"state",again,sizeof again)>0);assert(!strcmp(state,again));
  strcpy(legacy,state);memcpy(legacy,"GKMP3",5);char *end=legacy+6;for(int i=0;i<LEGACY_GP_COUNT;i++)strtof(end,&end);*end=0;
  set(b,"state",legacy);for(int o=1;o<=9;o++)for(int kind=0;kind<2;kind++){snprintf(key,sizeof key,"o%d_%c_mode",o,kind?'p':'a');assert(get(b,key)==0);}
@@ -53,5 +53,5 @@ int main(void){
  for(int j=1;j<=4;j++){snprintf(key,sizeof key,"o1_p_t%d",j);set(a,key,j%2?"0":"1");}
  ready(a);capture(a,points,4096);float energy=0;for(int i=0;i<8192;i++){assert(isfinite(points[i]));energy+=points[i]*points[i];}assert(energy>0.01f);
  unsigned count=get(a,"synthesis_count");set(a,"point_select","2");ready(a);assert(get(a,"synthesis_count")==count);
- api->destroy(a);api->destroy(b);puts("18 envelope contexts, fine/direct controls, safe durations, custom DSP, GKMP7 roundtrip / GKMP3 migration and view-only selection PASS");return 0;
+ api->destroy(a);api->destroy(b);puts("18 envelope contexts, fine/direct controls, safe durations, custom DSP, GKMP8 roundtrip / GKMP3 migration and view-only selection PASS");return 0;
 }

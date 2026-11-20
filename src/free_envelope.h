@@ -191,5 +191,5 @@ static int free_virtual_set(Engine *e,const char *key,const char *text){
  atomic_fetch_add(&e->revision,1);
  if(!point_at(e,o,k,"seen"))point_seed(e,o,k);
  point_store(e,o,k,"mode",1);point_store(e,o,k,"seen",1);free_write(e,o,k,&c);free_selection(e,c.n,s);e->point_dirty|=POINT_ALL;
- atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->revision,1);return 1;
+ audio_changed(e);atomic_fetch_add(&e->revision,1);return 1;
 }

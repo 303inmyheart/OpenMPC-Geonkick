@@ -69,7 +69,7 @@ static int point_virtual_set(Engine *e,const char *key,const char *text){
  if(!level&&!time&&!copy)return 0;
  char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return 1;
  int osc,kind,selected;point_selected(e,&osc,&kind,&selected);
- if(copy){if(v>0){atomic_fetch_add(&e->revision,1);point_seed(e,osc,kind);point_store(e,osc,kind,"mode",1);atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->revision,1);}return 1;}
+ if(copy){if(v>0){atomic_fetch_add(&e->revision,1);point_seed(e,osc,kind);point_store(e,osc,kind,"mode",1);audio_changed(e);atomic_fetch_add(&e->revision,1);}return 1;}
  if(time && selected==0)return 1;
  char target[48],suffix[8],value_text[48];int fine=strstr(key,"_fine")!=NULL;
  unsigned origin=e->point_origin;e->point_origin=fine?1:2;

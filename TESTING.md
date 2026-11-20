@@ -1,13 +1,16 @@
-# Current verification —0.0.20
+# Current verification —0.0.21
 
 Native ASan/UBSan/leaks and actual ARM64 shared-library/QEMU suites pass.
-Humanizer checks include64 shifted/scaled captured-hit comparisons, Off/zero
-exactness, note/channel Gate cancellation, cache pinning during sound edits,
-bounded overflow/Panic/reset, Cut-at-onset and GKMP6 migration. Both new fine /
-direct controls pass actual-VST raw input/echo checks. Thirty actual0.0.19/current
-old-project fixtures have maximum audio difference0 with Humanizer Off.
-New Humanizer hardware/hearing acceptance remains pending; user confirmed0.0.19
-filters working. No formal Store benchmark. See TESTPLAN-0.0.20-DE.md.
+Sixteen independent physical states/curves, all assigned MIDI notes, outside-note
+silence, mixed-signal two-instance oracle, per-pad Cut/Gate, raw fine-input context
+handover, saved kit >64KiB through actual VST close/reopen, atomic malformed-state
+rejection, legacy GKMP7 migration and retired-Humanizer inertness are covered.
+Previous touch, filter, points, short-hit/Cut boundaries and blocked-UI audio tests
+remain passing. The control-context kit test serializes104207bytes; the fully populated
+16×18×16-point fixture serializes238482bytes. The VST supports1MiB. Only final-release binaries receive a formal Store benchmark.
+
+Live III acceptance of this new build is pending. The user accepted the previous
+0.0.19 filters and asked to remove0.0.20 Humanizer. See TESTPLAN-0.0.21-DE.md.
 
 Historical notes follow; their older pending items are superseded by the newer
 roadmap and build-specific test plans.
@@ -486,3 +489,13 @@ installed stripped SHA verified:`bb720a443f8c593473532a0b4834088b9d8e5a8d61aa970
 No global settings/project/unrelated-plugin changes, full reboot or public
 release. Actual native selector/preset acceptance remains pending. Future device
 access still requires fresh authorization; the prior automatic grant was revoked.
+
+Additional actual VST capacity check:all16 sounds ×18 curves ×16 points;
+238482-byte full-kit chunk survives complete close/reopen natively and onARM64/QEMU.
+
+Actual archived0.0.19/current ARM64 VST libraries,30 GKMP6 filter fixtures:
+maximum sample difference0. Installer/catalog checker:0 warnings; privacy scan passed.
+
+0.0.21 installed on Live III: plugin files and binary checksum verified, previous
+version backed up, settings unchanged during replacement, MPC application
+restarted active/running. New pad/kit hearing and Touch acceptance is pending.

@@ -15,7 +15,7 @@ patches/mpc-accumulated-fine-input.patch, followed by
 patches/mpc-canonical-continuous-echo.patch and finally
 patches/mpc-envelope-state-capacity.patch, then
 patches/mpc-idle-action-release.patch, then
-patches/mpc-filter-control-feedback.patch, in that order. The wrapper is not copied into this repository.
+patches/mpc-filter-control-feedback.patch and patches/mpc-control-context.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
 `mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
@@ -329,25 +329,31 @@ maximum sample difference0. No firmware binaries or private data are fixtures.
 No new locks/allocations/synthesis/UI calls are added to the host audio callback.
 
 
-0.0.20 appends3 stored Humanizer fields and4 fine/direct adapters (3047 VST
-parameters, old3040 frozen). GKMP7 stores1554 values; GKMP6 consumes1551 and
-loads Humanizer OFF without changing its filter modes. Original humanizer.c and
-qx_randomizer.h are reused at note time, with the original1% /0.25ms random
-resolution. Fractional velocity-amount limits clamp the original randomizer's
-rounded final bucket to the requested integer-velocity bound.
+The0.0.20 Humanizer implementation is retired in0.0.21. Its runtime scheduler,
+controls and stored fields are removed; the last three old state tokens are
+consumed only for migration, and seven old VST parameter slots are inert.
+The original upstream DSP dependency still contains its unused implementation.
 
-A fixed64-entry sorted pending array holds arrival-time cache references and
-sample deadlines. At most64 entries shift per event; idle/disabled playback
-only checks a zero count. Start transfers the reference to a voice. Gate note /
-channel cancellation, Panic, preset/reset/state and bounded overflow drop every
-retired reference. Cut/steal tails begin when the delayed note actually starts.
-No allocation, thread sleep, wall-clock scheduler or DSP generation enters the
-host audio callback. No fixed latency is introduced when disabled/zero timing.
-Original PRNGs are initialized once per instance; transient random phase and
-pending MIDI are not serialized. Only the three amounts/enable values are saved.
+0.0.21 uses1551 physical values per pad across16 pads, GKMP8 kit state and3053 VST
+parameters. Existing3040 identities/ranges are unchanged; the seven Humanizer
+slots are retired/live/legacy/nonautomatable, not repurposed. Six new kit controls
+are appended. Legacy GKMP7 still consumes1554 values and discards the final3.
+State is a full first selected row followed by `KIT1 mode base selected output`
+and15 ascending other rows: `D` is Init/default, `P` prefixes1551 stored values.
+The entire structure is validated before publication. Wrapper chunk capacity1MiB.
 
-humanizer_test.c verifies64 full captured shifted/scaled hits, zero/off exactness,
-new-synthesis-free amount edits, pending cache lifetime, Gate/channel behavior,
-Cut onset, dense overflow/Panic/reset and GKMP6 migration. Existing actual-VST
-fine/direct test also covers both Humanizer knobs. Navigation now has26 pages
-under the same six keys, MASTER MIX/FX/HUMANIZER/PRESETS. Only knobs get Q-Links.
+One shared worker/DSP,36 preallocated audio slots,16 voices. Initial identical
+Init sounds share one immutable slot with per-pad current/worker references.
+Per-pad atomic revision counters plus the existing seqlock avoid mixing states
+while selecting/editing. Slot owners, ready/current adoption and held-note refs
+remain bounded. Selection/playback-only edits do not resynthesize sounds.
+No new audio-thread allocations, file IO, waits or host UI calls are introduced.
+
+`CONTROL_CONTEXT_REV` is opt-in: the wrapper checks the engine's context token
+before a host control write, clearing accumulated raw positions only when the
+edited instrument/preset changed. Apply the new patch last; other ports do not
+enable the behavior. Native/actual ARM64 context tests exercise the first fine
+step immediately after selection before any asynchronous notification/rebind.
+
+Additional actual VST capacity check:all16 sounds ×18 curves ×16 points;
+238482-byte full-kit chunk survives complete close/reopen natively and onARM64/QEMU.

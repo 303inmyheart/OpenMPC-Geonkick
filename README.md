@@ -12,12 +12,12 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.20 is a playable
-single-instrument prototype, not the complete desktop application.
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.21 adds sixteen independent pad sounds within one instrument instance.
+It remains a development port; sample/preset-bank import is the following phase.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
 ENVELOPE and MASTER. Each layer alternates OSC1/FX1, OSC2/FX2, OSC3/FX3. MASTER
-contains MIX, global FX and PRESETS; the point editor has its own key. Q-Links
+contains KIT, MIX, global FX and PRESETS; the point editor has its own key. Q-Links
 control rotary knobs only; switches, selectors, sliders and point editing remain
 touch-only. The historical MIDI CC table and all parameter/state IDs are retained.
 Native/ARM64 and isolated Live III signal-boundary tests pass; actual on-device
@@ -68,7 +68,16 @@ Implemented:
   matching the original engine's routing.
 - Global and per-oscillator low/high/band-pass filters and nine original
   distortion modes. Each oscillator has an independent drive/output stage.
-- Eight voices, velocity, optional note tracking, tuning, poly/cut/gate playback.
+- Sixteen independent sounds, each with its own three layers/nine oscillators,
+  filters, drive, tuning, level, preset and eighteen Amp/Pitch curves. Sixteen
+  playback voices are shared across the kit; CUT affects only the same pad.
+- MASTER → KIT selects the edited sound, Single/16 Pads routing, first MIDI note
+  (default36) and the kit output. The selected pad is shown on every page.
+  Single is the default and preserves the earlier chromatic instrument behavior.
+  In 16 Pads mode, consecutive notes trigger pads1–16; outside notes are ignored.
+  Adjust the first note to the MPC track's actual pad-note mapping.
+- Velocity, optional Single-mode note tracking, per-sound tuning and Poly/Cut/Gate.
+  The keyboard octave convention does not affect routing: MIDI note numbers do.
 - Eight starting sounds: Init, Deep Kick, Tight Kick, Snare, Closed Hat,
   Open Hat, Metal and Tom. Native VST program bank for MPC's preset browser.
 - Native MPC pages and Q-Links, per-layer oscillator subpages, Sounds-browser
@@ -80,11 +89,12 @@ Implemented:
   modules beneath it. Attack, decay, pitch drop and pitch time can be changed
   beside the graph. Layer subpages expose their layer gain; MIX holds global
   playback/tuning controls. The 0.0.15 Percussion Lab palette uses graphite, lime and amber.
-- Versioned GKMP7 project state with 1554 stored values, including independent
-  point lists and Bezier ordinates for all 18 curves. All 3040 previous VST
-  parameter identities remain unchanged. GKMP1–6 states migrate with their
-  original sound and old five-point data; variable editing converts them lazily.
-  Full 16-point states are tested through the actual VST chunk API.
+- GKMP8 project/preset state stores all16 sounds (1551 physical values each),
+  selection and routing/output settings. Default pad rows are compacted; the
+  VST chunk capacity is1MiB. Complete kits larger than64KiB are tested through
+  actual VST close/reopen. GKMP1–7 migrate to pad1 in Single mode. All previous
+  3040 control identities/ranges remain; seven0.0.20 Humanizer slots are inert,
+  hidden compatibility reservations and cannot be automated.
 - Graph refresh uses one derived revision signal instead of per-column host
   notifications; the skin binds each graph widget to that invalidation handle.
   The native repaint path remains experimental: a post-gesture host rebind now
@@ -113,7 +123,8 @@ Implemented:
   view changes reuse rendered audio, silent layers are skipped, playback-only
   edits skip synthesis, and
   OUTPUT changes are smoothed. A deliberately blocked UI host is regression-tested.
-- Per-instance worker generates sound buffers; audio playback neither allocates
+- One per-instance worker generates all16 sound buffers, with a shared30-start/s
+  synthesis budget and round-robin fairness; audio playback neither allocates
   nor waits for synthesis. Existing hits retain their old sound during edits.
 
 ![Geonkick MPC visual SYNTH page](docs/screenshots/synth.png)
@@ -133,14 +144,18 @@ Editing a sound is asynchronous: new notes use the latest **completed** sound.
 During rapid changes they may briefly use the preceding one. Output, tuning,
 note tracking and playback mode apply at playback; layers/filter/oscillators are
 rendered into the sound. Layer 1 is audible by default; layers 2 and 3 start at
-zero gain. On the PRESETS page, RESET INIT restores Init even if Init is already
+zero gain. On the PRESETS page, INIT SELECTED PAD restores Init even if Init is already
 the selected preset; selecting the same preset value alone does not reload it.
 
-First-prototype limits: one drum per instance and stereo output, no 16-drum kit
-editor, sample import or original preset interchange. Amp/Pitch support2–16
+Current limits: stereo output; no sample import, original preset/soundbank
+interchange, choke groups, mute/solo or per-pad audio outputs yet. Shared
+editing/automation parameters address the selected pad; dedicated per-pad
+host automation is not exposed. In 16 Pads mode each assigned note triggers
+its sound without chromatic transposition; Key Track remains for Single mode. Amp/Pitch support2–16
 points, insertion/deletion, cubic curvature and absolute XY editing over the
 waveform. Free Bezier control handles and arbitrary tap-to-insert are pending.
-The Humanizer is available from0.0.20. The SYNTH graph displays the completed sound. It depicts the completed
+The Humanizer was removed at the user’s request in0.0.21. Additional modulation
+envelope UI work was skipped at the user’s request. The SYNTH graph displays the completed sound. It depicts the completed
 single-hit buffer before output gain, not a real-time oscilloscope of playing
 voices; the amber envelope is normalized independently to 0–1. The view updates
 after synthesis completes, with host notifications on a separate 100 ms display
@@ -202,19 +217,26 @@ New cutoff/resonance hearing and Touch acceptance remain pending; no formal
 Store CPU benchmark has been performed for this development binary.
 
 
-0.0.20 adds the original **Humanizer** under MASTER → HUMANIZER: optional
-velocity variation0–30% and positive timing variation0–30ms. It starts OFF.
-Only the two knobs have Q-Links; Touch is continuous and hardware input is fine.
-The native page has the same Percussion Lab design. Timing uses a bounded
-sample scheduler with pinned sound caches, not sleeps or per-hit synthesis;
-Gate/Panic/reset cancel pending notes and Cut occurs at the randomized onset.
-See [Humanizer guide](docs/HUMANIZER.md) and [test plan](TESTPLAN-0.0.20-DE.md).
-New hardware acceptance is still required; no Store benchmark is claimed.
 
+## Current development build —0.0.21
 
-![Humanizer — offline native-skin preview, not an MPC screenshot](docs/screenshots/humanizer.png)
+MASTER → KIT is the foundation for upcoming sample and original bank import.
+Choose a pad before editing its sound; PRESETS and INIT SELECTED PAD affect only
+that pad. The upper nine-oscillator selector is removed from SOUND pages; their
+curve follows the last edited oscillator and a small readout identifies it.
+The ENVELOPE editor retains its oscillator selector. Q-Links stay rotary-only.
 
+The Humanizer UI, scheduler and saved fields are removed. Original upstream
+Humanizer source remains only because it is part of the vendored DSP dependency;
+this port does not enable or execute it for MIDI hits.
 
-0.0.20 was installed under standing plugin-update permission; plugin hashes and
-running MPC application were verified. Humanizer hearing/Touch acceptance on
-Live III remains pending. The user confirmed the preceding0.0.19 filter build.
+![Kit foundation — offline native-skin preview, not an MPC screenshot](docs/screenshots/kit.png)
+
+See [pad guide](docs/PADS.md), [test plan](TESTPLAN-0.0.21-DE.md) and
+[roadmap](ROADMAP.md). Native sanitizers and actual ARM64/QEMU regressions pass;
+Live III acceptance for this new build is pending. No final Store benchmark or
+public Geonkick release is claimed.
+
+0.0.21 installed on Live III: plugin files and binary checksum verified, previous
+version backed up, settings unchanged during replacement, MPC application
+restarted active/running. New pad/kit hearing and Touch acceptance is pending.

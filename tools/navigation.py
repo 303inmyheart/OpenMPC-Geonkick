@@ -13,7 +13,7 @@ import shadow_skin
 from PIL import Image,ImageDraw,ImageFont
 GROUPS=[('SOUND',[f'SYNTH|LAYER {l}' for l in range(1,4)])]
 for l in range(1,4):GROUPS.append((f'LAYER {l}',[f'LAYER {l}|L{l} {kind}{o}' for o in range(1,4) for kind in ('OSC','FX')]))
-GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['SYNTH|MIX','EFFECTS|EFFECTS','HUMANIZER|HUMANIZER','PRESETS|PRESETS'])]
+GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['KIT|KIT','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS'])]
 LOCATION={name:(main,sub,title) for main,(title,names) in enumerate(GROUPS) for sub,name in enumerate(names)}
 POINT_KEYS={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 def widgets(layout,bank):return [w for w in layout['widgets'] if not w.get('banks') or bank in w['banks'].split('|')]
@@ -45,6 +45,17 @@ def generate():
         if title=='MASTER':label='MASTER '+('FX' if bank=='EFFECTS' else bank)
         tab['tabName']=label
         children=defs[tab['componentName']]['componentsData'];groups=knob_groups(layout,bank)
+        if source=='KIT':
+            # MPC physical pads count upwards from the bottom-left corner.
+            # Move the native buttons, retaining their actual buttonId/value.
+            cells=[c for c in children if any(m['key']=='Data' and m['value']==f"Parameter {ids['kit_pad']}" for m in c.get('handle remapping',{}).get('map',[]))]
+            rows=sorted({int(c['bounds']['bounds'].split()[1]) for c in cells})
+            assert len(cells)==16 and len(rows)==4
+            for c in cells:
+                x,y,width,height=map(int,c['bounds']['bounds'].split())
+                button=next(part for part in defs[c['componentData']['type']]['componentsData'] if part['componentData']['type']=='Button')
+                i=button['componentData']['data']['buttonId']
+                c['bounds']['bounds']=f'{x} {rows[3-i//4]} {width} {height}'
         rotary={ids[w['key']] for group in groups for w in group}
         # Disable hardware focus only on this placed non-rotary control. Native
         # Button toggles and continuous Touch handles retain their original data.
@@ -85,7 +96,7 @@ def generate():
         draw.text((640,35),subtitle,font=ImageFont.truetype(str(ROOT/'art/DejaVuSans.ttf'),18),anchor='mm',fill='#b5d979')
         draw.text((1225,35),f'{sub+1}/{len(GROUPS[main][1])}',font=ImageFont.truetype(str(ROOT/'art/DejaVuSans.ttf'),14),anchor='rm',fill='#a8bfc4')
         im.save(path.parent/filename)
-        children.append(shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':filename},shadow_skin._bounds(0,0,1280,70),'Navigation'))
+        children.insert(0,shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':filename},shadow_skin._bounds(0,0,1280,70),'Navigation'))
     assert set(LOCATION)=={t['componentName'] for t in page['tabs']}
     page['tabs'].sort(key=lambda t:(t['fnKeyIndex'],t['fnKeySubIndex']));maps.sort(key=lambda m:(m['Tab'],m['SubTab']))
     q['Screen Mode Q-Links']['map']=maps

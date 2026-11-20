@@ -76,6 +76,7 @@ def panel_background(layout,bank,children,defs,skin):
             card((60,356,1220,501));card((60,504,296,611));card((348,506,1220,611))
             for x in (328,626,924):line(d,[(x,374),(x,486)],'#344b50')
         else:
+            text(d,(526,65),'CURVE FOLLOWS LAST EDITED OSCILLATOR',11,MUTED)
             card((60,349,1238,404))
             for x in (54,354,654):card((x,407,x+296,611))
             card((1016,407,1238,611))
@@ -88,12 +89,12 @@ def panel_background(layout,bank,children,defs,skin):
     elif name=='ENVELOPE':
         card((70,72,1210,225));card((70,228,1210,423));card((70,424,1210,508));card((70,510,1256,625))
         text(d,(90,240),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,240),'SELECT POINT NUMBER / DRAG AMBER POINT',12,AMBER,'rm')
-    elif name=='HUMANIZER':
-        card((70,72,1210,190));card((210,205,620,465));card((660,205,1070,465))
-        text(d,(420,423),'VELOCITY  +/-  AMOUNT',13,MUTED)
-        text(d,(860,423),'DELAY  0 TO MAXIMUM',13,MUTED)
-        text(d,(640,510),'RANDOM VARIATION PER HIT  /  ORIGINAL GEONKICK HUMANIZER',14,INK)
-        text(d,(640,545),'Starts OFF. Existing notes keep their sound. Timing never moves a hit earlier.',13,MUTED)
+    elif name=='KIT':
+        card((70,72,660,510));card((690,72,1220,450));card((70,520,1220,603))
+        text(d,(955,475),'16 INDEPENDENT SOUNDS / STEREO OUT',12,MUTED)
+        text(d,(640,550),'PRESETS AND INIT APPLY TO THE SELECTED PAD',16,INK)
+        text(d,(640,580),'Select a pad, then shape its sound on SOUND / LAYER / ENVELOPE.',13,MUTED)
+        text(d,(365,495),'Selection edits a sound. PLAY auditions it.',12,MUTED)
     elif name=='PRESETS':
         card(PRESET_FRAME);text(d,(640,515),'EIGHT STARTING POINTS  /  SHAPE YOUR OWN SOUND',13,MUTED)
     # Group headings are static; actual conditional names remain inside native

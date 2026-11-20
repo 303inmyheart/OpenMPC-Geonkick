@@ -1,0 +1,30 @@
+diff --git a/wrapper/vst2_wrap.c b/wrapper/vst2_wrap.c
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -149,6 +149,9 @@
+     volatile char need_update_display;  /* deferred audioMasterUpdateDisplay -- see setParameter() */
+     float pend0, pend0_from;  /* a host set of parameter 0 not applied yet, and where parameter 0 was before it */
+     int has_pend0;            /* (see setParameter) */
++#if defined(CONTROL_CONTEXT_REV) && CONTROL_CONTEXT_REV
++    char last_control_context[32]; /* fine input belongs to one edited instrument */
++#endif
+     char last_rev[16];       /* HAS_DISPLAY_REV: the "display_rev" last seen */
+     float last_norm[NPARAMS];   /* HAS_DISPLAY_REV: value last reported per param (-1 = never) */
+     uint64_t last_input_ns; int graph_deferred;
+@@ -330,6 +333,16 @@
+     char buf[64];
+     if (i < 0 || i >= NPARAMS) return;
+     const param_t *p = &PARAMS[i];
++#if defined(CONTROL_CONTEXT_REV) && CONTROL_CONTEXT_REV
++    char context[32];
++    if(eng_get(w,"control_context",context,sizeof context)>0 && strcmp(context,w->last_control_context)) {
++        snprintf(w->last_control_context,sizeof w->last_control_context,"%s",context);
++        /* A raw Q-Link position from another instrument must never determine
++         * the direction of the first event on this one. This happens under
++         * the existing wrapper lock, before asynchronous UI reports/rebinds. */
++        for(int j=0;j<NPARAMS;j++){w->last_pos[j]=-1;w->qacc[j]=0;}
++    }
++#endif
+     const float requested_n = n;
+     int nudge = 0;
+     if (IDLE_ACTION_RELEASE && p->momentary && n > 0.5f)

@@ -13,7 +13,7 @@ assert [sum(t['fnKeyIndex']==k for t in tabs) for k in range(6)]==[3,6,6,6,1,4]
 assert {(m['Tab']-1,m['SubTab']-1) for m in maps}=={(t['fnKeyIndex'],t['fnKeySubIndex']) for t in tabs}
 for layer in range(1,4):
  assert [t['componentName'].split('|')[1] for t in tabs if t['fnKeyIndex']==layer]==[f'L{layer} {kind}{osc}' for osc in range(1,4) for kind in ('OSC','FX')]
-assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['SYNTH|MIX','EFFECTS|EFFECTS','HUMANIZER|HUMANIZER','PRESETS|PRESETS']
+assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['KIT|KIT','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS']
 points={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 for t in tabs:
  source,bank=t['componentName'].split('|');children=defs[t['componentName']]['componentsData']
@@ -49,3 +49,33 @@ fl,ft,fr,fb=PRESET_FRAME
 assert fl<=l<r<=fr and ft<=top<bottom<=fb
 assert abs((l+r)-(fl+fr))<=1 and abs((top+bottom)-(ft+fb))<=1
 print('All eight preset buttons inside and centred in their panel, horizontal/vertical margins balanced PASS')
+
+# SOUND overview has no redundant nine-oscillator selector. The editor and
+# MASTER/MIX still retain their original target controls.
+focus=[w for w in layouts['SYNTH']['widgets'] if w.get('key')=='plot_osc' and w['kind'].startswith('enum')]
+assert len(focus)==1 and focus[0]['banks']=='MIX'
+assert any(w.get('key')=='plot_osc' and w['kind'].startswith('enum') for w in layouts['ENVELOPE']['widgets'])
+kit=next(t for t in tabs if t['componentName']=='KIT|KIT')
+cells=[c for c in defs[kit['componentName']]['componentsData'] if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids['kit_pad']) for m in c.get('handle remapping',{}).get('map',[]))]
+assert len(cells)==16
+assert all(c['bounds']['acceptsHWFocus']=='No' for c in cells)
+print('Sixteen touch-only pad selectors; redundant upper SOUND selector removed; ENVELOPE target retained PASS')
+
+audition=[c for c in defs[kit['componentName']]['componentsData'] if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids['audition']) for m in c.get('handle remapping',{}).get('map',[]))]
+for c in audition:
+ x,y,w,h=map(int,c['bounds']['bounds'].split())
+ for cell in cells:
+  xx,yy,ww,hh=map(int,cell['bounds']['bounds'].split())
+  assert x+w<=xx or xx+ww<=x or y+h<=yy or yy+hh<=y,'Audition overlaps a pad'
+for t in tabs:
+ header=[c for c in defs[t['componentName']]['componentsData'] if any(m.get('key')=='Data' and m.get('value')=='Parameter '+str(ids['kit_title']) for m in c.get('handle remapping',{}).get('map',[]))]
+ assert header
+ x,y,w,h=map(int,header[0]['bounds']['bounds'].split());assert 14<=y and y+h<=56
+print('Kit audition/pads do not overlap; selected-pad header fits the banner on every page PASS')
+
+ys=sorted({int(c['bounds']['bounds'].split()[1]) for c in cells})
+for c in cells:
+ button=next(p for p in defs[c['componentData']['type']]['componentsData'] if p['componentData']['type']=='Button')
+ i=button['componentData']['data']['buttonId']
+ x,y,w,h=map(int,c['bounds']['bounds'].split());assert y==ys[3-i//4]
+print('Native pad values match MPC physical layout:01 bottom-left,16 top-right PASS')

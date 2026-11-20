@@ -9,14 +9,18 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
 2. **Point envelopes** —2–16 points with cubic curvature, waveform overlay,
    absolute XY editing and numbered selection are implemented. Free Bezier
    control handles / arbitrary tap-to-insert remain deferred extensions.
-3. **Sound-engine parity** — WIDE/CLASSIC filters completed and accepted0.0.19;
-   Humanizer is the current0.0.20 task. Original extra modulation envelopes
-   (filter cutoff/resonance, drive, noise density, pitch shift) remain to be
-   considered and exposed in useful increments. See [engine audit](docs/ENGINE-PARITY.md).
-4. **Samples, presets, export** — sample loading first, then original preset /
-   sound-bank interchange and practical audio export.
-5. **Drumkits** — sixteen independent instruments, pad mapping, choke/mute/solo,
-   kit persistence/navigation. Verify host routing before promising multi-outs.
+3. **Sound-engine parity** — WIDE/CLASSIC filters completed and accepted0.0.19.
+   Humanizer removed in0.0.21 at the user's request; use the MPC's own features.
+   Additional filter/resonance and other modulation-envelope UI work is skipped
+   at the user's request. See [engine audit](docs/ENGINE-PARITY.md).
+4. **Pad foundation before import** —0.0.21 implements16 independent sounds,
+   editing selection, consecutive MIDI-note mapping, per-pad Poly/Cut/Gate,
+   shared worker/caches and complete kit/project persistence. New hardware
+   acceptance is pending. Stereo output;16 shared voices. No sample import yet.
+5. **Samples, presets and soundbanks** — next: sample loading per selected pad,
+   then original.gkick sounds and complete.gkit banks using the pad architecture.
+   Later: audio export, mute/solo/choke groups, copying and other kit management.
+   Verify host routing before promising multi-outs or dedicated pad automation.
 6. **Public release** — final hardware regression, exact release-binary Store
    benchmark, source/fork/reproducible build review, release and catalog PR.
 
@@ -213,3 +217,40 @@ application restart completed active/running; installed binary hash matches the
 package. Native sanitizers/full ARM64 and current package checker pass (0warnings).
 Actual0.0.19/current libraries render30 GKMP6 old-project fixtures with maximum
 sample difference0. New Humanizer hardware/hearing acceptance remains pending.
+
+
+## 0.0.21 — sixteen-pad foundation; Humanizer removed
+
+- MASTER/KIT selects one of16 independent instrument states. Each sound retains
+  the complete existing engine and its eighteen Amp/Pitch envelopes. Per-page
+  selected-pad readout; sound presets/Init affect only the selected sound.
+- Single (default/legacy chromatic behavior) and16 Pads modes; configurable first
+  MIDI note0..112, default36. Kit mode assigns16 consecutive notes and ignores
+  others. Selection is touch-only; routing switches have no Q-Link assignments.
+- One DSP worker across all pads with the existing global30-start/s budget,
+  round-robin fairness and immutable per-pad caches. Initial identical sounds
+  share one cache/render. Sixteen playback voices, independent pad CUT/GATE,
+  continuous per-pad/kit output and retained old-note buffers.
+- GKMP8 persists every sound and kit metadata; default rows compacted.1MiB VST
+  chunk budget, complete >64KiB kits tested through actual VST close/reopen.
+  GKMP1–7 migrate to pad1/Single; Humanizer values are consumed then discarded.
+- Seven old Humanizer VST numbers/ranges remain inert, hidden/nonautomatable;
+  no Humanizer UI, scheduler or saved fields. Extra envelope work stays skipped.
+- Immediate fine-control handover resets raw input history when the selected
+  instrument/preset changes; regression fails without the opt-in wrapper patch.
+- SOUND pages lose the redundant nine-way upper selector at the user's request;
+  the curve follows the last edited oscillator, shown in a readout. The actual
+  ENVELOPE page keeps its target selector.
+
+Native ASan/UBSan/leak and actualARM64/QEMU tests pass; these are offline
+regressions, not a Store benchmark or device acceptance. Next: Live III test,
+then samples, original presets and full bank interchange. No Desktop copy or
+public fork/release requested for this build.
+
+0.0.21 final offline validation:all16×18×16-point state occupies238482bytes and
+survives actual VST close/reopen. Archived0.0.19/current actualARM64 libraries,
+30 GKMP6 fixtures, maximum audio difference0. Installer validation:0warnings.
+
+0.0.21 installed on Live III: plugin files and binary checksum verified, previous
+version backed up, settings unchanged during replacement, MPC application
+restarted active/running. New pad/kit hearing and Touch acceptance is pending.

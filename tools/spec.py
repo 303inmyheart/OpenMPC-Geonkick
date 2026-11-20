@@ -173,12 +173,20 @@ start=len(params)
 opt('human_on','Humanizer',['Off','On'])
 p('human_velocity','Velocity Variation',0,30,5,unit='%',legacy=True)
 p('human_timing','Timing Variation',0,30,5,unit='ms',legacy=True)
-HUMAN_PARAMS.extend(params[start:]);STORED_PARAMS+=HUMAN_PARAMS
+HUMAN_PARAMS.extend(params[start:]) # retired, not part of the new stored sound
 p('human_velocity_fine','Velocity Variation',0,300,50,display='int',nudge_pct=10,dynamic_display=True)
 p('human_timing_fine','Timing Variation',0,120,20,display='int',nudge_pct=10,dynamic_display=True)
 p('human_velocity_touch','Velocity Variation Touch',0,1,1/6,legacy=True,dynamic_display=True)
 p('human_timing_touch','Timing Variation Touch',0,1,1/6,legacy=True,dynamic_display=True)
-TOUCH_BINDINGS.update(human_velocity_fine='human_velocity_touch',human_timing_fine='human_timing_touch')
+# Keep seven historical numbers/ranges, but retire their UI and automation.
+for item in params[start:]:item.update(name='Reserved',live=True,legacy=True)
+# The engine ignores writes and returns zero; no Humanizer state or scheduler.
+opt('kit_pad','Edit Pad',[f'{i:02d}' for i in range(1,17)],refresh_display=True)
+opt('kit_mode','MIDI Mode',['Single','16 Pads'],refresh_display=True)
+p('kit_base','First MIDI Note',0,112,36,display='int',dynamic_display=True,refresh_display=True)
+p('kit_output','Kit Output',0,1,1)
+p('kit_info','Pad Assignment',0,1,0,display='string',live=True,legacy=True,poll=False)
+p('kit_title','Edited Sound',0,1,0,display='string',live=True,legacy=True,poll=False)
 
 
 def generate():
@@ -236,7 +244,8 @@ qlink_bounds=column
     lines=[theme,'[tab SYNTH]', 'frame x=24 y=104 w=1230 h=590 title="GEONKICK MPC / SYNTH"']
     def knob(k,label,x,y,b=''):
         lines.append(f'knob cx={x} cy={y} r=36 bw=212 ns=17 vs=22 key={k} label="{label}"'+b)
-    lines += ['enum_h cx=526 cy=190 sw=86 sh=36 label="ENVELOPE FOCUS: LAYER / OSCILLATOR" key=plot_osc',
+    lines += ['enum_h cx=526 cy=190 sw=86 sh=36 label="ENVELOPE FOCUS: LAYER / OSCILLATOR" key=plot_osc banks="MIX"',
+              'readout cx=526 cy=190 w=220 h=32 tsize=20 box=0 key=plot_osc banks="LAYER 1|LAYER 2|LAYER 3"',
               'enum_h cx=1126 cy=175 sw=105 sh=30 rows=2 label="ENVELOPE" key=plot_env',
               'frame x=70 y=226 w=920 h=202 title=""']
     # Native read-only plot components are added by finish_skin.py so the port
@@ -309,7 +318,7 @@ qlink_bounds=column
     lines += ['qlinks "EFFECTS" = filter_on,drive_on,-,-,filter_type,drive_type,-,-,cutoff,drive,-,-,q,drive_out,-,-',
               '\n[tab PRESETS]','frame x=24 y=104 w=1230 h=590 title="GEONKICK / STARTING POINTS"',
               'enum_h cx=640 cy=300 sw=470 sh=64 rows=4 label="PRESETS" key=preset',
-              'toggle cx=1090 cy=672 bw=210 label="RESET INIT" key=reset',
+              'toggle cx=1090 cy=672 bw=210 label="INIT SELECTED PAD" key=reset',
               'qlinks "PRESETS" = preset,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-']
     lines += ['\n[tab ENVELOPE]','frame x=24 y=104 w=1230 h=590 title="GEONKICK / POINT ENVELOPE"',
               'enum_h cx=640 cy=185 sw=94 sh=34 label="SELECT LAYER / OSCILLATOR" key=plot_osc',
@@ -330,12 +339,23 @@ qlink_bounds=column
             target=(osc-1)*2+mode
             lines.append(f'enum_h cx=1050 cy=270 sw=110 sh=34 label="MODE" key=o{osc}_{kind}_mode when=ui_point_target:{target}')
     lines += ['qlinks "ENVELOPE" = -,-,-,-,-,-,-,-,-,-,-,-,length_ms,-,-,-']
-    lines += ['\n[tab HUMANIZER]',
-              'frame x=24 y=104 w=1230 h=590 title="GEONKICK / HUMANIZER"',
-              'enum_h cx=640 cy=215 sw=150 sh=38 label="PER-HIT HUMANIZER" key=human_on',
-              'knob cx=420 cy=390 r=46 bw=300 ns=18 vs=24 label="VELOCITY VARIATION (%)" key=human_velocity_fine',
-              'knob cx=860 cy=390 r=46 bw=300 ns=18 vs=24 label="TIMING VARIATION (ms)" key=human_timing_fine',
-              'qlinks "HUMANIZER" = -,-,-,-,-,-,-,-,-,-,-,-,human_velocity_fine,human_timing_fine,-,-']
+    lines += ['\n[tab KIT]',
+              'frame x=24 y=104 w=1230 h=590 title="GEONKICK / PAD INSTRUMENTS"',
+              'enum_h cx=365 cy=267 sw=122 sh=62 rows=4 label="SELECT SOUND TO EDIT" key=kit_pad',
+              'enum_h cx=955 cy=215 sw=130 sh=38 label="MIDI ROUTING" key=kit_mode',
+              'knob cx=820 cy=380 r=36 bw=230 ns=16 vs=22 label="FIRST MIDI NOTE" key=kit_base',
+              'knob cx=1090 cy=380 r=36 bw=230 ns=16 vs=22 label="KIT OUTPUT" key=kit_output',
+              'readout cx=955 cy=510 w=460 h=34 key=kit_info',
+              'button cx=365 cy=540 w=250 h=42 label="PLAY SELECTED PAD" key=audition',
+              'qlinks "KIT" = -,-,-,-,-,-,-,-,-,-,-,-,kit_base,kit_output,-,-']
+    # Every page displays which sound the shared editing controls belong to.
+    shared=[]
+    for line in lines:
+        if line.startswith('[tab ') or line.startswith('\n[tab '):
+            shared.append(line)
+            shared.append('readout cx=380 cy=121 w=190 h=25 tsize=18 box=0 key=kit_title')
+        else:shared.append(line)
+    lines=shared
     # The physical Hz/seconds controls remain for state/old automation. Visible
     # controls use appended fine pitch and millisecond adapters, never reindexing.
     import re

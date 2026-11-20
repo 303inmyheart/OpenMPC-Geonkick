@@ -9,40 +9,39 @@
 #include "dsp/oscillator.h"
 #include "dsp/envelope.h"
 #include "dsp/filter.h"
-#include "dsp/humanizer.h"
 #include <unistd.h>
 #include <stdatomic.h>
 
 #define RATE 44100
 #define MAX_SAMPLES (RATE*4)
-#define VOICES 8
-#define PENDING_HITS 64
+#define PADS 16
+#define VOICES 16
 #define EDGE_SAMPLES 221 /* 5 ms, endpoints included at 44.1 kHz */
-#define SLOTS (VOICES+4)
+#define SLOTS (PADS+VOICES+4)
 typedef struct {
     atomic_int refs; int size; float *data; unsigned revision,view_revision;
     unsigned char plot[3][PLOT_COLUMNS];
 } Cache;
-typedef struct { int slot,note,channel; double pos,step; float gain; unsigned age; } Voice;
-typedef struct {int slot,note,channel,playback;double step;float gain;uint64_t due;} PendingHit;
+typedef struct { int slot,note,channel,pad,gate; double pos,step; float gain; unsigned age; } Voice;
 typedef struct {
-    _Atomic float values[GP_COUNT];
+    _Atomic float pad_values[PADS][GP_COUNT];
+    _Atomic float *values; /* selected row; only serialized host/audio entry points use it */
+    atomic_uint pad_audio[PADS],pad_view[PADS];
+    atomic_int selected;
+    int kit_mode,kit_base;float kit_output,kit_gain;
+    unsigned kit_dirty,control_context;
     atomic_uint revision,audio_revision,view_revision,synthesis_count;
     atomic_bool running;
-    atomic_int ready;
+    atomic_int ready[PADS];
     pthread_t worker;
     struct gkick_synth *synth;
     Cache slots[SLOTS];
     Voice voices[VOICES];
-    PendingHit pending[PENDING_HITS];unsigned pending_count,pending_dropped;
-    uint64_t sample_clock;
-    struct gkick_humanizer humanizer;
-    int last_human_velocity,last_human_delay;
-    int current;
+    int current,pad_current[PADS];
     unsigned age;
     unsigned display_revision,ui_revision;
-    float output_gain;
-    float cut_tail[EDGE_SAMPLES];
+    float output_gain[PADS];
+    float cut_tail[PADS][EDGE_SAMPLES];
     unsigned cut_pos;
     unsigned point_dirty,point_origin,free_dirty;
     float edit_weights[4];int edit_time_valid,edit_osc,edit_kind,edit_bank,edit_count;
@@ -64,6 +63,9 @@ static int alias_of(const char *key) {
     return -1;
 }
 static float at(Engine *e,const char *key) { int i=index_of(key); return i<0?0:atomic_load(&e->values[i]); }
+static float pad_at(Engine *e,int pad,const char *key) { int i=index_of(key);return i<0?0:atomic_load(&e->pad_values[pad][i]); }
+static void audio_changed(Engine *e) { atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->pad_audio[atomic_load(&e->selected)],1); }
+static void view_changed(Engine *e) { atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->pad_view[atomic_load(&e->selected)],1); }
 static float alias_coordinate(int alias,float physical) {
     const GAlias *a=&galiases[alias];
     if(a->kind==3)return logf(physical/20.f)/logf(600.f);
@@ -74,12 +76,7 @@ static float value(const float *p,const char *key) { int i=index_of(key); return
 static void put(Engine *e,const char *key,float v) { int i=index_of(key); if(i>=0) atomic_store(&e->values[i],v); }
 static void drop(Engine *e,int slot) { if(slot>=0) atomic_fetch_sub(&e->slots[slot].refs,1); }
 static void stop_voice(Engine *e,Voice *v) { drop(e,v->slot); v->slot=-1; }
-static void stop_pending(Engine *e) {
-    for(unsigned i=0;i<e->pending_count;i++)drop(e,e->pending[i].slot);
-    e->pending_count=0;
-}
 static void stop_all(Engine *e) {
-    stop_pending(e);
     for(int i=0;i<VOICES;i++) stop_voice(e,&e->voices[i]);
     memset(e->cut_tail,0,sizeof e->cut_tail);e->cut_pos=0;
 }
@@ -96,43 +93,21 @@ static void choke_voice(Engine *e,Voice *v) {
      * during rapid retriggers; do not replace them with a frozen DC sample. */
     Cache *c=&e->slots[v->slot];unsigned target=e->cut_pos;
     for(int n=0;n<EDGE_SAMPLES;n++) {
-        e->cut_tail[target]+=voice_sample(c,v->pos+n*v->step)*v->gain*
+        e->cut_tail[v->pad][target]+=voice_sample(c,v->pos+n*v->step)*v->gain*
             edge_gain((EDGE_SAMPLES-1-n)/(float)(EDGE_SAMPLES-1));
         if(++target==EDGE_SAMPLES)target=0;
     }
     stop_voice(e,v);
 }
-/* Start and pending scheduling are bounded, allocation-free audio operations.
- * A pending hit owns one cache reference, transferred to its voice at start. */
-static void start_hit(Engine *e,const PendingHit *hit) {
-    if(hit->playback==1)for(int i=0;i<VOICES;i++)choke_voice(e,&e->voices[i]);
-    int v=0;
-    for(int i=0;i<VOICES;i++){if(e->voices[i].slot<0){v=i;break;}if(e->voices[i].age<e->voices[v].age)v=i;}
-    choke_voice(e,&e->voices[v]);Voice *voice=&e->voices[v];
-    voice->slot=hit->slot;voice->pos=0;voice->gain=hit->gain;voice->note=hit->note;voice->channel=hit->channel;voice->step=hit->step;voice->age=++e->age;
-}
-static void remove_pending(Engine *e,unsigned i) {
-    drop(e,e->pending[i].slot);--e->pending_count;
-    memmove(e->pending+i,e->pending+i+1,(e->pending_count-i)*sizeof(PendingHit));
-}
-static void queue_hit(Engine *e,const PendingHit *hit) {
-    /* Only pathological >64 queued hits in a30ms window reach this bound.
-     * Retire the earliest queued hit rather than allocating or blocking. */
-    if(e->pending_count==PENDING_HITS){remove_pending(e,0);++e->pending_dropped;}
-    unsigned i=e->pending_count++;
-    while(i>0 && e->pending[i-1].due>hit->due){e->pending[i]=e->pending[i-1];--i;}
-    e->pending[i]=*hit;
-}
-static void start_due_hits(Engine *e) {
-    while(e->pending_count && e->pending[0].due<=e->sample_clock){
-        PendingHit hit=e->pending[0];--e->pending_count;
-        memmove(e->pending,e->pending+1,e->pending_count*sizeof(PendingHit));
-        start_hit(e,&hit);
-    }
-}
 static void adopt(Engine *e) {
-    int s=atomic_exchange(&e->ready,-1);
-    if(s>=0) { int old=e->current; e->current=s; drop(e,old); ++e->display_revision; }
+    int selected=atomic_load(&e->selected);
+    for(int pad=0;pad<PADS;pad++) {
+        int slot=atomic_exchange(&e->ready[pad],-1);
+        if(slot>=0) {
+            int old=e->pad_current[pad];e->pad_current[pad]=slot;drop(e,old);
+            if(pad==selected) { e->current=slot;++e->display_revision; }
+        }
+    }
 }
 static void envelope(struct gkick_envelope *env,float x1,float y0,float y1,float yend) {
     struct gkick_envelope_point_info pts[]={{0,y0,false},{x1,y1,false},{1,yend,false}};
@@ -144,7 +119,6 @@ static void set_param(void *inst,const char *key,const char *text);
 #include "point_editor.h"
 #include "free_envelope.h"
 #include "filter_controls.h"
-#include "human_controls.h"
 
 /* Worker-owned DSP setup. All allocations and upstream mutexes remain here. */
 static void configure(Engine *e,const float *p) {
@@ -239,55 +213,54 @@ static void make_plot(Engine *e,Cache *c,const float *p) {
         c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*(PLOT_ENV_LEVELS-1));
     }
 }
-static unsigned snapshot(Engine *e,float *p,unsigned *view) {
+static unsigned snapshot(Engine *e,int pad,float *p,unsigned *view) {
     unsigned a,b;
     do {
         a=atomic_load(&e->revision);
         if(a&1) continue;
-        for(int i=0;i<GP_COUNT;i++) p[i]=atomic_load(&e->values[i]);
-        unsigned audio=atomic_load(&e->audio_revision);
-        *view=atomic_load(&e->view_revision);
+        for(int i=0;i<GP_COUNT;i++) p[i]=atomic_load(&e->pad_values[pad][i]);
+        unsigned audio=atomic_load(&e->pad_audio[pad]);
+        *view=atomic_load(&e->pad_view[pad]);
         b=atomic_load(&e->revision);
         if(a==b) return audio;
     } while(true);
 }
 static uint64_t worker_clock_ns(void) { struct timespec t;clock_gettime(CLOCK_MONOTONIC,&t);return (uint64_t)t.tv_sec*1000000000u+t.tv_nsec; }
 static void *worker(void *arg) {
-    Engine *e=arg; unsigned done=0,view_done=0; float p[GP_COUNT]; int held=0;uint64_t next_synthesis=0;
+    Engine *e=arg;unsigned done[PADS]={0},view_done[PADS]={0};float p[GP_COUNT];
+    int held[PADS]={0},cursor=0;uint64_t next_synthesis=0;
     pthread_setname_np(pthread_self(),"gk-render");
     while(atomic_load(&e->running)) {
-        unsigned view,rev=snapshot(e,p,&view);
-        /* Coalesce fast knob input to at most ~30 render starts/second.
-         * Complete each chosen snapshot: aborting on every newer input starves
-         * audible updates while the wheel is moving. */
-        if(rev!=done && worker_clock_ns()<next_synthesis) { usleep(2000);continue; }
-        if(rev!=done || view!=view_done) {
-            int slot=-1;
-            for(int i=0;i<SLOTS;i++) { int free=0; if(atomic_compare_exchange_strong(&e->slots[i].refs,&free,-1)) { slot=i; break; } }
-            if(slot>=0) {
-                Cache *c=&e->slots[slot];
-                if(rev!=done) { next_synthesis=worker_clock_ns()+33000000u;synthesize(e,c,p,rev); }
-                else {
-                    /* A view switch reuses audio. held owns a reference even
-                     * when old notes, the ready queue and UI change slots. */
-                    configure(e,p);c->size=e->slots[held].size;c->revision=rev;
-                    memcpy(c->data,e->slots[held].data,c->size*sizeof(float));
-                }
-                {
-                    make_plot(e,c,p);c->view_revision=view;
-                    atomic_store(&c->refs,2); /* worker + ready/current */
-                    drop(e,atomic_exchange(&e->ready,slot));
-                    drop(e,held);held=slot;done=rev;view_done=view;
-                }
-            }
+        /* One shared DSP and a global 30-start/s budget. Round-robin prevents
+         * a continuously edited pad from starving the other fifteen sounds. */
+        int selected=atomic_load(&e->selected),pad=-1;
+        for(int k=0;k<PADS;k++) {
+            int candidate=(cursor+k)%PADS;
+            if(atomic_load(&e->pad_audio[candidate])!=done[candidate] ||
+               (candidate==selected && atomic_load(&e->pad_view[candidate])!=view_done[candidate])) {pad=candidate;break;}
+        }
+        if(pad<0){usleep(2000);continue;}
+        unsigned view,rev=snapshot(e,pad,p,&view);
+        if(rev!=done[pad] && worker_clock_ns()<next_synthesis){usleep(2000);continue;}
+        int slot=-1;
+        for(int i=0;i<SLOTS;i++){int free=0;if(atomic_compare_exchange_strong(&e->slots[i].refs,&free,-1)){slot=i;break;}}
+        if(slot>=0) {
+            Cache *c=&e->slots[slot];
+            if(rev!=done[pad]) {next_synthesis=worker_clock_ns()+33000000u;synthesize(e,c,p,rev);}
+            else {configure(e,p);c->size=e->slots[held[pad]].size;c->revision=rev;memcpy(c->data,e->slots[held[pad]].data,c->size*sizeof(float));}
+            make_plot(e,c,p);c->view_revision=view;
+            atomic_store(&c->refs,2); /* worker + ready/current, per pad */
+            drop(e,atomic_exchange(&e->ready[pad],slot));drop(e,held[pad]);
+            held[pad]=slot;done[pad]=rev;view_done[pad]=view;cursor=(pad+1)%PADS;
         }
         usleep(2000);
     }
-    drop(e,held);return NULL;
+    for(int pad=0;pad<PADS;pad++)drop(e,held[pad]);
+    return NULL;
 }
 
 static void preset(Engine *e,int which) {
-    stop_pending(e);
+    ++e->control_context;
     for(int i=0;i<GP_COUNT;i++) atomic_store(&e->values[i],gparams[i].def);
     put(e,"preset",which);
     switch(which) {
@@ -306,17 +279,26 @@ static void preset(Engine *e,int which) {
     }
     e->edit_time_valid=0;memset(e->dirty,1,sizeof e->dirty);e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;
 }
+#include "kit_controls.h"
+
 static void *create(const char *dir) {
     (void)dir;
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
-    e->current=-1; e->display_revision=1; atomic_init(&e->ready,-1); atomic_init(&e->revision,0); atomic_init(&e->audio_revision,0); atomic_init(&e->view_revision,0); atomic_init(&e->synthesis_count,0); atomic_init(&e->running,false);
-    for(int i=0;i<GP_COUNT;i++) atomic_init(&e->values[i],gparams[i].def);
+    e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
+    e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
+    for(int pad=0;pad<PADS;pad++) {
+        atomic_init(&e->ready[pad],-1);atomic_init(&e->pad_audio[pad],0);atomic_init(&e->pad_view[pad],0);e->pad_current[pad]=-1;
+        for(int i=0;i<GP_COUNT;i++)atomic_init(&e->pad_values[pad][i],gparams[i].def);
+        e->output_gain[pad]=gparams[index_of("volume")].def;
+    }
     for(int i=0;i<VOICES;i++)e->voices[i].slot=-1;
-    for(int i=0;i<SLOTS;i++) { atomic_init(&e->slots[i].refs,0); e->slots[i].data=calloc(MAX_SAMPLES,sizeof(float)); if(!e->slots[i].data)goto fail; }
-    gkick_humanizer_init(&e->humanizer);
-    e->output_gain=at(e,"volume");
+    for(int i=0;i<SLOTS;i++){atomic_init(&e->slots[i].refs,0);e->slots[i].data=calloc(MAX_SAMPLES,sizeof(float));if(!e->slots[i].data)goto fail;}
     if(gkick_synth_new(&e->synth,RATE)!=GEONKICK_OK)goto fail;
-    float p[GP_COUNT]; unsigned view; snapshot(e,p,&view); synthesize(e,&e->slots[0],p,0); make_plot(e,&e->slots[0],p); atomic_store(&e->slots[0].refs,2); e->current=0;
+    float p[GP_COUNT];unsigned view;snapshot(e,0,p,&view);synthesize(e,&e->slots[0],p,0);make_plot(e,&e->slots[0],p);
+    /* Initially every pad has the same Init: share immutable audio, not sixteen
+     * startup renders. Edits replace only that pad's retained cache. */
+    atomic_store(&e->slots[0].refs,PADS*2);e->current=0;
+    for(int pad=0;pad<PADS;pad++)e->pad_current[pad]=0;
     atomic_store(&e->running,true);
     if(pthread_create(&e->worker,NULL,worker,e)!=0) { atomic_store(&e->running,false); goto fail; }
     return e;
@@ -331,39 +313,31 @@ static void destroy(void *inst) {
     gkick_synth_free(&e->synth); for(int i=0;i<SLOTS;i++)free(e->slots[i].data); free(e);
 }
 static void midi(void *inst,const uint8_t *msg,int len) {
-    Engine *e=inst; if(!e||len<3)return;
+    Engine *e=inst;if(!e||len<3)return;
     int type=msg[0]&0xf0,ch=msg[0]&15,note=msg[1]&127,vel=msg[2]&127;
-    if(type==0xb0 && (note==120||note==123)) { stop_all(e); return; }
+    if(type==0xb0 && (note==120||note==123)){stop_all(e);return;}
     if(type==0x80 || (type==0x90&&!vel)) {
-        if(at(e,"playback")==2)for(int i=0;i<VOICES;i++)if(e->voices[i].note==note && e->voices[i].channel==ch)stop_voice(e,&e->voices[i]);
-        for(unsigned i=0;i<e->pending_count;) {
-            PendingHit *p=&e->pending[i];
-            if((p->playback==2 || at(e,"playback")==2) && p->note==note && p->channel==ch)remove_pending(e,i);else ++i;
-        }
+        /* A release still reaches its voice after changing the edited pad. */
+        for(int i=0;i<VOICES;i++)if(e->voices[i].gate && e->voices[i].note==note && e->voices[i].channel==ch)stop_voice(e,&e->voices[i]);
         return;
     }
     if(type!=0x90)return;
-    adopt(e);
-    int delay=0;
-    if(at(e,"human_on")>0) {
-        gkick_humanizer_enable(&e->humanizer,true);
-        float amount=at(e,"human_velocity"),timing=at(e,"human_timing");
-        if(e->humanizer.velocity_percent!=amount)gkick_humanizer_set_velocity_percent(&e->humanizer,amount);
-        if(e->humanizer.timing!=timing)gkick_humanizer_set_timing_percent(&e->humanizer,timing);
-        signed char velocity=(signed char)vel;float ms=0;
-        gkick_humanizer_velocity(&e->humanizer,&velocity);gkick_humanizer_timing(&e->humanizer,&ms);
-        int lower=(int)fmaxf(1,vel*(1-amount/100)),upper=(int)fminf(127,vel*(1+amount/100));
-        vel=(int)clampf((unsigned char)velocity,lower,upper);delay=(int)lroundf(ms*(RATE/1000.f));
-    }
-    e->last_human_velocity=vel;e->last_human_delay=delay;
-    PendingHit hit={.slot=e->current,.note=note,.channel=ch,.playback=(int)at(e,"playback"),
-        .step=exp2((at(e,"tune")+(at(e,"keytrack")>0?note-60:0))/12.0),.gain=vel/127.f,.due=e->sample_clock+(unsigned)delay};
-    atomic_fetch_add(&e->slots[hit.slot].refs,1);
-    if(delay)queue_hit(e,&hit);else start_hit(e,&hit);
+    int pad=e->kit_mode?note-e->kit_base:atomic_load(&e->selected);
+    if(pad<0 || pad>=PADS)return;
+    adopt(e);int playback=(int)pad_at(e,pad,"playback");
+    if(playback==1)for(int i=0;i<VOICES;i++)if(e->voices[i].pad==pad)choke_voice(e,&e->voices[i]);
+    int v=0;
+    for(int i=0;i<VOICES;i++){if(e->voices[i].slot<0){v=i;break;}if(e->voices[i].age<e->voices[v].age)v=i;}
+    choke_voice(e,&e->voices[v]);Voice *voice=&e->voices[v];
+    voice->slot=e->pad_current[pad];atomic_fetch_add(&e->slots[voice->slot].refs,1);
+    voice->pad=pad;voice->gate=playback==2;voice->pos=0;voice->gain=vel/127.f;
+    voice->note=note;voice->channel=ch;voice->age=++e->age;
+    voice->step=exp2((pad_at(e,pad,"tune")+(!e->kit_mode && pad_at(e,pad,"keytrack")>0?note-60:0))/12.0);
 }
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
-    if(human_set(e,key,text))return;
+    if(!strncmp(key,"human_",6))return; /* retired 0.0.20 slots are inert */
+    if(kit_set(e,key,text))return;
     if(filter_virtual_set(e,key,text))return;
     if(free_xy_set(e,key,text))return;
     if(free_virtual_set(e,key,text))return;
@@ -383,33 +357,14 @@ static void set_param(void *inst,const char *key,const char *text) {
         for(int j=0;j<G_ALIAS_COUNT;j++)if((galiases[j].kind>=3)!=(a->kind>=3) && !strcmp(galiases[j].target,a->target))e->dirty_alias[j]=1;
         return;
     }
-    if(!strcmp(key,"state")) {
-        int count;
-        if(!strncmp(text,"GKMP1 ",6))count=103;
-        else if(!strncmp(text,"GKMP2 ",6))count=184;
-        else if(!strncmp(text,"GKMP3 ",6))count=LEGACY_GP_COUNT;
-        else if(!strncmp(text,"GKMP4 ",6))count=GKMP4_GP_COUNT;
-        else if(!strncmp(text,"GKMP5 ",6))count=GKMP5_GP_COUNT;
-        else if(!strncmp(text,"GKMP6 ",6))count=GKMP6_GP_COUNT;
-        else if(!strncmp(text,"GKMP7 ",6))count=GP_COUNT;
-        else return;
-        float p[GP_COUNT];const char *s=text+6;char *end;
-        for(int i=0;i<GP_COUNT;i++)p[i]=gparams[i].def;
-        for(int i=0;i<count;i++) { p[i]=strtof(s,&end); if(end==s||!isfinite(p[i])||p[i]<gparams[i].lo||p[i]>gparams[i].hi)return; s=end; }
-        while(*s==' ')s++;
-        if(*s || !free_validate(p))return;
-        if(count<=GKMP5_GP_COUNT)filter_migrate(p);
-        atomic_fetch_add(&e->revision,1);
-        for(int i=0;i<GP_COUNT;i++)atomic_store(&e->values[i],gparams[i].discrete?roundf(p[i]):p[i]);
-        atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); stop_all(e); e->edit_time_valid=0;memset(e->dirty,1,sizeof e->dirty);e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1; return;
-    }
+    if(!strcmp(key,"state")){kit_load(e,text);return;}
     if(key[0]=='f' && key[1]>='1' && key[1]<='9' && key[2]=='_')return; /* private curve storage */
     int i=index_of(key); if(i<0)return;
     char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return;
     v=clampf(v,gparams[i].lo,gparams[i].hi);if(gparams[i].discrete)v=roundf(v);
-    if(!strcmp(key,"audition")) { if(v>0) { uint8_t m[]={0x90,60,110};midi(e,m,3); }return; }
+    if(!strcmp(key,"audition")) { if(v>0) { uint8_t m[]={0x90,(uint8_t)(e->kit_mode?e->kit_base+atomic_load(&e->selected):60),110};midi(e,m,3); }return; }
     if(!strcmp(key,"reset")) {
-        if(v>0) { atomic_fetch_add(&e->revision,1);preset(e,0);atomic_fetch_add(&e->audio_revision,1);atomic_fetch_add(&e->view_revision,1);atomic_fetch_add(&e->revision,1); }
+        if(v>0) { atomic_fetch_add(&e->revision,1);preset(e,0);audio_changed(e);view_changed(e);atomic_fetch_add(&e->revision,1); }
         return;
     }
     PointKey point;int point_key_changed=point_decode(key,&point);if(point_key_changed && point.field=='s')return;
@@ -445,20 +400,17 @@ static void set_param(void *inst,const char *key,const char *text) {
     }
     bool view_only=!strcmp(key,"plot_osc") || !strcmp(key,"plot_env") || !strcmp(key,"point_select");
     bool playback_only=!strcmp(key,"volume") || !strcmp(key,"tune") || !strcmp(key,"keytrack") || !strcmp(key,"playback");
-    if(!strcmp(key,"human_on") || !strcmp(key,"human_velocity") || !strcmp(key,"human_timing")){playback_only=true;++e->ui_revision;}
-    if(view_only)atomic_fetch_add(&e->view_revision,1);
-    else if(!playback_only)atomic_fetch_add(&e->audio_revision,1);
+    if(view_only)view_changed(e);
+    else if(!playback_only)audio_changed(e);
     atomic_fetch_add(&e->revision,1);
 }
 static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
+    if(!strcmp(key,"control_context"))return snprintf(buf,len,"%u",e->control_context);
+    if(!strncmp(key,"human_",6))return snprintf(buf,len,"0");
+    int kit_result=kit_get(e,key,buf,len);if(kit_result>=0)return kit_result;
     /* Wrapper serializes this call with MIDI/render. The display thread can
      * adopt a completed sound even while the host isn't processing audio. */
-    if(!strcmp(key,"human_last_velocity"))return snprintf(buf,len,"%d",e->last_human_velocity);
-    if(!strcmp(key,"human_last_delay"))return snprintf(buf,len,"%d",e->last_human_delay);
-    if(!strcmp(key,"pending_count"))return snprintf(buf,len,"%u",e->pending_count);
-    if(!strcmp(key,"pending_dropped"))return snprintf(buf,len,"%u",e->pending_dropped);
-    int human_result=human_get(e,key,buf,len);if(human_result>0)return human_result;
     int filter_result=filter_virtual_get(e,key,buf,len);if(filter_result>0)return filter_result;
     int xy_result=free_xy_get(e,key,buf,len);if(xy_result>0)return xy_result;
     int free_result=free_virtual_get(e,key,buf,len);if(free_result>0)return free_result;
@@ -496,12 +448,8 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         return snprintf(buf,len,"%.9g",e->slots[e->current].plot[c][column]/(float)((c==2?PLOT_ENV_LEVELS:PLOT_WAVE_LEVELS)-1));
     }
     if(!strcmp(key,"synthesis_count"))return snprintf(buf,len,"%u",atomic_load(&e->synthesis_count));
-    if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",(e->slots[e->current].revision!=atomic_load(&e->audio_revision) || e->slots[e->current].view_revision!=atomic_load(&e->view_revision)));
-    if(!strcmp(key,"state")) {
-        int n=snprintf(buf,len,"GKMP7");
-        for(int i=0;i<GP_COUNT && n<len;i++)n+=snprintf(buf+n,len-n," %.9g",atomic_load(&e->values[i]));
-        return n<len?n:0;
-    }
+    if(!strcmp(key,"render_pending"))return snprintf(buf,len,"%d",(e->slots[e->current].revision!=atomic_load(&e->pad_audio[atomic_load(&e->selected)]) || e->slots[e->current].view_revision!=atomic_load(&e->pad_view[atomic_load(&e->selected)])));
+    if(!strcmp(key,"state"))return kit_save(e,buf,len);
     int alias=alias_of(key);
     if(alias>=0) {
         float physical=at(e,galiases[alias].target);
@@ -512,28 +460,33 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
-    Engine *e=inst;for(int i=0;i<GP_COUNT;i++)if(e->dirty[i]) { e->dirty[i]=0;snprintf(key,len,"%s",gparams[i].key);return 1; }
+    Engine *e=inst;
+    for(unsigned i=0;i<KIT_NOTIFY_COUNT;i++)if(e->kit_dirty&(1u<<i)){e->kit_dirty&=~(1u<<i);snprintf(key,len,"%s",kit_notifications[i]);return 1;}
+    for(int i=0;i<GP_COUNT;i++)if(e->dirty[i]) { e->dirty[i]=0;snprintf(key,len,"%s",gparams[i].key);return 1; }
     for(int i=0;i<G_ALIAS_COUNT;i++)if(e->dirty_alias[i]) { e->dirty_alias[i]=0;snprintf(key,len,"%s",galiases[i].key);return 1; }
     for(int i=0;i<FREE_NOTIFY_COUNT;i++)if(e->free_dirty&(1u<<i)){e->free_dirty&=~(1u<<i);snprintf(key,len,"%s",free_notifications[i]);return 1;}
     for(int i=0;i<6;i++)if(e->point_dirty&(1u<<i)){e->point_dirty&=~(1u<<i);snprintf(key,len,"%s",point_notifications[i]);return 1;}
     return 0;
 }
 static void render(void *inst,mpc_sample_t *out,int frames) {
-    Engine *e=inst;adopt(e);float volume=at(e,"volume");
+    Engine *e=inst;adopt(e);float volume[PADS];
+    for(int pad=0;pad<PADS;pad++)volume[pad]=pad_at(e,pad,"volume");
     for(int n=0;n<frames;n++) {
-        start_due_hits(e);
-        float sum=e->cut_tail[e->cut_pos];e->cut_tail[e->cut_pos]=0;
+        float pad_sum[PADS];
+        for(int pad=0;pad<PADS;pad++){pad_sum[pad]=e->cut_tail[pad][e->cut_pos];e->cut_tail[pad][e->cut_pos]=0;}
         if(++e->cut_pos==EDGE_SAMPLES)e->cut_pos=0;
         for(int i=0;i<VOICES;i++) {
             Voice *v=&e->voices[i];if(v->slot<0)continue;
-            Cache *c=&e->slots[v->slot];int at=(int)v->pos;
-            if(at>=c->size) { stop_voice(e,v);continue; }
-            sum+=voice_sample(c,v->pos)*v->gain;v->pos+=v->step;
+            Cache *c=&e->slots[v->slot];if((int)v->pos>=c->size){stop_voice(e,v);continue;}
+            pad_sum[v->pad]+=voice_sample(c,v->pos)*v->gain;v->pos+=v->step;
         }
-        /* A 5 ms gain transition avoids block-boundary clicks when OUTPUT
-         * changes; the initial value and unchanged gain remain exact. */
-        e->output_gain+=(volume-e->output_gain)*(1.f/(0.005f*RATE));
-        out[n*2]=out[n*2+1]=sum*e->output_gain;++e->sample_clock;
+        float sum=0;
+        for(int pad=0;pad<PADS;pad++) {
+            e->output_gain[pad]+=(volume[pad]-e->output_gain[pad])*(1.f/(0.005f*RATE));
+            sum+=pad_sum[pad]*e->output_gain[pad];
+        }
+        e->kit_gain+=(e->kit_output-e->kit_gain)*(1.f/(0.005f*RATE));
+        out[n*2]=out[n*2+1]=sum*e->kit_gain;
     }
 }
 static const mpc_engine_t api={create,destroy,midi,set_param,get_param,render,NULL,NULL};

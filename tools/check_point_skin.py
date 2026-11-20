@@ -6,7 +6,7 @@ root=Path(__file__).resolve().parents[1]
 params=json.loads((root/'params.json').read_text())['params'];ids={p['key']:i for i,p in enumerate(params)}
 page=json.loads(next((root/'build/skin').glob('*/Plugin Skins/TUI.json')).read_text())['pageData']
 defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
-assert len(params)==3047
+assert len(params)==3053
 previous=json.loads(subprocess.check_output(['git','show','5b5a758:params.json'],cwd=root))['params']
 assert params[:len(previous)]==previous,'Changed previous VST identities/ranges/defaults'
 for tab in page['tabs']:
