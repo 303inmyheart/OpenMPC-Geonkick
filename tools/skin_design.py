@@ -6,6 +6,7 @@ from PIL import Image,ImageDraw,ImageFont
 ROOT=Path(__file__).resolve().parents[1]
 BG='#101a1e';PANEL='#1b292e';BORDER='#34484d';INK='#e9f0e9';MUTED='#94aaa9';GREEN='#b9ed68';AMBER='#efbc73';CYAN='#6cbab6'
 FONT=ROOT/'art/DejaVuSans.ttf';S=3
+PRESET_FRAME=(132,153,1148,474)
 
 def font(n):return ImageFont.truetype(str(FONT),round(n*S))
 def text(d,xy,label,size=13,fill=INK,anchor='mm'):
@@ -88,7 +89,7 @@ def panel_background(layout,bank,children,defs,skin):
         card((70,72,1210,225));card((70,244,1210,476));card((70,478,1210,611))
         text(d,(90,267),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,267),'DRAG POINTS',12,AMBER,'rm')
     elif name=='PRESETS':
-        card((132,153,1148,474));text(d,(640,515),'EIGHT STARTING POINTS  /  SHAPE YOUR OWN SOUND',13,MUTED)
+        card(PRESET_FRAME);text(d,(640,515),'EIGHT STARTING POINTS  /  SHAPE YOUR OWN SOUND',13,MUTED)
     # Group headings are static; actual conditional names remain inside native
     # controls. All target-dependent MODE headings occupy the same one place.
     seen=set()

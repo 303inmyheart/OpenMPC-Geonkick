@@ -10,7 +10,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.15 is a playable
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.16 is a playable
 single-instrument prototype, not the complete desktop application.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
@@ -27,6 +27,10 @@ waveforms and amber envelopes. Page/layer indicators and the Sounds tile share
 the same geometric percussion mark. Native gestures, input bounds, Q-Link maps,
 all parameters and the 0.0.14 audio remain unchanged. On-device visual acceptance
 is pending; previews below are offline renders.
+
+0.0.16 fixes oscillator-focus snapback after native host feedback and centres
+all eight MASTER/PRESETS buttons inside their panel. Native sanitizer, ARM64 and
+new host-echo/geometry regressions pass; actual MPC touch acceptance is pending.
 
 Short-hit ends now use a smooth 5 ms tail. Cut retriggers and stolen voices
 continue the old waveform through a bounded 5 ms fade while the new hit starts

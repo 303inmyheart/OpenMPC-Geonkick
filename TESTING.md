@@ -435,3 +435,40 @@ installed stripped SHA verified:
 `8820c78c7517355e9a50a2c87bcd20132d9bcefa2552018a395ddcf2e7fde990`.
 No global settings/project/unrelated-plugin changes, full reboot, Desktop copy,
 public release or formal benchmark. Real-device visual/touch acceptance pending.
+
+
+## 0.0.16 — canonical feedback and centred preset buttons (2026-11-20)
+
+Reproduced on actual VST code: echoing a getter's exact normalized o1_freq value
+through the old setter rounded its physical value via %g and selected oscillator 1
+again. The small opt-in CANONICAL_CONTINUOUS_ECHO patch returns early for exact
+ordinary continuous echoes. It does not change relative fine-step handling,
+switches, momentary actions, popup/step handles or genuinely changed input.
+The documented clean-base wrapper patch sequence applies successfully.
+
+New regression covers 9 targets x Amp/Pitch, with/without audio rendering, manual
+whole-control echoes and async graph/rebind feedback. Fractional physical values
+remain identical; a real o3_level edit still selects oscillator 3. Native sanitizer
+and actual ARM64 shared-object/QEMU full suites pass, including all existing
+fine/direct/raw-delta, point/state, waveform and short-kick/Cut tests. Running
+the new regression against the frozen 0.0.15 ARM64 library fails as expected
+(focus jumps to 8 during an exhaustive control echo), confirming the regression
+catches the old behavior. This is not claimed as a hardware touch acceptance test.
+
+Moved the preset grid 105 px upward. All 8 native buttons now fit inside the painted
+panel, with equal left/right margins and top/bottom margins differing by 1 px.
+Offline preview reviewed; input bindings and preset identities are unchanged.
+Current OpenMPC contribution/review guidance was reread. Updated packaging tools
+pin to 1af05b911e8580c8c2e473a1cc10119132e06eca, incorporating drive-folder detection, safe case-only
+retirement handling and BOM/CRLF checks. Current catalog/portable/text/checksum/
+privacy validation passes with zero warnings. No formal CPU benchmark was run.
+
+Final installer SHA-256:`20d2078778e735dd7e56a714d115dc2c9366aff0fc931ec18641618f000e374f`.
+The Desktop copy Geonkick-MPC-Gen2-0.0.16-dev1.zip is byte-identical to it.
+After initially asking to leave the MPC alone, the user gave a fresh specific Go
+for this build. Previous 0.0.15 backed up locally; 1488 files staged/hash-verified;
+settings unchanged during replacement. MPC app restarted active/running and
+installed stripped SHA verified:`bb720a443f8c593473532a0b4834088b9d8e5a8d61aa970cfe40b3b22ae097b0`.
+No global settings/project/unrelated-plugin changes, full reboot or public
+release. Actual native selector/preset acceptance remains pending. Future device
+access still requires fresh authorization; the prior automatic grant was revoked.

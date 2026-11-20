@@ -1,0 +1,21 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -511,6 +511,18 @@
+     wrap_t *w = e->object;
+     if(live_readonly(i))return;
+     if(FINE_TRACK_RAW_INPUT && reporting_instance==w && reporting_index==i && fabsf(n-reporting_value)<1e-6f)return;
++#if defined(CANONICAL_CONTINUOUS_ECHO) && CANONICAL_CONTINUOUS_ECHO
++    /* A native skin rebind may read then write back the exact float value.
++     * Do not round-trip it through %g: that can change the physical value and
++     * make a view-following engine select a different oscillator. Fine relative
++     * gestures and all switches/actions keep their existing processing path. */
++    if(i>=0 && i<NPARAMS) {
++        const param_t *p=&PARAMS[i];
++        if(!p->nopts && !p->int_display && !p->momentary && !p->string_display &&
++           p->step_target<0 && p->popup_of<0 && !p->nudge_pct && p->nudge_gain<=1 &&
++           n==get_norm(w,i))return;
++    }
++#endif
+     /* An acknowledgement of our accepted stepped value is not a new turn.
+      * Feeding it into settle() overwrites the fractional gesture history and
+      * reverses the next absolute knob event. Track only values actually reported

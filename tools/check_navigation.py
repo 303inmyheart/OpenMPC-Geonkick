@@ -37,3 +37,15 @@ for t in tabs:
    assert not any(a.get('handler')=='Q-Link' for a in d.get('actions',[])),(bank,'non-rotary hardware focus')
  print(t['tabName'],':',', '.join(params[i]['key'] for i in assigned) or 'touch only')
 print('25 pages reachable on six keys; only rotary Q-Links; selectors/sliders/points touch-only; full native bounds PASS')
+
+# The native eight-button grid must be centred inside the actual painted field.
+from skin_design import PRESET_FRAME
+preset=next(t for t in tabs if t['componentName']=='PRESETS|PRESETS')
+cells=[c for c in defs[preset['componentName']]['componentsData'] if any(m['key']=='Data' and m['value']=='Parameter '+str(ids['preset']) for m in c.get('handle remapping',{}).get('map',[]))]
+assert len(cells)==8
+rects=[tuple(map(int,c['bounds']['bounds'].split())) for c in cells]
+l=min(r[0] for r in rects);top=min(r[1] for r in rects);r=max(x+w for x,y,w,h in rects);bottom=max(y+h for x,y,w,h in rects)
+fl,ft,fr,fb=PRESET_FRAME
+assert fl<=l<r<=fr and ft<=top<bottom<=fb
+assert abs((l+r)-(fl+fr))<=1 and abs((top+bottom)-(ft+fb))<=1
+print('All eight preset buttons inside and centred in their panel, horizontal/vertical margins balanced PASS')

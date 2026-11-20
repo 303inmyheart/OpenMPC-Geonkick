@@ -231,7 +231,7 @@ qlink_bounds=column
     for k,label,x,y in [('cutoff','CUTOFF',774,235),('q','RESONANCE',1072,235),('drive','DRIVE',774,470),('drive_out','DRIVE OUTPUT',1072,470)]:knob(k,label,x,y)
     lines += ['qlinks "EFFECTS" = filter_on,drive_on,-,-,filter_type,drive_type,-,-,cutoff,drive,-,-,q,drive_out,-,-',
               '\n[tab PRESETS]','frame x=24 y=104 w=1230 h=590 title="GEONKICK / STARTING POINTS"',
-              'enum_h cx=640 cy=405 sw=470 sh=64 rows=4 label="PRESETS" key=preset',
+              'enum_h cx=640 cy=300 sw=470 sh=64 rows=4 label="PRESETS" key=preset',
               'toggle cx=1090 cy=672 bw=210 label="RESET INIT" key=reset',
               'qlinks "PRESETS" = preset,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-']
     lines += ['\n[tab ENVELOPE]','frame x=24 y=104 w=1230 h=590 title="GEONKICK / POINT ENVELOPE"',

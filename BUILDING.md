@@ -11,10 +11,11 @@ patches/mpc-async-host-notify.patch, then
 patches/mpc-display-parameter-budget.patch and
 patches/mpc-coalesced-graph-and-fine-input.patch, then
 patches/mpc-graph-rebind-and-input-observation.patch and
-patches/mpc-accumulated-fine-input.patch applied, in that order. The wrapper is not copied into this repository.
+patches/mpc-accumulated-fine-input.patch, followed by
+patches/mpc-canonical-continuous-echo.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
-`42420b6717b93e954ef3992d9a7aa0909f1e4bec` in the neighbouring
-`mpc-vst-plugins-release-tools-20261115` checkout. This revision includes explicit VST2 plugin
+`1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
+`mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
 format metadata and the current install/uninstall templates. The default
 release-tools directory and exact pin are recorded in release.json.
 `MPC_RELEASE_TOOLS` may select an equivalent checkout at that exact pin.
@@ -228,3 +229,14 @@ plot_assets.py preserves all strip sizes/frame counts while changing colours.
 render_ui.py paints native backgroundData and envelope colours for faithful
 layout review. All assets remain generated from source; no desktop screenshots,
 manufacturer artwork or new runtime drawing engine is included.
+
+
+0.0.16 opts into CANONICAL_CONTINUOUS_ECHO in the final wrapper patch. An exact
+get/set echo of an ordinary continuous normalized value is a no-op before %g
+conversion. That avoids six-digit physical rounding selecting the echoed knob's
+oscillator. Fine-relative controls, switches, momentary actions, step/popup
+handles and real changed writes retain the original path. Other ports do not
+opt in and are unaffected. The full documented wrapper patch sequence was
+checked against the clean pinned base. focus_echo_test.c exercises all nine
+Amp/Pitch contexts, stopped and rendering, including async host rebinds and
+preservation of fractional physical state. The same test fails on 0.0.15.

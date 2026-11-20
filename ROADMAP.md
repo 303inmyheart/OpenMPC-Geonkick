@@ -110,3 +110,20 @@ Native/ARM64/point/geometry/installer checks pass; installed under standing
 permission. Live III visual/touch acceptance remains pending. No formal benchmark
 or public release. Next work remains the previously deferred envelope/kit/parity
 items and actual MPC listening/interaction validation.
+
+
+## 0.0.16 — focus feedback and preset alignment
+
+Exact continuous host echoes are ignored before decimal conversion, preventing
+oscillator-focus changes and physical-value rounding during skin rebinds. All
+nine targets and Amp/Pitch are regression-tested while stopped/rendering; genuine
+knob edits still select their oscillator. The nine fine adapters/accumulated raw
+input tests remain passing. Eight preset buttons are fully inside and centred
+in their painted panel; horizontal/vertical margins checked from actual native
+bounds. Current packaging tools reviewed and updated, zero checker warnings.
+
+Installer delivered to Desktop and installed under a fresh build-specific Go;
+MPC application restarted. Latest on-device selector/preset acceptance pending.
+No formal Store benchmark, public Geonkick release or renewed blanket permission
+for future device access. The JC303 Plugin Manager image issue is recorded in
+JC303's roadmap separately.

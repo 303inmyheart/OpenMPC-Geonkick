@@ -34,6 +34,7 @@ def prepare():
     if 'GRAPH_INVALIDATION_ONLY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-coalesced-graph-and-fine-input.patch first.')
     if 'GRAPH_REBIND_ON_REFRESH' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-graph-rebind-and-input-observation.patch first.')
     if 'FINE_TRACK_RAW_INPUT' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-accumulated-fine-input.patch first.')
+    if 'CANONICAL_CONTINUOUS_ECHO' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-canonical-continuous-echo.patch after mpc-accumulated-fine-input.patch.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()
