@@ -217,6 +217,13 @@ for layer in range(1,4):
         elif column<4:
             key=f'ui_view_l{column+1}' if column<3 else 'ui_view_mix'
             p(key,'Waveform View',0,1,0,display='string',poll=False,live=True,legacy=True)
+        elif column==4:
+            opt('sound_layer','Sound Layer',['Layer 1','Layer 2','Layer 3'],refresh_display=True)
+        elif 5<=column<=10:
+            slot=(column-5)//2+1;suffix='freq_fine' if (column-5)%2==0 else 'level'
+            original=next(x for x in params if x['key']==f'o{slot}_{suffix}')
+            proxy=dict(original,key=f'sound_o{slot}_{suffix}',name=f'Sound Osc{slot} '+('Frequency' if suffix=='freq_fine' else 'Level'))
+            params.append(proxy)
         elif column<114:
             p(f'viz_l3_e_{column}',f'Reserved Display{column}',0,1,0,live=True,legacy=True)
         elif column==114:

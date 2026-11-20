@@ -1,4 +1,4 @@
-# Samples — Geonkick MPC0.0.25
+# Samples — Geonkick MPC0.0.27
 
 1. Select the sound on MASTER → KIT. Open MASTER → SAMPLES and choose the target
    oscillator (L1/1–L3/3). Each of the16 pads can retain samples on all9 oscillators.
@@ -42,18 +42,16 @@ per pad and learned note map remain unchanged. Optional VIEW1 remembers the thre
 layer targets; SMP1 contains unique pad/oscillator assets, source mode, count,
 filename and float PCM. These extensions require0.0.23 or newer.
 
-SOUND tabs each show their own layer waveform and its remembered oscillator/envelope.
-Layer waveforms are tapped during the existing synthesis pass, after oscillator
-FX and layer gain, before the shared master filter/drive. MIX and ENVELOPE keep
-the combined final waveform; muted layers correctly show silence.
-Their quick sliders follow the same target. Editing an oscillator selects it
-for that layer; switching tabs itself only displays the already cached view.
-No new synthesis or per-column host callback is required on tab switching.
+SOUND now has one overview with explicit LAYER1/2/3 Touch buttons. The waveform,
+envelope, controls and Q-Links follow the same selected layer/remembered oscillator.
+The432-column layer waveforms are tapped during existing synthesis, after
+oscillator FX/layer gain and before shared master effects. MIX/editor retain the
+finished mixed waveform. Switching layers only selects cached data; no resynthesis.
 
 Format references: [Microsoft WAVEFORMATEX](https://learn.microsoft.com/en-us/windows/win32/api/mmreg/ns-mmreg-waveformatex),
 [Microsoft WAVEFORMATEXTENSIBLE](https://learn.microsoft.com/en-us/windows/win32/api/mmreg/ns-mmreg-waveformatextensible).
 
 In0.0.25 OPEN STORAGE is deliberately named the same before/after choosing a
 folder; SET DEFAULT is the saving action. Its native parameter is4095, within the
-MPC handle registry. The shared SOUND display retains432 columns and switches
-cached data through the visible context caption; MIX/ENVELOPE restore mixed data.
+MPC handle registry. The SOUND layer selector directly chooses cached432-column data;
+MIX/ENVELOPE retain mixed data.

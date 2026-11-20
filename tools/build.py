@@ -49,6 +49,7 @@ def prepare():
     if 'CONTROL_CONTEXT_REV' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-control-context.patch.')
     if 'DYNAMIC_PARAM_UNITS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-sample-dynamic-units.patch last.')
     if 'UI_DISPLAY_CONTEXT' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-native-display-context.patch last.')
+    if 'UI_ONLY_INPUTS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-ui-only-inputs.patch last.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()
@@ -71,6 +72,8 @@ def skin():
     run([sys.executable,'tools/skin_design.py'])
     run([sys.executable,'tools/check_point_skin.py'])
     run([sys.executable,'tools/check_navigation.py'])
+    run([sys.executable,'tools/sound_overview.py'])
+    run([sys.executable,'tools/check_sound_overview.py'])
     folder=ROOT/'build/skin'/f"{CFG['vendor']} - VST - {CFG['name']}"/'Plugin Skins'
     run([sys.executable,MPC/'tools/studio.py','preview',folder,'-o',ROOT/'build/preview_%d.png'])
 if __name__=='__main__':

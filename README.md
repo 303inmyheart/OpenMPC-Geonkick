@@ -12,7 +12,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.26 includes sixteen independent pad sounds and WAV sample import per
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.27 includes sixteen independent pad sounds and WAV sample import per
 oscillator. Original preset/soundbank conversion is the following phase and will
 use native MPC presets and the Sounds browser.
 
@@ -331,3 +331,16 @@ Fresh Live III acceptance remains separate. Audio synthesis/point state unchange
 settings unchanged during replacement, MPC app restarted active/running and
 installed library matches the uninstrumented installer. Temporary device trace
 removed. Native waveform/tab acceptance remains pending user retest.
+
+0.0.27 replaces the three SOUND subpages with one overview and explicit LAYER1/2/3
+Touch buttons. This selection directly controls the waveform, envelope target,
+visible controls and overview Q-Links. Original detail pages and physical
+parameters remain available. UI captions never change engine state. Each layer's
+432-column waveform is tested against an independently audible solo instance.
+UI-scoped Q-Link inputs notify their canonical oscillator parameters; native
+MPC automation recording still needs device validation.
+
+0.0.27 installed:1865 package files verified, previous plugin backed up locally,
+MPC application restarted active/running and installed library matches installer.
+User reports the new overview appears to work and is continuing brief hardware
+tests; full Q-Link/navigation/automation acceptance is not yet complete.

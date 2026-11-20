@@ -1,3 +1,24 @@
+# Current verification —0.0.27
+
+Explicit SOUND Touch selection, not caption formatting or tab guesses. The actual
+shared-library test compares every432-column positive/negative layer waveform
+with the final mixed audio waveform of a separate, soloed instance. All three
+layer curves/targets follow the selector, including repeat navigation, cached
+first-tab/other-tab labels, full get/name scans and two instances. Read/format
+calls never change selection. Detail editing updates the same canonical target.
+
+All9 layer/slot fine proxies step5cents and leave other oscillators untouched;
+existing direct Touch movement remains continuous, then a fine step still moves
+exactly one tick. UI navigation/proxies cannot record a context-dependent host
+index; their canonical oscillator parameters stay automatable and receive change
+notifications. Sample pitch units, remembered oscillator focus and instance
+isolation are tested. Native MPC Q-Link/automation paths require device acceptance.
+
+Final skin validator checks25 native pages on6 keys, three conditionally visible
+panels in one SOUND page, touch-only layer selection,8 rotary Q-Links with complete
+frames and all handles within0..4095. Existing physical IDs, GKMP9 sample kits,
+learned map, DSP audio and point editor tests remain. No final-release benchmark.
+
 # Current verification —0.0.26
 
 Real-device diagnostics identified repeated first-tab/visible-tab caption queries
@@ -577,3 +598,8 @@ view following, folder button and UI responsiveness remain user acceptance.
 settings unchanged during replacement, MPC app restarted active/running and
 installed library matches the uninstrumented installer. Temporary device trace
 removed. Native waveform/tab acceptance remains pending user retest.
+
+0.0.27 installed:1865 package files verified, previous plugin backed up locally,
+MPC application restarted active/running and installed library matches installer.
+User reports the new overview appears to work and is continuing brief hardware
+tests; full Q-Link/navigation/automation acceptance is not yet complete.

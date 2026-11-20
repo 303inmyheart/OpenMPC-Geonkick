@@ -389,3 +389,25 @@ native MPC presets/banks, replacing MASTER/PRESETS; KIT tutorial before release.
 settings unchanged during replacement, MPC app restarted active/running and
 installed library matches the uninstrumented installer. Temporary device trace
 removed. Native waveform/tab acceptance remains pending user retest.
+
+
+0.0.27: user reported26 loses the SOUND waveform after navigating and ENVELOPE
+can recover it. Device journal loads26 correctly, with no matching texture/
+plugin exception; caption-format contexts remain unreliable across cached pages.
+User explicitly approved ONE SOUND page with three layer Touch buttons. The
+new selector derives directly from the stored plot_osc target; choosing a layer
+restores its remembered oscillator. No inferred tab context/timer or caption side
+effects. Shared waveform data directly follows this same selected layer, and the
+existing global envelope matches the selected oscillator. MIX/editor keep mixed
+audio. The detail pages remain. Six overview Q-Link proxies follow current layer;
+coarse Touch to fine handover resets stale raw history. Canonical physical
+parameter notifications preserve stable automation targets; recording acceptance
+is pending. All physical/state identities remain; only7 unused display slots are
+reallocated below4096.25 pages on6 keys; full432-column view. Next after hardware
+acceptance: native MPC presets/Sounds and soundbank import, removing MASTER/
+PRESETS when native Init/factory sounds replace it; KIT tutorial before release.
+
+0.0.27 installed:1865 package files verified, previous plugin backed up locally,
+MPC application restarted active/running and installed library matches installer.
+User reports the new overview appears to work and is continuing brief hardware
+tests; full Q-Link/navigation/automation acceptance is not yet complete.

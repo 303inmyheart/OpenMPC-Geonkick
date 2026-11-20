@@ -43,8 +43,7 @@ typedef struct {
     struct gkick_synth *synth;
     Cache slots[SLOTS];
     Voice voices[VOICES];
-    int current,pad_current[PADS],display_layer,pending_display_layer;
-    uint64_t display_layer_requested_ns;
+    int current,pad_current[PADS];
     unsigned age;
     unsigned display_revision,ui_revision;
     float output_gain[PADS];
@@ -329,7 +328,7 @@ static void preset(Engine *e,int which) {
 
 static void *create(const char *dir) {
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
-    e->display_layer=e->pending_display_layer=-1;sample_init(e,dir);
+    sample_init(e,dir);
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
     for(int pad=0;pad<PADS;pad++) {
@@ -385,8 +384,28 @@ static void hit_pad(Engine *e,int pad,int note,int ch,int vel) {
     if(pad>=0 && pad<PADS)hit_pad(e,pad,note,ch,vel);
 }
 
+static int sound_proxy(Engine *e,const char *key,char *target,size_t size) {
+    int slot;char suffix[64],tail;
+    if(sscanf(key,"sound_o%d_%63s%c",&slot,suffix,&tail)!=2 || slot<1 || slot>3)return 0;
+    int layer=(int)at(e,"plot_osc")/3;
+    return snprintf(target,size,"o%d_%s",layer*3+slot,suffix)>0;
+}
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
+    char proxy[96];if(sound_proxy(e,key,proxy,sizeof proxy)){
+        int alias=alias_of(proxy);float before=alias>=0?at(e,galiases[alias].target):0;
+        set_param(e,proxy,text);
+        /* The overview is an editor for canonical oscillator parameters. Notify
+         * the physical fine parameter so hosts record a stable layer target. */
+        if(alias>=0 && at(e,galiases[alias].target)!=before)e->dirty_alias[alias]=1;
+        return;
+    }
+    if(!strcmp(key,"sound_layer")) {
+        char *end;float value=strtof(text,&end);if(end==text||*end||!isfinite(value)||value<0||value>2)return;
+        int layer=(int)lroundf(value),pad=atomic_load(&e->selected),osc=atomic_load(&e->sound_focus[pad][layer]);
+        if((int)at(e,"plot_osc")!=osc){char target[16];snprintf(target,sizeof target,"%d",osc);++e->control_context;set_param(e,"plot_osc",target);}
+        return;
+    }
     if(!strncmp(key,"human_",6))return; /* retired 0.0.20 slots are inert */
     if(sample_set(e,key,text))return;
     if(kit_set(e,key,text))return;
@@ -405,6 +424,9 @@ static void set_param(void *inst,const char *key,const char *text) {
         const GAlias *a=&galiases[alias];
         float physical=a->kind==3?20.f*expf(logf(600.f)*clampf(v,0,1)):a->kind>=4?a->lo+(a->hi-a->lo)*clampf(v,0,1):a->kind==1?v/1000.f:a->kind==2?v/100.f:clampf(55.f*exp2f(v/240.f),20,12000);
         char value[48];snprintf(value,sizeof value,"%.9g",physical);
+        /* Coarse touchscreen pitch movement invalidates the shared overview
+         * Q-Link's previous raw coordinate, as a layer/pad change already does. */
+        if(a->kind==3)++e->control_context;
         set_param(e,galiases[alias].target,value);
         for(int j=0;j<G_ALIAS_COUNT;j++)if((galiases[j].kind>=3)!=(a->kind>=3) && !strcmp(galiases[j].target,a->target))e->dirty_alias[j]=1;
         return;
@@ -460,6 +482,8 @@ static void set_param(void *inst,const char *key,const char *text) {
 }
 static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
+    char proxy[96];if(sound_proxy(e,key,proxy,sizeof proxy))return get_param(e,proxy,buf,len);
+    if(!strcmp(key,"sound_layer"))return snprintf(buf,len,"%d",(int)at(e,"plot_osc")/3);
     if(!strcmp(key,"control_context"))return snprintf(buf,len,"%u",e->control_context);
     if(!strncmp(key,"human_",6))return snprintf(buf,len,"0");
     int sample_result=sample_get(e,key,buf,len);if(sample_result>=0)return sample_result;
@@ -470,17 +494,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     int xy_result=free_xy_get(e,key,buf,len);if(xy_result>0)return xy_result;
     int free_result=free_virtual_get(e,key,buf,len);if(free_result>0)return free_result;
     int point_result=point_virtual_get(e,key,buf,len);if(point_result>0)return point_result;
-    if(!strcmp(key,"display_rev")) {
-        sample_poll(e);adopt(e);
-        /* MPC rebuilds first-tab labels before the visible tab's labels. Do not
-         * publish transient formatting contexts or cause another rebuild loop.
-         * Only a stable last request is adopted by this normal-priority scan. */
-        if(e->pending_display_layer!=e->display_layer &&
-           worker_clock_ns()-e->display_layer_requested_ns>=UINT64_C(100000000)) {
-            e->display_layer=e->pending_display_layer;++e->display_revision;
-        }
-        return snprintf(buf,len,"%u",e->display_revision+e->ui_revision);
-    }
+    if(!strcmp(key,"display_rev")) { sample_poll(e);adopt(e);return snprintf(buf,len,"%u",e->display_revision+e->ui_revision); }
     if(!strcmp(key,"graph_revision"))return snprintf(buf,len,"%u",e->display_revision%1024);
     if(!strcmp(key,"ui_env_focus")) {
         int focus=(int)at(e,"plot_osc");char wave[32];snprintf(wave,sizeof wave,"o%d_wave",focus+1);
@@ -520,7 +534,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     }
     char view_channel,view_tail;int view_col;
     if(sscanf(key,"viz_sound_%c_%d%c",&view_channel,&view_col,&view_tail)==2 && (view_channel=='p'||view_channel=='n') && view_col>=0&&view_col<PLOT_COLUMNS){
-        int l=e->display_layer>=0?e->display_layer:0;
+        int l=(int)at(e,"plot_osc")/3;
         return snprintf(buf,len,"%.9g",e->slots[e->current].layer_wave[l][view_channel=='n'][view_col]/(float)(PLOT_WAVE_LEVELS-1));
     }
     int layer,column;char extra,field[32];
@@ -536,7 +550,6 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
         char channel,trailing;int column;
         if(sscanf(key,"viz_%c_%d%c",&channel,&column,&trailing)!=2 || column<0 || column>=PLOT_COLUMNS)return 0;
         int c=channel=='p'?0:channel=='n'?1:channel=='e'?2:-1;if(c<0)return 0;
-        if(c==2 && e->display_layer>=0)return snprintf(buf,len,"%.9g",e->slots[e->current].layer_plot[e->display_layer][column]/(float)(PLOT_ENV_LEVELS-1));
         return snprintf(buf,len,"%.9g",e->slots[e->current].plot[c][column]/(float)((c==2?PLOT_ENV_LEVELS:PLOT_WAVE_LEVELS)-1));
     }
     if(!strcmp(key,"synthesis_count"))return snprintf(buf,len,"%u",atomic_load(&e->synthesis_count));
@@ -551,13 +564,8 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     int i=index_of(key);if(i<0)return 0;
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));
 }
-void mpc_engine_ui_display(void *inst,const char *key) {
-    Engine *e=inst;int l=-2;char tail;
-    if(!strcmp(key,"ui_view_mix"))l=-1;
-    else {int n;if(sscanf(key,"ui_view_l%d%c",&n,&tail)==1 && n>=1&&n<=3)l=n-1;}
-    if(l>=-1 && l!=e->pending_display_layer){
-        e->pending_display_layer=l;e->display_layer_requested_ns=worker_clock_ns();
-    }
+int mpc_engine_ui_only_input(const char *key) {
+    return !strcmp(key,"sound_layer") || !strncmp(key,"sound_o",7);
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
     Engine *e=inst;

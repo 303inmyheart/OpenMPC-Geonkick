@@ -430,3 +430,26 @@ change. This avoids publishing first-tab intermediates during MPC's native
 rebind. Hook requests themselves never trigger resynthesis or immediate rebinds.
 The14-patch wrapper stack is unchanged. The replay fixture exercises the real
 shared library with a host that reproduces the measured formatting order.
+
+0.0.27 disables UI_DISPLAY_CONTEXT (old patch14 may remain applied but is inactive).
+The engine has no formatter hook, pending context or timer. sound_layer directly
+reads plot_osc/3; setting it restores the per-layer remembered oscillator. Shared
+waveform reads use this same layer and the original envelope uses plot_osc.
+Seven unused display slots3985..3991 become the selector and6 fine/level overview
+proxies; first3985 descriptors and3992..4095 stay exact. GP1551/GKMP9 unchanged.
+Proxy set/get/display/unit calls resolve to current layer's canonical oscillator
+fields; fine edits enqueue canonical fine feedback. Direct frequency Touch clears
+control_context so subsequent shared fine input does not reuse an old coordinate.
+
+Opt-in patch15 mpc-ui-only-inputs.patch adds a weak UI-only predicate for
+canBeAutomated. It prevents recording a context-dependent proxy index; direct
+setParameter still edits canonical parameters and their feedback remains. Detail
+parameters retain their original IDs/automation. Other ports do not opt in.
+Native automation recording acceptance is a hardware check, not proven by QEMU.
+
+Skin build: generate/style/check original panels, then sound_overview.py flattens
+and masks them with IndexedEnabling/sound_layer, inserts the three native Touch
+buttons and remaps six rotary Data bindings/Q-Links. Detail Touch handles stay
+physical. check_sound_overview.py verifies the final deliverable; package.py
+requires that check. Original intermediate navigation checker still validates
+unchanged detail pages. Captions/formatting never select a layer.
