@@ -20,7 +20,7 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
 5. **Native MPC starter presets** —0.0.28 implemented eight MPC starting
    recipes plus a16-pad kit and removed MASTER/PRESETS. These were not the
    original factory library. Native browser hardware acceptance is still separate.
-6. **Original Geonkick factory presets — NOW FIRST** — user explicitly moved
+6. **Original Geonkick factory presets — integration correction first** — user explicitly moved
    this before redesign. Convert102 original.gkick files and7.gkit files from
    all9 pinned factory packs to native MPC.xpl, retaining original DSP envelopes,
    FM/seed/pitch/sample settings and pack-specific attribution/licences. Preserve
@@ -460,3 +460,18 @@ edits pass. Final118 XPL payloads/UID/version/path/hashes checked, installer
 Next after acceptance: redesign including selected-WAV preview before Load.
 General user.gkick/.gkit import, kit management and release tutorial remain later.
 No formal Store benchmark or public release for this development build.
+
+
+## 0.0.30 — fix native preset menu/browser integration
+
+User0.0.29 acceptance failed: new browser presets open Init; MPC PRESET menu shows
+only8. Fix before any redesign. Add the actual118-entry native VST program bank,
+matching unique <=23-byte browser names, complete-state loads, saved PRG1 identity
+and exact source-ID migration for older factory snapshots. First8 legacy VST
+indices and all4096 parameter IDs/ranges stay unchanged.
+
+Actual shared-library test enumerates118 names without mutation and compares
+all110 appended selections with original full states; saved edits survive JUCE-
+style indexed/current name queries and current-program re-selection. Existing
+factory DSP/state suites remain required. Hardware acceptance pending.
+Next after acceptance: redesign including selected-WAV preview/stop before Load.

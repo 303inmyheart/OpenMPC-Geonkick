@@ -2,6 +2,7 @@
 """Validate the actual portable MPC preset files, including their VST chunks."""
 import hashlib,json,sys,xml.etree.ElementTree as ET
 import build
+import factory_bank,program_bank
 sys.path.insert(0,str(build.MPC/'tools'))
 import xpl
 
@@ -16,6 +17,9 @@ def check():
     assert len(factory)==109
     expected += [item['file'] for item in factory]
     assert len(manifest)==118 and [item['file'] for item in manifest]==expected
+    _,presets,_=factory_bank.load()
+    assert [item['name'] for item in manifest]==program_bank.names(presets)
+    assert build.CFG['defines']['ENGINE_PROGRAM_COUNT']==118
     assert sorted(p.name for p in directory.iterdir())==sorted(expected)
     for item in manifest:
         tree=ET.parse(directory/item['file']).getroot()

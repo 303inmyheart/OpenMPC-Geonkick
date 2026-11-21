@@ -1,3 +1,26 @@
+# Current verification —0.0.30 native program integration
+
+Hardware0.0.29 report: old browser sounds load; new factory files create Init,
+and MPC's plugin PRESET menu lists only the original8 programs. Bounded private
+trace confirms the working old browser path uses effSetProgram1; new files create
+a default instance without effSetProgram or effSetChunk. XML/payload validation
+alone did not test this host integration. A temporary empty-preset-marker trial
+did not fix it and is replaced by the final package.
+
+The opt-in engine program bank now exposes118 unique names of at most23ASCII
+bytes, matching browser preset names. The first8 VST indices and underlying
+8-option parameter are unchanged. New menu loads use immutable complete states,
+with no file IO. Program identity is saved as PRG1; source-ID vectors recover
+the identity from0.0.29 snapshots. Indexed/current name scans are side-effect-free,
+and re-selecting the restored current program keeps edits. Every new menu load
+is compared byte-for-byte (excluding the new identity stamp) with the independent
+original-state load path through the actual shared VST library.
+
+Both full native sanitizer and actual ARM64/QEMU suites are required, including
+the prior183-sound DSP oracles and largest sample-kit close/reopen. Final browser
+XPL names/payloads and118-menu count must be checked. Actual MPC browser/menu
+acceptance remains pending; no formal Store benchmark.
+
 # Current verification —0.0.29
 
 All109 original factory presets/kits (183 sound entries including kit copies)
@@ -651,3 +674,10 @@ installed binary matches final ZIP. Native browser acceptance remains pending.
 previous version backed up; all118 XPL paths resolved to the registered plugin.
 Settings unchanged during replacement. MPC application restarted active/running,
 actual binary matches the final installer. Hardware browser/hearing pending.
+
+
+0.0.30 installed:1985 files verified, all118 browser paths resolved; settings
+unchanged. MPC app restarted active/running with changed process ID; final binary
+matches installer. Temporary diagnostic removed, exact three/tmp logs retrieved
+and deleted. User subsequently reports "seems to work"; broader hearing/native
+save acceptance remains separate.

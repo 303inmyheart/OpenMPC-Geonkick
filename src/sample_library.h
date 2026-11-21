@@ -197,6 +197,7 @@ static int sample_uint(const char **s,unsigned *out,unsigned max) {
 static void sample_restore_free(SampleRestore *r){if(r){for(int p=0;p<PADS;p++)for(int o=0;o<9;o++)sample_free(r->assets[p][o]);free(r);}}
 static SampleRestore *sample_restore_read(const char *s,const float rows[PADS][GP_COUNT]) {
     SampleRestore *r=calloc(1,sizeof *r);if(!r)return NULL;
+    r->program=-1;
     for(int p=0;p<PADS;p++)for(int l=0;l<3;l++){int osc=(int)rows[p][index_of("plot_osc")];r->focus[p][l]=osc/3==l?osc:l*3;}
     while(isspace((unsigned char)*s))s++;
     if(!strncmp(s,"VIEW1 ",6)) {
@@ -227,11 +228,23 @@ static SampleRestore *sample_restore_read(const char *s,const float rows[PADS][G
         }
         while(isspace((unsigned char)*s)){s++;}
     }
+    if(!strncmp(s,"PRG1 ",5)){
+        s+=5;unsigned program;if(!sample_uint(&s,&program,BANK_PROGRAM_COUNT-1))goto fail;r->program=(int)program;
+        while(isspace((unsigned char)*s))s++;
+    }else{
+        /*0.0.29 snapshots predate menu metadata. Recover their program from the
+         * complete, immutable source identity vector, never a guessed knob. */
+        for(int p=9;p<BANK_PROGRAM_COUNT;p++){
+            int equal=1;for(int pad=0;pad<PADS;pad++)if(r->factory_id[pad]!=bank_programs[p].ids[pad]){equal=0;break;}
+            if(equal){r->program=p;break;}
+        }
+    }
     if(*s){goto fail;}
     return r;
 fail:sample_restore_free(r);return NULL;
 }
 static void sample_restore_commit(Engine *e,SampleRestore *r) {
+    e->bank_program=r->program;
     e->samples.bytes=0;
     for(int p=0;p<PADS;p++) {
         int audio=0,view=0;
@@ -266,6 +279,7 @@ static int sample_state_append(Engine *e,char *out,int len,int n) {
     }
     int imported=0;for(int p=0;p<PADS;p++)if(atomic_load(&e->factory_id[p]))imported++;
     if(imported){SAMPLE_APPEND(" FCT1 %d",imported);for(int p=0;p<PADS;p++){int id=atomic_load(&e->factory_id[p]);if(id)SAMPLE_APPEND(" %d %d %s",p,id,factory_sounds[id-1].digest);}}
+    if(e->bank_program>=8)SAMPLE_APPEND(" PRG1 %d",e->bank_program);
 #undef SAMPLE_APPEND
     return n;
 }

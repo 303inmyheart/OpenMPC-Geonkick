@@ -12,7 +12,7 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.29 includes sixteen independent pad sounds, WAV sample import per
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.30 includes sixteen independent pad sounds, WAV sample import per
 oscillator, eight native MPC starter presets (including Init) and a 16-pad
 starter kit. These are the MPC port’s own starting recipes, not the complete
 original Geonkick factory library. 0.0.29 adds native MPC conversions of all102 original factory.gkick presets
@@ -396,3 +396,15 @@ instead of silently substituting a different sound. Four-second source-buffer
 limits match the original44.1kHz DSP. The decoded asset budget is11MiB; the largest
 kit is verified through the real VST chunk path. General.gkick/.gkit user-file
 import remains deferred. Redesign with WAV file preview follows this factory step.
+
+
+## 0.0.30 — MPC browser and PRESET menu integration
+
+0.0.29 supplied factory XPL files but still reported only8 VST programs. The user
+reported new browser files opening Init and missing entries in the MPC PRESET
+menu.0.0.30 exposes all118 programs with unique VST-safe names, matching the
+browser preset labels. Menu selection loads complete immutable states directly
+from the plugin. No runtime file access or new VST parameter is involved.
+Program identity is retained with native saved edits. Old source identities
+migrate; original8 indices and4096 parameter identities/ranges remain unchanged.
+Hardware browser/menu acceptance is required before calling this fix confirmed.

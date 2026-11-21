@@ -20,6 +20,7 @@
 #define SLOTS (PADS+VOICES+4)
 #include "factory_types.h"
 #include "factory_data.h"
+#include "program_bank_data.h"
 #include "sample_types.h"
 typedef struct {
     atomic_int refs; int size; float *data; unsigned revision,view_revision;
@@ -33,6 +34,7 @@ typedef struct {
     atomic_int sound_focus[PADS][3];
     atomic_int factory_id[PADS];
     int factory_was_configured;
+    int bank_program;
     _Atomic float *values; /* selected row; only serialized host/audio entry points use it */
     atomic_uint pad_audio[PADS],pad_view[PADS];
     atomic_int selected;
@@ -313,6 +315,7 @@ static void *worker(void *arg) {
 }
 
 static void preset(Engine *e,int which) {
+    e->bank_program=-1;
     ++e->control_context;sample_reset_pad(e,atomic_load(&e->selected));
     atomic_store(&e->factory_id[atomic_load(&e->selected)],0);
     for(int i=0;i<GP_COUNT;i++) atomic_store(&e->values[i],gparams[i].def);
@@ -337,6 +340,7 @@ static void preset(Engine *e,int which) {
 
 static void *create(const char *dir) {
     Engine *e=calloc(1,sizeof *e); if(!e)return NULL;
+    e->bank_program=-1;
     sample_init(e,dir);
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
@@ -402,6 +406,12 @@ static int sound_proxy(Engine *e,const char *key,char *target,size_t size) {
 }
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
+    if(!strcmp(key,"__program_load")) {
+        char *end;long index=strtol(text,&end,10);if(end==text||*end||index<0||index>=BANK_PROGRAM_COUNT)return;
+        if(index<8){atomic_fetch_add(&e->revision,1);preset(e,(int)index);audio_changed(e);view_changed(e);atomic_fetch_add(&e->revision,1);}
+        else kit_load(e,bank_programs[index].state);
+        return;
+    }
     char proxy[96];if(sound_proxy(e,key,proxy,sizeof proxy)){
         int alias=alias_of(proxy);float before=alias>=0?at(e,galiases[alias].target):0;
         set_param(e,proxy,text);
@@ -492,6 +502,11 @@ static void set_param(void *inst,const char *key,const char *text) {
 }
 static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
+    if(!strcmp(key,"__program_index"))return snprintf(buf,len,"%d",e->bank_program>=8?e->bank_program:(int)at(e,"preset"));
+    if(!strncmp(key,"__program_name:",15)){
+        char *end;long index=strtol(key+15,&end,10);if(end==key+15||*end||index<0||index>=BANK_PROGRAM_COUNT)return 0;
+        return snprintf(buf,len,"%s",bank_programs[index].name);
+    }
     char proxy[96];if(sound_proxy(e,key,proxy,sizeof proxy))return get_param(e,proxy,buf,len);
     if(!strcmp(key,"sound_layer"))return snprintf(buf,len,"%d",(int)at(e,"plot_osc")/3);
     if(!strcmp(key,"control_context"))return snprintf(buf,len,"%u",e->control_context);

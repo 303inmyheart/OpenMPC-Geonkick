@@ -15,7 +15,9 @@ patches/mpc-accumulated-fine-input.patch, followed by
 patches/mpc-canonical-continuous-echo.patch and finally
 patches/mpc-envelope-state-capacity.patch, then
 patches/mpc-idle-action-release.patch, then
-patches/mpc-filter-control-feedback.patch and patches/mpc-control-context.patch, then patches/mpc-sample-dynamic-units.patch, in that order. The wrapper is not copied into this repository.
+patches/mpc-filter-control-feedback.patch and patches/mpc-control-context.patch, then patches/mpc-sample-dynamic-units.patch, patches/mpc-native-display-context.patch,
+patches/mpc-ui-only-inputs.patch and patches/mpc-engine-program-bank.patch, in
+that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
 `mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
@@ -503,3 +505,20 @@ The decoded sample budget is11MiB, allowing the original sixteen-sample AVL kit
 within the existing16MiB wrapper chunk budget. Original source buffers are bounded
 to four seconds, as in the original44.1kHz engine. The largest native VST fixture
 is15,155,898 bytes. No formal Store benchmark is claimed for this dev build.
+
+
+## Native MPC program menu integration (0.0.30)
+
+Apply patch16 patches/mpc-engine-program-bank.patch after patch15. It is guarded
+by ENGINE_PROGRAM_COUNT, enabled only for this port. Other ports keep the existing
+program logic. The wrapper queries __program_index and __program_name:N and sends
+__program_load; no mpc_engine_t ABI or VST parameter metadata changes. All118 menu
+names fit the23-byte VST name limit and are unique. Browser preset names match.
+
+tools/program_bank.py generates readonly complete-state literals for appended
+programs; choosing a program requires no runtime file access. Legacy indices0–7
+retain their selected-pad meaning; index8 is the complete starter kit,9–117 the
+original factory presets/kits. PRG1 saves the current bank identity alongside
+FCT1/embedded samples. Old0.0.29 identities migrate by exact source-ID vectors.
+Restored current-program re-selection preserves edits, as required by JUCE host
+name refresh behavior. Program name queries never change sound state.

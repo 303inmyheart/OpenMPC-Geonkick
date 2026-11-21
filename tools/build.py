@@ -36,7 +36,9 @@ def flags(target,sanitize=False):
 def prepare():
     spec.generate()
     import factory_bank
-    factory_bank.prepare()
+    records,presets,_=factory_bank.prepare()
+    import program_bank
+    program_bank.generate(records,presets)
     if not (MPC/'wrapper/audio_format.h').exists():raise SystemExit('Apply the JC303 float ABI patch to the MPC toolchain first.')
     if "Fine sub-step gestures" not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-fine-int-sweep.patch after mpc-float32.patch first.')
     if 'ASYNC_HOST_NOTIFY' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-async-host-notify.patch first.')
@@ -52,6 +54,7 @@ def prepare():
     if 'DYNAMIC_PARAM_UNITS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-sample-dynamic-units.patch last.')
     if 'UI_DISPLAY_CONTEXT' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-native-display-context.patch last.')
     if 'UI_ONLY_INPUTS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-ui-only-inputs.patch last.')
+    if '__program_load' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-engine-program-bank.patch last.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
     prepare()

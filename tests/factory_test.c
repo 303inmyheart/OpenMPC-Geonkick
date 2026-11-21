@@ -68,7 +68,7 @@ int main(void){
  }
  /* Unknown/tampered original identity rejects atomically, rather than silently
   * changing a saved sound if a bank definition ever changes. */
- char *tag=strstr(saved," FCT1 ");assert(tag);char *hash=strrchr(saved,' ');assert(hash);hash[1]=hash[1]=='a'?'b':'a';api->set_param(e,"state",saved);api->get_param(e,"state",saved,16777216);assert(!strcmp(saved,again));
+ char *tag=strstr(saved," FCT1 ");assert(tag);char *hash=tag+6;for(int i=0;i<3;i++){hash=strchr(hash,' ');assert(hash);hash++;}hash[0]=hash[0]=='a'?'b':'a';api->set_param(e,"state",saved);api->get_param(e,"state",saved,16777216);assert(!strcmp(saved,again));
  set(e,"reset",1);api->get_param(e,"state",saved,16777216); /* remaining kit pads may still be factory sounds */
  char *init=readfile("init-legacy");api->set_param(e,"state",init);free(init);ready(e);api->get_param(e,"state",saved,16777216);assert(!strstr(saved," FCT1 "));
  api->destroy(e);gkick_synth_free(&s);free(saved);free(again);printf("All109 original factory presets/kits,183 sound audio oracles, source identity, restore/reset PASS; worst%.8g\n",worst);return 0;

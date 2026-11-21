@@ -4,6 +4,7 @@ import hashlib,json,os,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 import build
 import factory_bank
+import program_bank
 sys.path.insert(0,str(build.MPC/'tools'));import xpl
 ROOT=build.ROOT
 cfg=build.CFG
@@ -21,7 +22,9 @@ dest=skin/'Presets';dest.mkdir(exist_ok=True)
 uid=int.from_bytes(cfg['uid'].encode(),'big');manifest=[]
 for stem in names:
  raw=(out/(stem+'.chunk')).read_bytes();assert raw.startswith(b'GKMP9 ') and raw[-1:]==b'\0'
- name=stem.split('-',1)[1];text=xpl.xpl(cfg['name'],cfg['vendor'],f'%payload-path%/{folder}/{cfg["so"]}',uid,cfg['version'],raw,preset=name)
+ name=stem.split('-',1)[1]
+ if stem.startswith('1000-'):raw=program_bank.stamp(raw,8);(out/(stem+'.chunk')).write_bytes(raw)
+ text=xpl.xpl(cfg['name'],cfg['vendor'],f'%payload-path%/{folder}/{cfg["so"]}',uid,cfg['version'],raw,preset=name)
  tree=ET.fromstring(text);bank=xpl.b64dec(tree.findtext('state'));assert bank[:4]==b'CcnK' and bank[8:12]==b'FBCh'
  assert int.from_bytes(bank[16:20],'big')==uid and int.from_bytes(bank[156:160],'big')==len(raw) and bank[160:]==raw
  assert tree.findtext('preset')==name
@@ -30,11 +33,13 @@ for stem in names:
 (root_default:=dest/'0000-Default.xpl').unlink(missing_ok=True)
 records,factory_presets,notices=factory_bank.prepare()
 factory_manifest=[]
+program_names=program_bank.names(factory_presets)
 for j,p in enumerate(factory_presets):
  name=f'{p["pack"]} - {p["name"]}'+(' (Kit)' if p['kit'] else '')
  if p['pack']=='AVL-Drumkit':name='MPC AVL-derived Kit'
  stem=f'{2000+j:04d}-'+name
- raw=factory_bank.state(p,records)
+ raw=program_bank.stamp(factory_bank.state(p,records),j+9)
+ name=program_names[j+9]
  text=xpl.xpl(cfg['name'],cfg['vendor'],f'%payload-path%/{folder}/{cfg["so"]}',uid,cfg['version'],raw,preset=name)
  (dest/(stem+'.xpl')).write_text(text)
  item=dict(file=stem+'.xpl',name=name,state_sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw),pack=p['pack'],source=p['source'],ids=p['ids'])
