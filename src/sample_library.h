@@ -203,8 +203,7 @@ static SampleRestore *sample_restore_read(const char *s,const float rows[PADS][G
         s+=6;for(int p=0;p<PADS;p++)for(int l=0;l<3;l++){unsigned v;if(!sample_uint(&s,&v,8)||v/3!=(unsigned)l)goto fail;r->focus[p][l]=(int)v;}
         while(isspace((unsigned char)*s))s++;
     }
-    if(*s) {
-        if(strncmp(s,"SMP1 ",5)){goto fail;}
+    if(!strncmp(s,"SMP1 ",5)) {
         s+=5;unsigned records;if(!sample_uint(&s,&records,PADS*9))goto fail;
         unsigned char used[PADS][9]={{0}};size_t bytes=0;
         for(unsigned i=0;i<records;i++) {
@@ -217,6 +216,17 @@ static SampleRestore *sample_restore_read(const char *s,const float rows[PADS][G
         }
     }
     while(isspace((unsigned char)*s)){s++;}
+    if(!strncmp(s,"FCT1 ",5)) {
+        s+=5;unsigned count;unsigned char used[PADS]={0};
+        if(!sample_uint(&s,&count,PADS))goto fail;
+        for(unsigned j=0;j<count;j++) {
+            unsigned pad,id;const char *digest;size_t size;
+            if(!sample_uint(&s,&pad,PADS-1)||used[pad]||!sample_uint(&s,&id,FACTORY_COUNT)||!id||!sample_token(&s,&digest,&size))goto fail;
+            if(size!=64||memcmp(digest,factory_sounds[id-1].digest,64))goto fail;
+            used[pad]=1;r->factory_id[pad]=(int)id;
+        }
+        while(isspace((unsigned char)*s)){s++;}
+    }
     if(*s){goto fail;}
     return r;
 fail:sample_restore_free(r);return NULL;
@@ -225,6 +235,8 @@ static void sample_restore_commit(Engine *e,SampleRestore *r) {
     e->samples.bytes=0;
     for(int p=0;p<PADS;p++) {
         int audio=0,view=0;
+        if(r->factory_id[p]!=atomic_load(&e->factory_id[p]))audio=1;
+        atomic_store(&e->factory_id[p],r->factory_id[p]);
         for(int o=0;o<9;o++) {
             SampleAsset *a=r->assets[p][o],*old=atomic_exchange(&e->samples.assets[p][o],a);r->assets[p][o]=NULL;
             if(a){e->samples.bytes+=(size_t)a->count*4;}
@@ -252,6 +264,8 @@ static int sample_state_append(Engine *e,char *out,int len,int n) {
             memcpy(out+n,a?a->encoded:"-",bytes);n+=(int)bytes;out[n]=0;
         }sample_release(e);
     }
+    int imported=0;for(int p=0;p<PADS;p++)if(atomic_load(&e->factory_id[p]))imported++;
+    if(imported){SAMPLE_APPEND(" FCT1 %d",imported);for(int p=0;p<PADS;p++){int id=atomic_load(&e->factory_id[p]);if(id)SAMPLE_APPEND(" %d %d %s",p,id,factory_sounds[id-1].digest);}}
 #undef SAMPLE_APPEND
     return n;
 }

@@ -59,3 +59,23 @@ https://creativecommons.org/licenses/by-sa/3.0/ .
 
 This records the licenses supplied in the inspected source; it does not establish
 ownership of every contributor's third-party sample or grant trademark rights.
+
+
+## Factory-bank conversion0.0.29 (2026-11-21)
+
+All nine original archives are now supplied in factory/original with immutable
+SHA256 provenance.102 individual presets and7 kits are converted to native MPC
+states. Individual sound content keeps the licences in the table above; the
+software adapter remains GPL-3.0-or-later. Every installed package includes all
+original pack READMEs, attribution, source and licence URLs, plus an explicit
+conversion/change notice. BY-SA sound conversions retain their respective terms.
+
+AVL sample-source notice additionally verified at the author's official PDF:
+https://bandshed.net/pdf/AVL-Drumkits%20CC-BY-SA%20License.pdf
+Credit Glen MacArthur,2015, alongside Iurie's Geonkick adaptation. Retain the
+CC BY-SA3.0 sample-library terms and the author's musical-production exception.
+The adapted kit is called MPC AVL-derived Kit to distinguish the conversion.
+See factory/NOTICE.txt for the distributed attribution and change information.
+CC licence deeds reviewed: https://creativecommons.org/licenses/by/4.0/ ,
+https://creativecommons.org/licenses/by-sa/4.0/ ,
+https://creativecommons.org/licenses/by-sa/3.0/ .

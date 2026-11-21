@@ -40,11 +40,11 @@ int main(void) {
  /* A complete valid scalar kit plus NaN asset must reject atomically. */
  data[0]=NAN;char *invalid=encode((unsigned char*)data,count*4);char *tail=strstr(state," SMP1 ");assert(tail);sprintf(tail," SMP1 1 0 0 1 %u 666978747572652e776176 %s",count,invalid);
  e->dispatch(e,24,0,strlen(state)+1,state,0);e->dispatch(e,23,0,0,&chunk,0);assert(!memcmp(saved,chunk,n+1));
- /* Fifteen4-second sources exceed the10MiB decoded budget, but the complete
+ /* Seventeen4-second sources exceed the11MiB decoded budget, but the complete
   * test chunk fits16MiB. Reject before replacing any of the playable four. */
  char *limit=strstr(state," SMP1 ");assert(limit);size_t prefix=(size_t)(limit-state);
- size_t used=prefix+(size_t)sprintf(limit," SMP1 15");
- for(int slot=0;slot<15;slot++)used+=(size_t)sprintf(state+used," %d %d 1 %u 666978747572652e776176 %s",slot/9,slot%9,count,pcm);
+ size_t used=prefix+(size_t)sprintf(limit," SMP1 17");
+ for(int slot=0;slot<17;slot++)used+=(size_t)sprintf(state+used," %d %d 1 %u 666978747572652e776176 %s",slot/9,slot%9,count,pcm);
  assert(used<16777216);e->dispatch(e,24,0,used+1,state,0);e->dispatch(e,23,0,0,&chunk,0);assert(!memcmp(saved,chunk,n+1));
  printf("Actual VST:%zu-byte four-sample kit, source toggles, full close/reopen, audible Sample MIDI and invalid-PCM atomic rejection PASS\n",n+1);
  physical(e,"sample_root",1);char status[128];int scanned=0;

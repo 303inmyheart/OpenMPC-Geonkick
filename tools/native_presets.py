@@ -3,6 +3,7 @@
 import hashlib,json,os,sys,xml.etree.ElementTree as ET
 from pathlib import Path
 import build
+import factory_bank
 sys.path.insert(0,str(build.MPC/'tools'));import xpl
 ROOT=build.ROOT
 cfg=build.CFG
@@ -27,5 +28,20 @@ for stem in names:
  (dest/(stem+'.xpl')).write_text(text)
  manifest.append(dict(file=stem+'.xpl',name=name,state_sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw)))
 (root_default:=dest/'0000-Default.xpl').unlink(missing_ok=True)
+records,factory_presets,notices=factory_bank.prepare()
+factory_manifest=[]
+for j,p in enumerate(factory_presets):
+ name=f'{p["pack"]} - {p["name"]}'+(' (Kit)' if p['kit'] else '')
+ if p['pack']=='AVL-Drumkit':name='MPC AVL-derived Kit'
+ stem=f'{2000+j:04d}-'+name
+ raw=factory_bank.state(p,records)
+ text=xpl.xpl(cfg['name'],cfg['vendor'],f'%payload-path%/{folder}/{cfg["so"]}',uid,cfg['version'],raw,preset=name)
+ (dest/(stem+'.xpl')).write_text(text)
+ item=dict(file=stem+'.xpl',name=name,state_sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw),pack=p['pack'],source=p['source'],ids=p['ids'])
+ manifest.append(item);factory_manifest.append(item)
+ (out/(stem+'.chunk')).write_bytes(raw)
+license_text=(ROOT/'factory/NOTICE.txt').read_text()+'\n\n'+'\n\n'.join(f'===== {pack}: {source} =====\n{text}' for pack,source,text in notices)
+(skin/'Factory-Licenses.txt').write_text(license_text)
+(ROOT/'build/factory-native-manifest.json').write_text(json.dumps(factory_manifest,indent=2)+'\n')
 (ROOT/'build/native-preset-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
-print('Native MPC browser: Init,7 MPC starter sounds and16-pad starter kit; all9 JUCE/XPL bank payloads verified')
+print('Native MPC browser:9 MPC starting states plus109 original factory presets/kits; source licences included')

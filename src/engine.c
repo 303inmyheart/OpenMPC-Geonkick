@@ -18,6 +18,8 @@
 #define VOICES 16
 #define EDGE_SAMPLES 221 /* 5 ms, endpoints included at 44.1 kHz */
 #define SLOTS (PADS+VOICES+4)
+#include "factory_types.h"
+#include "factory_data.h"
 #include "sample_types.h"
 typedef struct {
     atomic_int refs; int size; float *data; unsigned revision,view_revision;
@@ -29,6 +31,8 @@ typedef struct {
     SampleManager samples;
     SampleAsset *worker_samples[9];struct gkick_buffer sample_views[9];
     atomic_int sound_focus[PADS][3];
+    atomic_int factory_id[PADS];
+    int factory_was_configured;
     _Atomic float *values; /* selected row; only serialized host/audio entry points use it */
     atomic_uint pad_audio[PADS],pad_view[PADS];
     atomic_int selected;
@@ -127,10 +131,12 @@ static void set_param(void *inst,const char *key,const char *text);
 #include "filter_controls.h"
 static void kit_feedback(Engine *e);
 #include "sample_library.h"
+#include "factory_dsp.h"
 
 /* Worker-owned DSP setup. All allocations and upstream mutexes remain here. */
 static void configure(Engine *e,const float *p) {
     struct gkick_synth *s=e->synth;
+    factory_reset_dsp(e);
     s->length=value(p,"length"); s->amplitude=1;
     for(int l=0;l<3;l++) { char key[24]; snprintf(key,sizeof key,"layer%d",l+1); s->osc_groups_amplitude[l]=value(p,key); s->osc_groups[l]=s->osc_groups_amplitude[l]>0; }
     static const int wave[]={0,1,2,3,4,6};
@@ -201,6 +207,7 @@ static void configure(Engine *e,const float *p) {
     s->distortion->type=(int)value(p,"drive_type");
     s->distortion->drive=value(p,"drive");
     s->distortion->out_limiter=value(p,"drive_out");
+    factory_configure(e,p);
 }
 static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
     atomic_fetch_add(&e->synthesis_count,1);
@@ -242,12 +249,12 @@ static void make_plot(Engine *e,Cache *c,const float *p) {
         c->plot[0][column]=(unsigned char)roundf(clampf(positive,0,1)*(PLOT_WAVE_LEVELS-1));
         c->plot[1][column]=(unsigned char)roundf(clampf(negative,0,1)*(PLOT_WAVE_LEVELS-1));
         float shape=gkick_envelope_get_value(env,(column+0.5f)/PLOT_COLUMNS);
-        if(value(p,"plot_env")>0 && point_value(p,osc,1,"mode")>0)shape=(shape*selected->frequency-20)/(selected->frequency-20);
+        if(value(p,"plot_env")>0 && point_value(p,osc,1,"mode")>0)shape=factory_pitch_plot(p,osc,selected,shape);
 
         c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*(PLOT_ENV_LEVELS-1));
         for(int l=0;l<3;l++) {
             float y=gkick_envelope_get_value(layer_env[l],(column+.5f)/PLOT_COLUMNS);
-            if(layer_remap[l])y=(y*layer_osc[l]->frequency-20)/(layer_osc[l]->frequency-20);
+            if(layer_remap[l])y=factory_pitch_plot(p,(int)p[GP_COUNT+9+l],layer_osc[l],y);
             c->layer_plot[l][column]=(unsigned char)roundf(clampf(y,0,1)*(PLOT_ENV_LEVELS-1));
         }
     }
@@ -261,6 +268,7 @@ static unsigned snapshot(Engine *e,int pad,float *p,unsigned *view) {
         for(int i=0;i<GP_COUNT;i++) p[i]=atomic_load(&e->pad_values[pad][i]);
         for(int i=0;i<9;i++)p[GP_COUNT+i]=(float)atomic_load(&e->samples.source[pad][i]);
         for(int l=0;l<3;l++)p[GP_COUNT+9+l]=(float)atomic_load(&e->sound_focus[pad][l]);
+        p[GP_COUNT+12]=(float)atomic_load(&e->factory_id[pad]);
         unsigned audio=atomic_load(&e->pad_audio[pad]);
         *view=atomic_load(&e->pad_view[pad]);
         b=atomic_load(&e->revision);
@@ -306,6 +314,7 @@ static void *worker(void *arg) {
 
 static void preset(Engine *e,int which) {
     ++e->control_context;sample_reset_pad(e,atomic_load(&e->selected));
+    atomic_store(&e->factory_id[atomic_load(&e->selected)],0);
     for(int i=0;i<GP_COUNT;i++) atomic_store(&e->values[i],gparams[i].def);
     put(e,"preset",which);
     switch(which) {
@@ -332,6 +341,7 @@ static void *create(const char *dir) {
     e->values=e->pad_values[0];atomic_init(&e->selected,0);e->kit_base=36;e->kit_output=e->kit_gain=1;
     e->current=-1;e->display_revision=1;atomic_init(&e->revision,0);atomic_init(&e->audio_revision,0);atomic_init(&e->view_revision,0);atomic_init(&e->synthesis_count,0);atomic_init(&e->running,false);
     for(int pad=0;pad<PADS;pad++) {
+        atomic_init(&e->factory_id[pad],0);
         e->kit_notes[pad]=36+pad;e->kit_stage[pad]=-1;
         atomic_init(&e->ready[pad],-1);atomic_init(&e->pad_audio[pad],0);atomic_init(&e->pad_view[pad],0);e->pad_current[pad]=-1;
         for(int i=0;i<GP_COUNT;i++)atomic_init(&e->pad_values[pad][i],gparams[i].def);
@@ -579,7 +589,7 @@ int mpc_engine_changed(void *inst,char *key,int len) {
 }
 static void render(void *inst,mpc_sample_t *out,int frames) {
     Engine *e=inst;adopt(e);float volume[PADS];
-    for(int pad=0;pad<PADS;pad++)volume[pad]=pad_at(e,pad,"volume");
+    for(int pad=0;pad<PADS;pad++)volume[pad]=factory_output(e,pad);
     for(int n=0;n<frames;n++) {
         float pad_sum[PADS];
         for(int pad=0;pad<PADS;pad++){pad_sum[pad]=e->cut_tail[pad][e->cut_pos];e->cut_tail[pad][e->cut_pos]=0;}

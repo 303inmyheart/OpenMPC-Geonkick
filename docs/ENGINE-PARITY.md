@@ -23,3 +23,14 @@ work. Do not restart it automatically. WAV loading is implemented. Next:.gkick p
 Original source: https://github.com/quamplex/geonkick (pinned source/provenance in
 src/VENDORED.md). Humanizer comparison uses HumanizerView.cpp and dsp/humanizer.c
 already present in the reviewed upstream checkout; no new licence is introduced.
+
+
+0.0.29 original factory work: master Amp and original raw Amp/Pitch/noise/filter/Q/
+drive/volume curves are retained internally for imported factory sounds, together
+with original seeds/FM/sample pitch. The skipped general modulation-envelope UI
+is still skipped. Existing controls edit canonical targets; the native Amp/Pitch
+editor remains limited to16 knots after explicit curve editing. All102 original
+individual sounds and7 kits are converted; arbitrary user-file import remains
+separate. Frozen VST identities/ranges remain unchanged; imported scalars outside
+those ranges are preserved until corresponding control edits. Factory kit outputs
+are folded to stereo; general choke/mute/solo/multi-output work remains deferred.

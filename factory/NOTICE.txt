@@ -1,0 +1,31 @@
+Original Geonkick factory presets — native MPC conversion
+
+Source: https://github.com/quamplex/geonkick/tree/462fed9bd8c48579a8819e7b360f8a2999b246fc/presets
+Original archives and their hashes are supplied in the corresponding source.
+The original pack authors, sources and licences appear below, unchanged.
+
+Modifications, 2026: converted to Geonkick MPC native full-instance .xpl files;
+routing adapted to the MPC kit model and stereo output; embedded samples retained
+up to the original 44.1kHz engine's four-second source-buffer limit. Original
+complete envelope data is retained in the synthesis bank. Native envelope edits
+use the MPC port's existing sixteen-knot editor. Humanizer is omitted as requested;
+none of these factory files enables it. Kit choke groups/mute/solo and separate
+outputs are not implemented; these differences are listed in the conversion report.
+No endorsement by the original authors is implied.
+
+Sound content remains under each individual pack licence, independently of the
+GPL software. CC0: https://creativecommons.org/publicdomain/zero/1.0/
+CC BY4.0: https://creativecommons.org/licenses/by/4.0/
+CC BY-SA4.0: https://creativecommons.org/licenses/by-sa/4.0/
+CC BY-SA3.0: https://creativecommons.org/licenses/by-sa/3.0/
+Converted DigitalSamba content remains CC BY-SA4.0; converted AVL-derived content
+remains CC BY-SA3.0 with the upstream exception for musical productions.
+
+Additional AVL sample attribution: Glen MacArthur, AVL Drumkits,2015.
+Source: http://www.bandshed.net/avldrumkits/
+Licence notice: https://bandshed.net/pdf/AVL-Drumkits%20CC-BY-SA%20License.pdf
+The sample-library ShareAlike terms apply to this converted kit; music made using
+it may be licensed freely under the author's stated exception. The converted kit
+is named "MPC AVL-derived Kit" to distinguish it from the original library.
+
+Factory pack licences and original readmes follow.

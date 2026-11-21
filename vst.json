@@ -2,7 +2,7 @@
   "name": "Geonkick MPC",
   "vendor": "OpenMPC",
   "uid": "GkM3",
-  "version": 28,
+  "version": 29,
   "so": "geonkick_mpc.so",
   "params": "params.json",
   "layout": "layout.conf",

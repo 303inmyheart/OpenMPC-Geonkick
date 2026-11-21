@@ -1,0 +1,15 @@
+{
+  "upstream": "https://github.com/quamplex/geonkick",
+  "commit": "462fed9bd8c48579a8819e7b360f8a2999b246fc",
+  "archives": {
+    "AVL-Drumkit.tar": "b6225ed70dda92eb779d158b2f32defa548578cf00b54e1f6423e6f39d27312f",
+    "DSoS.tar.xz": "6a898c7b07054e6aee9187e0c7633b5dc95f12c111132da02a2114634fefc6aa",
+    "DigitalSamba.tar.xz": "ebce37cfcbdbbed8819ce154d86788e5fb8cc0db4779e198ae55bb4c8cd9db84",
+    "GeonkickBells.tar.xz": "9f7e49dd60fe9dd905f0ea470d2588353d8f3866110cfed173682ac2c5211f60",
+    "HaraldReveryKicks.tar.xz": "7debe9c93cb84373d398d9c3c632f83acef9316fbadd66e1a75aa38eaa7a9788",
+    "SPKickPresetsVol1.tar.xz": "bbacc9477260ff4454ddc485aacab88dcf7bb0d6b8a3329e8d124a79bebc1f27",
+    "TimeKit.tar.xz": "8c64d6fb68da18ac686ad07ac2ea6456376f7a87480b2e86f22b06a887a7e670",
+    "ToniLinkTechnoKicks.tar.xz": "3baba7500d3c1dc7d2173a1ef59fc9c15d4a951b26d39eb40aa14530bd28532e",
+    "UnfaTutorial.tar.xz": "7021e2719f9c61368b8011432ed87d779ddceaffe81ae0a2880be1b163ce1055"
+  }
+}

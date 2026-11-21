@@ -1,10 +1,10 @@
-# Geonkick MPC bedienen — 0.0.28
+# Geonkick MPC bedienen — 0.0.29
 
 ## Native Presets und Kits
 
 Im MPC-Sounds-Browser bzw. nativen Preset-Menü stehen Init, sieben weitere
-MPC-Startsounds und „Starter Kit (16 Pads)“ bereit. Das ist noch nicht die
-Originalbibliothek von Geonkick. Jedes native Preset ersetzt den gesamten
+MPC-Startsounds und „Starter Kit (16 Pads)“ bereit. Zusätzlich gibt es seit0.0.29 die102 originalen
+Geonkick-Factory-Sounds und sieben Kits, mit dem Pack-Namen im Browser. Jedes native Preset ersetzt den gesamten
 Plugin-Zustand inklusive aller Pads und der MIDI-Zuordnung. Eigene Änderungen
 über die MPC-Presetverwaltung speichern; dabei werden auch importierte Samples
 und eine gelernte Pad-Zuordnung gespeichert.

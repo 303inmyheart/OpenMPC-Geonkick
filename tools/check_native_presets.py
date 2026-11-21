@@ -12,7 +12,10 @@ def check():
     manifest=json.loads((build.ROOT/'build/native-preset-manifest.json').read_text())
     options=json.loads((build.ROOT/'params.json').read_text())['params'][8]['options']
     expected=[f'{i:04d}-{name}.xpl' for i,name in enumerate(options)]+['1000-Starter Kit (16 Pads).xpl']
-    assert len(manifest)==9 and [item['file'] for item in manifest]==expected
+    factory=json.loads((build.ROOT/'build/factory-native-manifest.json').read_text())
+    assert len(factory)==109
+    expected += [item['file'] for item in factory]
+    assert len(manifest)==118 and [item['file'] for item in manifest]==expected
     assert sorted(p.name for p in directory.iterdir())==sorted(expected)
     for item in manifest:
         tree=ET.parse(directory/item['file']).getroot()
@@ -32,6 +35,7 @@ def check():
         assert b' KIT1 ' in raw and b' MAP1 ' in raw
         assert hashlib.sha256(raw).hexdigest()==item['state_sha256']
         assert raw==(build.ROOT/'build/native-preset-export'/item['file'].replace('.xpl','.chunk')).read_bytes()
-    print('Native MPC presets: exact9 portable XPL files, names/UID/version/full-state payloads and export hashes PASS')
+    assert (directory.parent/'Factory-Licenses.txt').is_file()
+    print('Native MPC presets:118 portable XPL files including109 original factory presets/kits; names/UID/version/payloads/hashes PASS')
 
 if __name__=='__main__':check()

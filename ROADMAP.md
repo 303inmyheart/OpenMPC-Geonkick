@@ -17,23 +17,19 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
    editing selection, consecutive MIDI-note mapping, per-pad Poly/Cut/Gate,
    shared worker/caches and complete kit/project persistence. User confirmed the
    learned hardware mapping in0.0.22 works. Stereo output;16 shared voices.
-5. **Native MPC presets and soundbanks — current step** — user accepted0.0.27
-   SOUND layer selection and requested continuation. WAV import is accepted.
-   Implement eight native MPC starter.xpl sounds (including Init) and a16-pad kit,
-   with native MPC saving/loading. Remove MASTER/PRESETS once native sounds are
-   available. Preserve old physical parameter/program identities and hardware
-   MIDI learn maps. User explicitly chose native presets first; faithful original
-   .gkick/.gkit import and required missing engine parity remain a later step.
-6. **Redesign — immediately next** — user explicitly requested this after native
-   presets. Revisit spacing, hierarchy and navigation around the accepted explicit
-   SOUND layer selector while preserving its functionality.
-   **Important: MASTER/SAMPLES file preview.** Add direct audition/stop for the
-   selected WAV before loading it. Preview must not assign/replace an oscillator,
-   alter a pad's sound or change the project. Existing PLAY PAD auditions the
-   assigned sound and does not satisfy this requested file-preview feature.
-7. **Remaining import/kit work** — faithful.gkick/.gkit conversion, other kit
-   management, copying, mute/solo/choke groups, audio export; verify host routing
-   before promising multi-outs. Deferred engine-envelope UI remains deferred.
+5. **Native MPC starter presets** —0.0.28 implemented eight MPC starting
+   recipes plus a16-pad kit and removed MASTER/PRESETS. These were not the
+   original factory library. Native browser hardware acceptance is still separate.
+6. **Original Geonkick factory presets — NOW FIRST** — user explicitly moved
+   this before redesign. Convert102 original.gkick files and7.gkit files from
+   all9 pinned factory packs to native MPC.xpl, retaining original DSP envelopes,
+   FM/seed/pitch/sample settings and pack-specific attribution/licences. Preserve
+   immutable source identities in saved kits. Arbitrary user.gkick/.gkit file
+   import remains a separate future browser feature.
+7. **Redesign — after factory presets** — revisit spacing/hierarchy/navigation.
+   Include MASTER/SAMPLES selected-WAV preview/stop before Load, without replacing
+   the assigned sound. Existing PLAY PAD auditions the assigned sound only.
+   Later kit work: copying, mute/solo/choke groups, audio export and routing audit.
 8. **Public release** — small KIT/pad-learning tutorial, hardware regression,
    exact release-binary Store benchmark, source/licensing/reproducible-build
    review, release and catalog PR.
@@ -438,3 +434,29 @@ see TESTPLAN-0.0.28-DE.md. No public release or final Store benchmark.
 Next: redesign immediately, including MASTER/SAMPLES WAV preview/stop before
 Load, without replacing the assigned sound. Faithful original.gkick/.gkit import
 remains a later engine/compatibility step. KIT tutorial remains before release.
+
+
+## 0.0.29 — original factory presets before redesign
+
+All102 original.gkick presets and7.gkit kits from nine pinned packs converted
+to native MPC.xpl files.109 original entries plus the9 earlier MPC starter
+states give118 browser files. Pack names distinguish them; the adapted AVL kit
+is called MPC AVL-derived Kit. Original authors/licences and change notices ship
+in Factory-Licenses.txt. This is factory conversion, not arbitrary user-file import.
+
+Original master Amp, all raw modulation curves, seed/FM/sample pitch and scalars
+outside frozen knob ranges are retained internally. Editing Amp/Pitch uses the
+existing16-knot representation. FCT1 source IDs/hashes survive native saves;
+immutable source/projection manifests prevent accidental remapping. No new VST
+parameters or Q-Link bindings; all4096 IDs and existing ranges remain. Decoded
+sample budget11MiB accommodates the original16-sample kit within16MiB chunks.
+
+Native sanitizers and full ARM64/QEMU suites pass: all109 states load,183 sound
+entries compare first4096 samples to direct DSP oracles (max2.63e-5); source-hash
+tampering rejects atomically; actual15,155,898-byte VST close/reopen and canonical
+edits pass. Final118 XPL payloads/UID/version/path/hashes checked, installer
+0 warnings. Hardware listening/browser acceptance pending; see0.0.29 test guide.
+
+Next after acceptance: redesign including selected-WAV preview before Load.
+General user.gkick/.gkit import, kit management and release tutorial remain later.
+No formal Store benchmark or public release for this development build.

@@ -12,10 +12,12 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.28 includes sixteen independent pad sounds, WAV sample import per
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.29 includes sixteen independent pad sounds, WAV sample import per
 oscillator, eight native MPC starter presets (including Init) and a 16-pad
 starter kit. These are the MPC port’s own starting recipes, not the complete
-original Geonkick factory library. Original .gkick/.gkit import remains deferred.
+original Geonkick factory library. 0.0.29 adds native MPC conversions of all102 original factory.gkick presets
+and seven.gkit kits from the nine pinned upstream packs. General user-file
+.gkick/.gkit import remains a separate future feature.
 
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
 ENVELOPE and MASTER. Each layer alternates OSC1/FX1, OSC2/FX2, OSC3/FX3. MASTER
@@ -159,7 +161,7 @@ of the kit and its mapping. Loading native Init resets the entire instance.
 The internal PRESETS page has been removed; use the native MPC browser.
 
 Current limits: stereo output; WAV import (first channel, first4seconds,
-10MiB of decoded PCM per instance). Original preset/soundbank interchange,
+11MiB of decoded PCM per instance). Original preset/soundbank interchange,
 choke groups, mute/solo and per-pad audio outputs remain pending. Shared
 editing/automation parameters address the selected pad; dedicated per-pad
 host automation is not exposed. In 16 Pads mode each assigned note triggers
@@ -365,3 +367,32 @@ and parameter identities remain for old projects. Device acceptance is pending.
 
 Next: interface redesign, including selected-WAV preview before Load under
 MASTER/SAMPLES; original.gkick/.gkit import follows later.
+
+
+## 0.0.29 — original Geonkick factory bank
+
+All102 upstream factory sounds and seven original kits are supplied as native
+MPC presets, grouped by pack in their names. The previous nine MPC starting
+states remain. The bank includes DSoS, DigitalSamba, GeonkickBells, Harald Revery,
+SP Kick Presets, TimeKit, Toni Link, Unfa and an MPC AVL-derived Kit. The original
+authors and CC licences remain in Factory-Licenses.txt inside the installed
+plugin; sound data is not relicensed as GPL. Source archives, hashes and
+immutable conversion identities are included in factory/.
+
+Original complete curves, seed/FM coefficients, master amplitude, sample pitch
+and filter/distortion envelopes are retained by the DSP. Canonical MPC controls
+remain editable. Editing an Amp/Pitch curve uses the existing sixteen-knot
+representation; the original full curve plays until that curve is edited. Some
+original values exceed the old MPC knob range: these values are retained in DSP
+until their corresponding control is edited. The old normalized automation
+ranges and4096 VST identities stay unchanged. Original per-kit choke/mute/solo
+and multi-output routing are not implemented. Kit notes are retained when valid;
+use LEARN16 and save a native kit for your hardware bank.
+
+FCT1 stores each pad's immutable factory identity/hash beside the complete
+existing GKMP9 state and embedded samples. Edited native kits are self-contained
+with the matching plugin version; source identity mismatches reject restoration
+instead of silently substituting a different sound. Four-second source-buffer
+limits match the original44.1kHz DSP. The decoded asset budget is11MiB; the largest
+kit is verified through the real VST chunk path. General.gkick/.gkit user-file
+import remains deferred. Redesign with WAV file preview follows this factory step.

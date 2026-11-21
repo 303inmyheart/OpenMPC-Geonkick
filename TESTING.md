@@ -1,3 +1,20 @@
+# Current verification —0.0.29
+
+All109 original factory presets/kits (183 sound entries including kit copies)
+load through the actual engine. Every entry's first4096 audio samples are compared
+with an independent, directly configured upstream-DSP reference, including noise
+seeds, FM coefficients, original curves and embedded samples. Maximum observed
+absolute sample difference in the native fixture is2.63e-5; this is numerical
+verification, not proof of whole-file identity or hardware hearing acceptance.
+The real VST test restores the15,155,898-byte original AVL-derived kit after
+complete close/reopen and checks edited canonical parameters with FCT1 retained.
+The source identity/hash is tested for atomic rejection if tampered. Normal Init
+and old states clear imported data. The existing full native sanitizers and
+actual ARM64/QEMU suites, rotary/direct-input tests and embedded-sample tests
+remain required. Every final factory XPL is checked for UID/version/portable path,
+name, FXB/chunk length and payload hash. Hardware acceptance pending.
+No final-release Store benchmark. See TESTPLAN-0.0.29-DE.md.
+
 # Current verification —0.0.28
 
 Native MPC presets are actual GKMP9 VST full-instance chunks, exported by the
@@ -628,3 +645,9 @@ tests; full Q-Link/navigation/automation acceptance is not yet complete.
 up locally; all9 installed XPL paths resolve to the registered plugin. Settings
 unchanged during replacement. MPC application restarted active/running and
 installed binary matches final ZIP. Native browser acceptance remains pending.
+
+
+0.0.29 installed under standing permission:1985 plugin files hash-verified,
+previous version backed up; all118 XPL paths resolved to the registered plugin.
+Settings unchanged during replacement. MPC application restarted active/running,
+actual binary matches the final installer. Hardware browser/hearing pending.
