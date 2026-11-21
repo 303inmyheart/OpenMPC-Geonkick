@@ -36608,21 +36608,31 @@
       "default": 0.8
     },
     {
-      "key": "viz_l3_e_11",
-      "name": "Reserved Display11",
+      "key": "sample_preview",
+      "name": "Preview Sample",
       "min": 0,
       "max": 1,
       "default": 0,
-      "live": true,
+      "options": [
+        "Off",
+        "Go"
+      ],
+      "momentary": true,
+      "debounce_ms": 180,
       "legacy": true
     },
     {
-      "key": "viz_l3_e_12",
-      "name": "Reserved Display12",
+      "key": "sample_preview_stop",
+      "name": "Stop Preview",
       "min": 0,
       "max": 1,
       "default": 0,
-      "live": true,
+      "options": [
+        "Off",
+        "Go"
+      ],
+      "momentary": true,
+      "debounce_ms": 180,
       "legacy": true
     },
     {

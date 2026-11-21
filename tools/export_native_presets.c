@@ -7,6 +7,7 @@ static void save(PresetEffect *e,const char *stem){
 int main(void){
  for(int program=0;program<8;program++){
   PresetEffect *e=preset_create();char name[64]={0},stem[96];assert(e->dispatch(e,29,program,0,name,0));
+  if(!program){char path[4096];assert(snprintf(path,sizeof path,"%s/vst-info.json",getenv("GK_NATIVE_PRESETS"))<(int)sizeof path);FILE*f=fopen(path,"w");assert(f);assert(fprintf(f,"{\"programs\":%d,\"version\":%d,\"uid\":%d}\n",e->np,e->ver,e->uid)>0);assert(!fclose(f));}
   assert(*name&&!strchr(name,'/')&&!strchr(name,'\\'));e->dispatch(e,2,0,program,NULL,0);assert(e->dispatch(e,3,0,0,NULL,0)==program);
   snprintf(stem,sizeof stem,"%04d-%s",program,name);save(e,stem);preset_close(e);
  }

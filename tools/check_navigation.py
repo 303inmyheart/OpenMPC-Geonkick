@@ -12,7 +12,7 @@ assert {t['fnKeyIndex'] for t in tabs}==set(range(6))
 assert [sum(t['fnKeyIndex']==k for t in tabs) for k in range(6)]==[3,6,6,6,1,5]
 assert {(m['Tab']-1,m['SubTab']-1) for m in maps}=={(t['fnKeyIndex'],t['fnKeySubIndex']) for t in tabs}
 for layer in range(1,4):
- assert [t['componentName'].split('|')[1] for t in tabs if t['fnKeyIndex']==layer]==[f'L{layer} {kind}{osc}' for osc in range(1,4) for kind in ('OSC','FX')]
+ assert [t['componentName'].split('|')[1] for t in tabs if t['fnKeyIndex']==layer]==[f'L{layer} {kind}{osc}' for kind in ('OSC','FX') for osc in range(1,4)]
 assert [t['componentName'] for t in tabs if t['fnKeyIndex']==5]==['KIT|KIT','SAMPLES|SAMPLES','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS']
 points={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}
 for t in tabs:

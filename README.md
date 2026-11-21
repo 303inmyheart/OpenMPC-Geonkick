@@ -12,15 +12,20 @@ point-editing Q-Link assignments; the combined view still needs device acceptanc
 work of Iurie Nistor and contributors, not AI-generated.
 
 Development port of [Geonkick 3.9.0](https://github.com/quamplex/geonkick) for
-Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.30 includes sixteen independent pad sounds, WAV sample import per
+Gen2 MPCs (aarch64), targeting MPC OS 3.10.1+. Version 0.0.31 includes sixteen independent pad sounds, WAV sample import per
 oscillator, eight native MPC starter presets (including Init) and a 16-pad
 starter kit. These are the MPC port’s own starting recipes, not the complete
 original Geonkick factory library. 0.0.29 adds native MPC conversions of all102 original factory.gkick presets
 and seven.gkit kits from the nine pinned upstream packs. General user-file
 .gkick/.gkit import remains a separate future feature.
 
+0.0.31 redesigns all24 pages with flat dark panels, arc knobs, blue selections,
+mint waveforms and clearer navigation. The Sample Library previews a WAV on tap
+without changing the assigned sound; tap again or STOP to cancel, PLAY PREVIEW
+to repeat, and LOAD SAMPLE to commit. Hardware acceptance of this build is pending.
+
 Since 0.0.14 the interface is organized into six menu keys: SOUND, LAYER1–3,
-ENVELOPE and MASTER. Each layer alternates OSC1/FX1, OSC2/FX2, OSC3/FX3. MASTER
+ENVELOPE and MASTER. Each layer groups OSC1/2/3 first, then FX1/2/3. MASTER
 contains KIT, SAMPLES, MIX and global FX; the point editor has its own key. Q-Links
 control rotary knobs only; switches, selectors, sliders and point editing remain
 touch-only. The historical MIDI CC table and all parameter/state IDs are retained.

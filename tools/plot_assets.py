@@ -12,22 +12,22 @@ for kind,height in [('positive',96),('negative',96),('envelope',192)]:
         offset=frame*height
         if kind=='envelope':
             y=offset+round((1-frame/(levels-1))*(height-2))
-            d.rectangle((0,y,PLOT_WIDTH-1,y+1),fill='#efbc73')
+            d.rectangle((0,y,PLOT_WIDTH-1,y+1),fill='#ffbc85')
         elif frame:
             length=max(1,round(frame/(levels-1)*height))
             top=height-length if kind=='positive' else 0
-            d.rectangle((0,offset+top,PLOT_WIDTH-1,offset+top+length-1),fill='#b9ed68')
+            d.rectangle((0,offset+top,PLOT_WIDTH-1,offset+top+length-1),fill='#6de2c3')
     im.save(root/'art'/f'plot_{kind}.png')
-grid=Image.new('RGB',(920,220),'#0b1a1f');d=ImageDraw.Draw(grid)
+grid=Image.new('RGB',(920,220),'#11151d');d=ImageDraw.Draw(grid)
 f=ImageFont.truetype(str(root/'art/DejaVuSans.ttf'),10)
-d.text((30,8),'HIT WAVEFORM',font=f,fill='#b9ed68')
-d.text((390,8),'ENVELOPE / 0-1',font=f,fill='#efbc73')
+d.text((30,8),'HIT WAVEFORM',font=f,fill='#6de2c3')
+d.text((390,8),'ENVELOPE / 0-1',font=f,fill='#ffbc85')
 d.text((760,8),'0 -> DURATION',font=f,fill='#B2B5B5')
 for i in range(5):
-    y=23+round(i*191/4);d.line((30,y,894,y),fill='#294047',width=1)
+    y=23+round(i*191/4);d.line((30,y,894,y),fill='#303642',width=1)
 for i in range(9):
-    x=30+i*108;d.line((x,23,x,214),fill='#20363d',width=1)
-d.line((30,119,894,119),fill='#506c6d',width=1)
+    x=30+i*108;d.line((x,23,x,214),fill='#252d3b',width=1)
+d.line((30,119,894,119),fill='#465267',width=1)
 grid.save(root/'art/plot_grid.png')
 
 # The editor shares the existing 432 actual-sound columns. Only the painted
@@ -46,5 +46,5 @@ for width in (2,3):
     height=CURVE_HEIGHT;im=Image.new('RGBA',(width,height*PLOT_ENV_LEVELS),(0,0,0,0));d=ImageDraw.Draw(im)
     for frame in range(PLOT_ENV_LEVELS):
         y=frame*height+round((1-frame/(PLOT_ENV_LEVELS-1))*(height-2))
-        d.rectangle((0,y,width-1,y+1),fill='#efbc73')
+        d.rectangle((0,y,width-1,y+1),fill='#ffbc85')
     im.save(root/'art'/f'plot_edit_e_{width}.png')

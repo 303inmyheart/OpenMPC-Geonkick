@@ -224,6 +224,8 @@ for layer in range(1,4):
             original=next(x for x in params if x['key']==f'o{slot}_{suffix}')
             proxy=dict(original,key=f'sound_o{slot}_{suffix}',name=f'Sound Osc{slot} '+('Frequency' if suffix=='freq_fine' else 'Level'))
             params.append(proxy)
+        elif column in (11,12):
+            opt('sample_preview' if column==11 else 'sample_preview_stop','Preview Sample' if column==11 else 'Stop Preview',['Off','Go'],momentary=True,debounce_ms=180,legacy=True)
         elif column<114:
             p(f'viz_l3_e_{column}',f'Reserved Display{column}',0,1,0,live=True,legacy=True)
         elif column==114:

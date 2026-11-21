@@ -11,6 +11,9 @@ def check():
     folder=f"{cfg['vendor']} - VST - {cfg['name']}"
     directory=build.ROOT/'build/skin'/folder/'Presets'
     manifest=json.loads((build.ROOT/'build/native-preset-manifest.json').read_text())
+    info=json.loads((build.ROOT/'build/native-preset-export/vst-info.json').read_text())
+    assert info['programs']==build.CFG['defines']['ENGINE_PROGRAM_COUNT'] and info['version']==build.CFG['version']
+    version=info['version'];parts=(version,0,0,0) if version<10 else (version//1000,(version//100)%10,(version//10)%10,version%10)
     options=json.loads((build.ROOT/'params.json').read_text())['params'][8]['options']
     expected=[f'{i:04d}-{name}.xpl' for i,name in enumerate(options)]+['1000-Starter Kit (16 Pads).xpl']
     factory=json.loads((build.ROOT/'build/factory-native-manifest.json').read_text())
@@ -27,12 +30,14 @@ def check():
         assert plugin is not None
         assert plugin.get('file')==f'%payload-path%/{folder}/{cfg["so"]}'
         assert plugin.get('name')==cfg['name'] and plugin.get('manufacturer')==cfg['vendor']
+        assert plugin.get('version')=='.'.join(map(str,parts))
         assert plugin.get('uid')==cfg['uid'].encode().hex()
         assert tree.findtext('preset')==item['name']
         bank=xpl.b64dec(tree.findtext('state'))
         assert bank[:4]==b'CcnK' and bank[8:12]==b'FBCh'
         assert int.from_bytes(bank[16:20],'big')==int.from_bytes(cfg['uid'].encode(),'big')
         assert int.from_bytes(bank[20:24],'big')==cfg['version']
+        assert int.from_bytes(bank[24:28],'big')==info['programs']
         raw=bank[160:]
         assert int.from_bytes(bank[156:160],'big')==len(raw)==item['bytes']
         assert raw.startswith(b'GKMP9 ') and raw.endswith(b'\0')

@@ -7,7 +7,9 @@ params=json.loads((ROOT/'params.json').read_text())['params'];ids={p['key']:i fo
 p=next((ROOT/'build/skin').glob('*/Plugin Skins/TUI.json'));page=json.loads(p.read_text())['pageData'];defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
 assert len(params)==4096
 old=json.loads(subprocess.check_output(['git','show','40b5a7d:params.json'],cwd=ROOT))['params'];assert params[:3985]==old[:3985]
-assert params[3992:]==old[3992:]
+assert params[3994:]==old[3994:]
+assert [p['key'] for p in params[3992:3994]]==['sample_preview','sample_preview_stop']
+assert [p['key'] for p in old[3992:3994]]==['viz_l3_e_11','viz_l3_e_12']
 assert len(page['tabs'])==24
 assert [sum(t['fnKeyIndex']==i for t in page['tabs']) for i in range(6)]==[1,6,6,6,1,4]
 q=json.loads((p.parent/'Q-Links.json').read_text());maps=q['Screen Mode Q-Links']['map']

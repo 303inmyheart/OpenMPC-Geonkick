@@ -12,7 +12,7 @@ sys.path.insert(0,str(MPC/'tools'))
 import shadow_skin
 from PIL import Image,ImageDraw,ImageFont
 GROUPS=[('SOUND',[f'SYNTH|LAYER {l}' for l in range(1,4)])]
-for l in range(1,4):GROUPS.append((f'LAYER {l}',[f'LAYER {l}|L{l} {kind}{o}' for o in range(1,4) for kind in ('OSC','FX')]))
+for l in range(1,4):GROUPS.append((f'LAYER {l}',[f'LAYER {l}|L{l} {kind}{o}' for kind in ('OSC','FX') for o in range(1,4)]))
 GROUPS += [('ENVELOPE',['ENVELOPE|ENVELOPE']),('MASTER',['KIT|KIT','SAMPLES|SAMPLES','SYNTH|MIX','EFFECTS|EFFECTS','PRESETS|PRESETS'])]
 LOCATION={name:(main,sub,title) for main,(title,names) in enumerate(GROUPS) for sub,name in enumerate(names)}
 POINT_KEYS={'point_select','point_level_fine','point_time_fine','point_copy','free_level','free_time','free_bend'}

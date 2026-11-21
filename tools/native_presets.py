@@ -20,11 +20,21 @@ build.run([out/'export',ROOT/'build/native'/cfg['so']])
 names=[f'{i:04d}-{name}' for i,name in enumerate(json.loads((ROOT/'params.json').read_text())['params'][8]['options'])]+['1000-Starter Kit (16 Pads)']
 dest=skin/'Presets';dest.mkdir(exist_ok=True)
 uid=int.from_bytes(cfg['uid'].encode(),'big');manifest=[]
+info=json.loads((out/'vst-info.json').read_text())
+assert info['programs']==cfg['defines']['ENGINE_PROGRAM_COUNT'] and info['version']==cfg['version'] and info['uid']==uid
+def native_xpl(raw,name):
+ text=xpl.xpl(cfg['name'],cfg['vendor'],f'%payload-path%/{folder}/{cfg["so"]}',uid,info['version'],raw,preset=name)
+ tree=ET.fromstring(text);version=info['version'];assert 0<=version<10000
+ parts=(version,0,0,0) if version<10 else (version//1000,(version//100)%10,(version//10)%10,version%10)
+ plugin=tree.find('PLUGIN');plugin.set('version','.'.join(map(str,parts)));plugin.attrib.pop('descriptiveName',None)
+ tree.find('state').text=xpl.b64enc(xpl.fxb_chunk_set(uid,info['version'],raw,num_programs=info['programs']))
+ return ET.tostring(tree,encoding='unicode',xml_declaration=True)
+
 for stem in names:
  raw=(out/(stem+'.chunk')).read_bytes();assert raw.startswith(b'GKMP9 ') and raw[-1:]==b'\0'
  name=stem.split('-',1)[1]
  if stem.startswith('1000-'):raw=program_bank.stamp(raw,8);(out/(stem+'.chunk')).write_bytes(raw)
- text=xpl.xpl(cfg['name'],cfg['vendor'],f'%payload-path%/{folder}/{cfg["so"]}',uid,cfg['version'],raw,preset=name)
+ text=native_xpl(raw,name)
  tree=ET.fromstring(text);bank=xpl.b64dec(tree.findtext('state'));assert bank[:4]==b'CcnK' and bank[8:12]==b'FBCh'
  assert int.from_bytes(bank[16:20],'big')==uid and int.from_bytes(bank[156:160],'big')==len(raw) and bank[160:]==raw
  assert tree.findtext('preset')==name
@@ -40,7 +50,7 @@ for j,p in enumerate(factory_presets):
  stem=f'{2000+j:04d}-'+name
  raw=program_bank.stamp(factory_bank.state(p,records),j+9)
  name=program_names[j+9]
- text=xpl.xpl(cfg['name'],cfg['vendor'],f'%payload-path%/{folder}/{cfg["so"]}',uid,cfg['version'],raw,preset=name)
+ text=native_xpl(raw,name)
  (dest/(stem+'.xpl')).write_text(text)
  item=dict(file=stem+'.xpl',name=name,state_sha256=hashlib.sha256(raw).hexdigest(),bytes=len(raw),pack=p['pack'],source=p['source'],ids=p['ids'])
  manifest.append(item);factory_manifest.append(item)

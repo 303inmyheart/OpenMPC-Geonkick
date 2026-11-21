@@ -2,6 +2,52 @@
 
 Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live III; new builds require separate validation.
 
+## Deferred issue: Sounds → Instruments thumbnail navigation
+
+- Reported on MPC Live III / MPC OS 3.10.1: after loading a sound, tapping
+  the already selected plugin thumbnail does not reopen its preset/kit list.
+- The maintainer confirms the same behavior in **Geonkick MPC and JC303 MPC**;
+  **Hype works** in the comparison test. The shared cause remains unconfirmed.
+- Workaround confirmed for Geonkick: use the arrows beside the current preset
+  at the bottom of Sounds, or the native MPC preset selector inside the plugin.
+- Deferred at the maintainer's request: the same failure was also confirmed
+  with other external plugins, while Hype works. No port-specific fix is claimed.
+- This concerns Sounds-browser navigation, not opening the plugin editor.
+  It is separate from missing artwork in the OpenMPC Plugin Manager.
+
+## Requested: folders in the native Edit preset selector
+
+- Match the factory-pack grouping shown under Sounds → Instruments in the native
+  Edit preset dropdown. The maintainer explicitly prefers native MPC navigation.
+- Current VST2 integration exposes 118 indexed programs as a flat list. Host-side
+  inspection shows the generic program branch supplies empty category fields;
+  native preset providers use separate category metadata. No supported public
+  VST2/SDK mechanism for supplying those menu folders has been identified.
+- Pending a supported host/API route; do not claim file folders or slash-prefixed
+  program names create native submenus. Preserve program indices, names and saved
+  states. No firmware/global-settings patch or replacement custom browser.
+
+## Development build 0.0.31 — redesign and sample preview
+
+- All24 pages: flat dark panels, consistent blue selection/value accents, mint
+  waveform and amber envelope, arc knobs and less decorative noise.
+- Layer navigation: OSC1/2/3 followed by FX1/2/3; actual submenu numbering follows
+  reachable pages. SOUND retains explicit Layer1/2/3 with independent curves.
+- Rebuilt Sample Library: larger file targets, clear destination/source section,
+  tap a WAV to preview; repeat the same tap or STOP to stop, PLAY PREVIEW to repeat.
+  LOAD SAMPLE is the separate assignment action. Preview changes no kit/state.
+- Worker decode, cancellation of stale preview requests and5ms playback edges;
+  no file IO/allocation/free in the audio callback. MIDI panic cancels preview.
+- All4096 handles remain; only two previously unused non-automatable display
+  slots become non-automatable preview actions. Stored1551 physical values,
+  program indices and sound/state formats remain unchanged.
+- Full native sanitizer and ARM64/QEMU suites, final24-page skin/Q-Link checks,
+  118 native preset payload checks and current OpenMPC package validation pass
+  (0 warnings). Device appearance/touch/audio acceptance is still separate.
+- Next: hardware review of this redesign and preview, refine identified issues,
+  then remaining kit guidance/regression and final-release benchmark. General
+  original-file import remains later. No Store benchmark for this development build.
+
 ## Current plan
 
 1. **Stable base and device controls** — working through0.0.19, confirmed by

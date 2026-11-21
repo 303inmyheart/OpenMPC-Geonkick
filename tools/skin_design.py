@@ -4,7 +4,7 @@ from pathlib import Path
 import json,math,os,sys,re,hashlib
 from PIL import Image,ImageDraw,ImageFont
 ROOT=Path(__file__).resolve().parents[1]
-BG='#101a1e';PANEL='#1b292e';BORDER='#34484d';INK='#e9f0e9';MUTED='#94aaa9';GREEN='#b9ed68';AMBER='#efbc73';CYAN='#6cbab6'
+BG='#101218';PANEL='#1a1e27';BORDER='#303642';INK='#f1f4fa';MUTED='#9ba8bb';GREEN='#7ba9ff';AMBER='#ffbc85';CYAN='#6de2c3'
 FONT=ROOT/'art/DejaVuSans.ttf';S=3
 PRESET_FRAME=(132,153,1148,474)
 
@@ -18,34 +18,23 @@ def ellipse(d,rect,fill,outline=None,width=1):d.ellipse(tuple(round(v*S) for v i
 def save(im,p):im.resize((im.width//S,im.height//S),Image.Resampling.LANCZOS).save(p)
 def segment_image(width,height,label,on):
     im=Image.new('RGBA',(width*S,height*S),(0,0,0,0));d=ImageDraw.Draw(im)
-    box(d,(1,1,width-1,height-1),GREEN if on else '#24383e',GREEN if on else '#42585d',4)
-    line(d,[(7,3),(width-7,3)],'#d7f9ab' if on else '#53696e')
+    box(d,(1,1,width-1,height-1),GREEN if on else '#242a35',GREEN if on else BORDER,6)
     size=min(22,height*.43)
     while font(size).getlength(label)>(width-12)*S and size>9:size-=1
-    text(d,(width/2,height/2),label,size,'#152019' if on else '#d1dfdb')
+    text(d,(width/2,height/2),label,size,'#101722' if on else INK)
     return im.resize((width,height),Image.Resampling.LANCZOS)
 
 def make_knob(path):
     radius=int(re.search(r'_r(\d+)',path.name)[1]);size=2*radius+10
-    old=Image.open(path);frames=old.height//size;strip=Image.new('RGBA',(size,size*frames))
-    c=size/2;cap=radius-7
+    old=Image.open(path);frames=old.height//size;strip=Image.new('RGBA',(size,size*frames));c=size/2
     for n in range(frames):
         im=Image.new('RGBA',(size*S,size*S),(0,0,0,0));d=ImageDraw.Draw(im)
-        d.arc(tuple(round(v*S) for v in (c-radius,c-radius,c+radius,c+radius)),135,405,fill='#3d5357',width=2*S)
-        for tick in range(25):
-            a=math.radians(135+270*tick/24);ri=radius-3;ro=radius+1
-            line(d,[(c+ri*math.cos(a),c+ri*math.sin(a)),(c+ro*math.cos(a),c+ro*math.sin(a))],GREEN if tick<=n*24/(frames-1) else '#617373',1)
-        ellipse(d,(c-cap-2,c-cap,c+cap+3,c+cap+5),'#060d10')
-        ellipse(d,(c-cap-1,c-cap-1,c+cap+1,c+cap+1),'#53666a','#82958d')
-        for r in range(cap,0,-1):
-            v=31+round(17*(cap-r)/cap);ellipse(d,(c-r,c-r,c+r,c+r),(v,v+11,v+14,255))
-        for j in range(36):
-            a=math.pi*2*j/36
-            line(d,[(c+(cap-3)*math.cos(a),c+(cap-3)*math.sin(a)),(c+cap*math.cos(a),c+cap*math.sin(a))],'#152328',1)
-        ellipse(d,(c-cap+4,c-cap+4,c+cap-4,c+cap-4),'#2e4045','#16272b')
+        rect=tuple(round(v*S) for v in (c-radius,c-radius,c+radius,c+radius))
+        d.arc(rect,135,405,fill=BORDER,width=3*S)
+        if n:d.arc(rect,135,135+270*n/(frames-1),fill=GREEN,width=3*S)
+        ellipse(d,(c-radius+7,c-radius+7,c+radius-7,c+radius-7),'#242b37')
         a=math.radians(135+270*n/(frames-1))
-        line(d,[(c+cap*.3*math.cos(a),c+cap*.3*math.sin(a)),(c+(cap-5)*math.cos(a),c+(cap-5)*math.sin(a))],GREEN,2.6)
-        ellipse(d,(c-2,c-2,c+2,c+2),'#192a2e')
+        line(d,[(c+(radius*.27)*math.cos(a),c+(radius*.27)*math.sin(a)),(c+(radius-11)*math.cos(a),c+(radius-11)*math.sin(a))],INK,2.4)
         strip.paste(im.resize((size,size),Image.Resampling.LANCZOS),(0,n*size))
     assert strip.size==old.size;strip.save(path)
 
@@ -65,10 +54,7 @@ def sliders(skin):
 
 def panel_background(layout,bank,children,defs,skin):
     im=Image.new('RGB',(1280*S,628*S),BG);d=ImageDraw.Draw(im)
-    # Fine deterministic horizontal finish, without texture under the live plots.
-    for y in range(0,628,3):line(d,[(0,y),(1280,y)],'#121e23')
-    box(d,(16,10,1264,616),None,'#34464a',12)
-    def card(r):box(d,r,PANEL,BORDER,10);line(d,[(r[0]+12,r[1]+1),(r[2]-12,r[1]+1)],'#41575b')
+    def card(r):box(d,r,PANEL,BORDER,12)
     name=layout['name']
     if name=='SYNTH':
         card((60,58,998,346));card((1016,58,1238,346))
@@ -76,7 +62,6 @@ def panel_background(layout,bank,children,defs,skin):
             card((60,356,1220,501));card((60,504,296,611));card((348,506,1220,611))
             for x in (328,626,924):line(d,[(x,374),(x,486)],'#344b50')
         else:
-            text(d,(526,65),'CURVE FOLLOWS LAST EDITED OSCILLATOR',11,MUTED)
             card((60,349,1238,404))
             for x in (54,354,654):card((x,407,x+296,611))
             card((1016,407,1238,611))
@@ -88,12 +73,12 @@ def panel_background(layout,bank,children,defs,skin):
         text(d,(640,615),'FILTER  /  DRIVE   ·   '+('GLOBAL PROCESSING' if name=='EFFECTS' else 'OSCILLATOR PROCESSING'),13,MUTED)
     elif name=='ENVELOPE':
         card((70,72,1210,225));card((70,228,1210,423));card((70,424,1210,508));card((70,510,1256,625))
-        text(d,(90,240),'WAVEFORM + ENVELOPE',13,MUTED,'lm');text(d,(1190,240),'SELECT POINT NUMBER / DRAG AMBER POINT',12,AMBER,'rm')
+        text(d,(90,240),'WAVEFORM + ENVELOPE',15,MUTED,'lm');text(d,(1190,240),'SELECT POINT NUMBER / DRAG AMBER POINT',12,AMBER,'rm')
     elif name=='KIT':
         card((70,72,660,510));card((690,72,1220,450));card((70,520,1220,603))
         text(d,(955,508),'SAVE COMPLETE KITS IN THE MPC PRESET MENU',10,MUTED)
         text(d,(955,535),'PRESS HARDWARE PADS 01-16 IN ORDER',11,MUTED)
-        text(d,(365,495),'Selection edits a sound. PLAY auditions it.',12,MUTED)
+        text(d,(365,495),'Selection edits a sound. PLAY auditions it.',14,MUTED)
     elif name=='SAMPLES':
         card((60,72,810,606));card((830,72,1240,606))
         text(d,(1040,540),'WAV / MONO CH1 / FIRST 4 SECONDS',11,MUTED)
@@ -109,7 +94,7 @@ def panel_background(layout,bank,children,defs,skin):
         top=min(r[1] for r in SHADOW.seg_rects(props))-86
         pos=(w['cx'],max(65,top-17),w['label'])
         if pos in seen:continue
-        seen.add(pos);text(d,pos[:2],pos[2],12,MUTED)
+        seen.add(pos);text(d,pos[:2],pos[2],14,MUTED)
     return im
 
 def main():
@@ -137,7 +122,7 @@ def main():
         for sub in parts:
             cd=sub['componentData']
             if cd['type']=='Label' and cd['data'].get('type')=='Value':
-                cd['data']['textStyle']['colour']='ffb9ed68'
+                cd['data']['textStyle']['colour']='ff7ba9ff'
                 if rotary:
                     x,y,w,h=map(int,sub['bounds']['bounds'].split())
                     focus=next(c for c in parts if c['componentData']['type']=='Focus')
@@ -145,12 +130,12 @@ def main():
                     fn=f'gk_value_{cw}x{ch}_{y}.png'
                     if not (skin/fn).exists():
                         im=Image.new('RGBA',(cw*S,ch*S),(0,0,0,0));dr=ImageDraw.Draw(im)
-                        box(dr,(x+8,y+1,x+w-8,y+h-1),'#0a171a','#395356',5)
+                        box(dr,(x+8,y+1,x+w-8,y+h-1),'#10141c',BORDER,6)
                         line(dr,[(x+14,y+h-3),(x+w-14,y+h-3)],'#1e3639');save(im,skin/fn)
                     # Background paint cannot capture gestures over the value.
                     value['backgroundData']={'version':1,**{state:{'version':1,'colour':'00000000','image':fn} for state in ('focussed','unfocussed')}}
             if cd['type']=='Envelope' and key!='gkFreeEnvelope':
-                for field,color in [('lineColour','ffefbc73'),('handleLineColour','ffefbc73'),('handleFillColour','ff192b31'),('handleFillColourOnPressed','ffb9ed68'),('scaleColour','ff31494c')]:cd['data'][field]=color
+                for field,color in [('lineColour','ffffbc85'),('handleLineColour','ffffbc85'),('handleFillColour','ff1a1e27'),('handleFillColourOnPressed','ff7ba9ff'),('scaleColour','ff303642')]:cd['data'][field]=color
             updated.append(sub)
         if rotary:value['componentsData']=updated
     for tab in page['tabs']:
@@ -173,9 +158,9 @@ def main():
         for k in range(6):box(d,(1010+k*15,32,1018+k*15,36),accent if k==tab['fnKeyIndex'] else '#324449',None,1)
         count=sum(t['fnKeyIndex']==tab['fnKeyIndex'] and not(tab['fnKeyIndex']==5 and t['componentName']=='PRESETS|PRESETS') for t in page['tabs']);text(d,(1225,35),f'{tab["fnKeySubIndex"]+1:02d} / {count:02d}',11,MUTED,'rm');save(im,file)
     # Dense display geometry and its shared revision binding are unchanged.
-    im=Image.new('RGB',(1100,170),'#0b1a1f');d=ImageDraw.Draw(im)
-    for j in range(9):x=18+round(j*1064/8);d.line((x,18,x,152),fill='#20383e')
-    d.line((18,85,1082,85),fill='#496769');im.save(skin/'point-wave-background.png')
+    im=Image.new('RGB',(1100,170),'#11151d');d=ImageDraw.Draw(im)
+    for j in range(9):x=18+round(j*1064/8);d.line((x,18,x,152),fill='#252d3b')
+    d.line((18,85,1082,85),fill='#465267');im.save(skin/'point-wave-background.png')
     path.write_text(json.dumps(doc,indent=2)+'\n')
     referenced=set()
     def scan(v):
@@ -189,5 +174,5 @@ def main():
     for pattern in ['sh_bg_*.png','sh_mode_*.png']:
         for p in skin.glob(pattern):
             if p.name not in referenced:p.unlink()
-    print('Percussion Lab: own rotary filmstrips, recessed values, graphite panels, green/amber displays, native targets/geometry unchanged.')
+    print('Modern flat interface: restrained blue/mint accents, clear cards, arc knobs, no surface texture.')
 if __name__=='__main__':main()

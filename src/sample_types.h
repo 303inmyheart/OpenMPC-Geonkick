@@ -9,19 +9,27 @@
 #define SNAP_COUNT (GP_COUNT+9+3+1)
 typedef struct SampleAsset {
     struct SampleAsset *next;
+    unsigned preview_ticket;
     unsigned count;float *data;char name[64],hexname[129];char *encoded;size_t encoded_len;
 } SampleAsset;
 typedef struct {char name[256];int directory;} SampleEntry;
 typedef struct {char path[PATH_MAX],selected[PATH_MAX];int count,page;SampleEntry entries[SAMPLE_ENTRIES];} SampleView;
-enum {SAMPLE_SCAN=1,SAMPLE_LOAD=2,SAMPLE_DEFAULT=3};
+enum {SAMPLE_SCAN=1,SAMPLE_LOAD=2,SAMPLE_DEFAULT=3,SAMPLE_PREVIEW=4};
 typedef struct {int action,pad,osc,page;unsigned stamp;char path[PATH_MAX];} SampleRequest;
-typedef struct {SampleView *view;SampleAsset *asset;int pad,osc;unsigned stamp;char status[64],default_folder[PATH_MAX];} SampleReply;
+typedef struct {SampleView *view;SampleAsset *asset;int action,pad,osc;unsigned stamp;char status[64],default_folder[PATH_MAX];} SampleReply;
 typedef struct {
     _Atomic(SampleAsset*) assets[16][9],retired;
     atomic_int source[16][9],readers,busy;
     atomic_uint generation[16][9],write,read,pending;
     SampleRequest requests[SAMPLE_REQUESTS];
     _Atomic(SampleReply*) reply;
+    _Atomic(SampleAsset*) preview_ready;
+    atomic_uint preview_generation;
+    atomic_int preview_active;
+    /* Current/next are owned exclusively by the audio callback. */
+    SampleAsset *preview_current,*preview_next;
+    unsigned preview_pos;
+    float preview_gain;
     SampleView *view;
     size_t bytes;uint64_t dirty;char status[64],default_folder[PATH_MAX],preference_file[PATH_MAX];
 } SampleManager;

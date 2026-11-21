@@ -1,4 +1,4 @@
-# Samples — Geonkick MPC0.0.27
+# Samples — Geonkick MPC0.0.31
 
 1. Select the sound on MASTER → KIT. Open MASTER → SAMPLES and choose the target
    oscillator (L1/1–L3/3). Each of the16 pads can retain samples on all9 oscillators.
@@ -7,12 +7,17 @@
    Press SET DEFAULT to remember the currently open folder across plugin/app
    restarts. This preference stays in the plugin folder, outside projects and
    presets; it does not change MPC global settings.
-   The list shows folders and.wav files,8 at a time, with PREVIOUS/NEXT page buttons.
-3. Tap a WAV to select it, then LOAD / REPLACE OSC. Loading happens in the worker.
+   The list shows folders and.wav files,8 at a time, with BACK/NEXT page buttons.
+3. Tap a WAV to select and preview it immediately. Tap the same selected file
+   again to stop; PLAY PREVIEW restarts it and STOP stops it. Preview runs on an
+   independent playback path with5ms edge fades and changes no pad, oscillator,
+   envelope or saved state. Folder changes, Load and MIDI All Notes Off cancel
+   preview. File decode stays on the worker; audio never performs file IO.
+   Press LOAD SAMPLE explicitly to assign it. Loading happens in the worker.
    A failed/unsupported file leaves the existing asset unchanged. The target is
    the pad/oscillator selected when Load was pressed. Resetting/replacing that
    target cancels an old pending import rather than overwriting the newer sound.
-4. PLAY PAD auditions the mixed selected sound. Import turns the chosen oscillator
+4. Play the hardware pad to audition its assigned mixed sound. Import turns the chosen oscillator
    on and changes it to Sample, flat Amp and original-speed pitch. It retains
    other oscillators, layer gains and filter/drive settings. If the status says
    LAYER IS OFF, enable that layer’s gain. Its sample is loaded even while muted.

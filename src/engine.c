@@ -387,7 +387,7 @@ static void hit_pad(Engine *e,int pad,int note,int ch,int vel) {
 }static void midi(void *inst,const uint8_t *msg,int len) {
     Engine *e=inst;if(!e||len<3)return;
     int type=msg[0]&0xf0,ch=msg[0]&15,note=msg[1]&127,vel=msg[2]&127;
-    if(type==0xb0 && (note==120||note==123)){stop_all(e);return;}
+    if(type==0xb0 && (note==120||note==123)){stop_all(e);sample_preview_stop(e);return;}
     if(type==0x80 || (type==0x90&&!vel)) {
         for(int i=0;i<VOICES;i++)if(e->voices[i].gate && e->voices[i].note==note && e->voices[i].channel==ch)stop_voice(e,&e->voices[i]);
         return;
@@ -590,7 +590,7 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));
 }
 int mpc_engine_ui_only_input(const char *key) {
-    return !strcmp(key,"sound_layer") || !strncmp(key,"sound_o",7);
+    return !strcmp(key,"sound_layer") || !strncmp(key,"sound_o",7) || !strcmp(key,"sample_preview") || !strcmp(key,"sample_preview_stop");
 }
 int mpc_engine_changed(void *inst,char *key,int len) {
     Engine *e=inst;
@@ -603,7 +603,7 @@ int mpc_engine_changed(void *inst,char *key,int len) {
     return 0;
 }
 static void render(void *inst,mpc_sample_t *out,int frames) {
-    Engine *e=inst;adopt(e);float volume[PADS];
+    Engine *e=inst;adopt(e);sample_preview_begin_block(e);float volume[PADS];
     for(int pad=0;pad<PADS;pad++)volume[pad]=factory_output(e,pad);
     for(int n=0;n<frames;n++) {
         float pad_sum[PADS];
@@ -620,7 +620,7 @@ static void render(void *inst,mpc_sample_t *out,int frames) {
             sum+=pad_sum[pad]*e->output_gain[pad];
         }
         e->kit_gain+=(e->kit_output-e->kit_gain)*(1.f/(0.005f*RATE));
-        out[n*2]=out[n*2+1]=sum*e->kit_gain;
+        out[n*2]=out[n*2+1]=(sum+sample_preview_frame(e))*e->kit_gain;
     }
 }
 static const mpc_engine_t api={create,destroy,midi,set_param,get_param,render,NULL,NULL};

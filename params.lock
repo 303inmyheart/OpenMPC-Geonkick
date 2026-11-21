@@ -3990,8 +3990,8 @@ sound_o2_freq_fine
 sound_o2_level
 sound_o3_freq_fine
 sound_o3_level
-viz_l3_e_11
-viz_l3_e_12
+sample_preview
+sample_preview_stop
 viz_l3_e_13
 viz_l3_e_14
 viz_l3_e_15

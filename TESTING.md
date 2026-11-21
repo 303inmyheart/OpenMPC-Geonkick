@@ -1,3 +1,27 @@
+# Current verification —0.0.31 redesign and audition
+
+Native ASan/UBSan/leak suite passes, including the independent183-sound factory
+oracles and all preset/chunk round trips. Added preview checks exercise audible
+isolated playback, unchanged complete kit state, per-instance isolation, finite
+bounded output, end/stop ramps, cancellation before decode, rapid stale-request
+replacement, repeat-tap stop and explicit Load. Link-time RT guards reject
+allocation/free/file IO in render and MIDI. Two reserved display handles are now
+non-automatable Preview/Stop actions; the other4094 VST entries retain identity,
+and all1551 stored physical values remain unchanged.
+
+The complete ARM64/QEMU suite also passes. Final24-page hardware maps and
+full Q-Link frame containment pass, as do distinct Preview/Stop/Load targets,
+row-text visibility, frozen stored values and118 native preset payloads.
+The OpenMPC Installer package passes current-main catalog checks with0warnings
+(tooling eca4e515ba0f7e16ac57cfd41d9af791bcce32ad). Live III appearance, touch
+reachability and hearing acceptance remain pending. See TESTPLAN-0.0.31-DE.md. No formal Store benchmark.
+
+Installed on Live III under standing permission:2040 plugin files and118 resolved
+preset paths verified, prior plugin backed up, settings unchanged during the
+update, MPC application restarted active/running with a new PID. Installed SO
+SHA-256 a5d516de41ad8be549e7f3866e66df82ce48f8d6d8e306e8732801f6bce501aa
+matches the validated installer. This is deployment evidence, not GUI acceptance.
+
 # Current verification —0.0.30 native program integration
 
 Hardware0.0.29 report: old browser sounds load; new factory files create Init,
