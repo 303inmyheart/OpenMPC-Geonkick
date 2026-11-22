@@ -11,9 +11,10 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
 - Exact release-binary standard PASS: 1.1% p99 / 2.0% max;
   extra full sweep FAIL: 77.6% / 98.0%; separately paced background
   synthesis up to 77.9% of one core. Full reports and limitations retained.
-- Publish the tagged source and OpenMPC Installer asset, then submit the single
-  GeonKick catalog entry. Catalog inclusion still requires maintainer merge.
-- After confirmed publication, clear remaining device screenshots as requested.
+- Published [Geonkick MPC 1.0](https://github.com/303inmyheart/OpenMPC-Geonkick/releases/tag/geonkick-mpc-v1.0.0), with tagged source, the measured installer and SHA-256.
+- [OpenMPC catalog PR #1098](https://github.com/open-mpc/mpc-vst-plugins/pull/1098) is submitted; its automated build passed. Catalog inclusion awaits maintainer review/merge.
+- Remaining device screenshot cleanup is deferred at the maintainer's request
+  until the MPC is switched on again.
 
 ## Release 1.0 — selected-layer Envelope waveform — Envelope waveform follows its selected layer
 
