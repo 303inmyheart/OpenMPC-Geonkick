@@ -7,7 +7,7 @@ params=json.loads((root/'params.json').read_text())['params'];ids={p['key']:i fo
 page=json.loads(next((root/'build/skin').glob('*/Plugin Skins/TUI.json')).read_text())['pageData']
 defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
 assert len(params)==4096
-previous=json.loads(subprocess.check_output(['git','show','10b4db3:params.json'],cwd=root))['params']
+previous=json.loads((root/'tests/abi/point-editor-baseline.json').read_text())['params']
 assert params[:len(previous)]==previous,'Changed previous VST identities/ranges/defaults'
 for tab in page['tabs']:
     if tab['componentName']!='ENVELOPE|ENVELOPE':continue

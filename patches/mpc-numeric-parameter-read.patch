@@ -1,0 +1,30 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -297,6 +297,9 @@
+  * a host write on another thread at the same moment is still treated as a host write. */
+ static __thread int absolute_set;
+ 
++#if defined(ENGINE_NUMERIC_READS) && ENGINE_NUMERIC_READS
++int mpc_engine_get_float(void *,const char *,float *) __attribute__((weak));
++#endif
+ static float get_norm(wrap_t *w, int i) {
+     char buf[64];
+     if (i < 0 || i >= NPARAMS) return 0;
+@@ -310,6 +313,17 @@
+         snprintf(k2, sizeof k2, "%s_on", PARAMS[i].key);
+         if (eng_get(w, k2, buf, sizeof buf) > 0) return atoi(buf) ? 1.0f : 0.0f;
+     }
++#if defined(ENGINE_NUMERIC_READS) && ENGINE_NUMERIC_READS
++    if(!PARAMS[i].string_display && mpc_engine_get_float) {
++        float raw;pthread_mutex_lock(&w->lock);
++        int found=mpc_engine_get_float(w->dsp,PARAMS[i].key,&raw);
++        pthread_mutex_unlock(&w->lock);
++        if(found){const param_t *p=&PARAMS[i];
++            if(p->nopts)return p->nopts>1?(float)(int)raw/(p->nopts-1):0;
++            return p->max>p->min?clamp01((float)(((double)raw-p->min)/(p->max-p->min))):0;
++        }
++    }
++#endif
+     if (eng_get(w, PARAMS[i].key, buf, sizeof buf) <= 0) return PARAMS[i].def;
+     return str_to_norm(&PARAMS[i], buf);
+ }

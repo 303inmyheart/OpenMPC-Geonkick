@@ -1,0 +1,1 @@
+Frozen parameter ABI fixtures copied unchanged from commits10b4db3 and40b5a7d, respectively. Kept in source so skin/ABI checks work from source archives and shallow CI checkouts. Do not regenerate them from current parameters.

@@ -1,3 +1,41 @@
+# Current verification — 0.0.34 parameter-path optimization
+
+Full native ASan/UBSan/leak and ARM64/QEMU suites pass. New reference checks
+cover indexed/empty/fallback popups, all 18 sparse Amp/Pitch snapshots against
+the complete 1551-value snapshot, 0/2–16 knots and both fallback modes,
+key-based curve writes, and 20,172 numeric reads against the textual API.
+A separate comparison with the actual 0.0.33 VST applies 720 identical oscillator,
+layer, filter, fine/touch and editor writes. Saved kit chunks remain byte-identical
+across 12 batches; maximum normalized read difference is 5.96046448e-08.
+
+The pinned wrapper plus all 22 patches reproduces the actual build inputs.
+Frozen ABI fixtures ship in source, so shallow CI/source archives do not need
+unavailable development-history commits. Final 24-page navigation/Q-Link frames,
+118 native preset payloads and installer validation pass with zero warnings.
+Normal CI packages omit benchmark attachments. Attaching one explicitly requires
+the measured binary's exact SHA-256 and a qualifying standard PASS/WARN.
+
+Installed under standing permission: 2040 plugin files and 118 resolved native
+preset paths verified; previous version backed up, settings unchanged during
+replacement. MPC application restarted and active/running verified. Installed SO
+SHA-256: `1aa89cedcee87659841cfce5bde23a9e203328a4337b2c600a60b5582bf9ff1c`.
+It matches the installer. Deployment verification is not hearing/touch acceptance;
+see [device test plan](TESTPLAN-0.0.34-DE.md).
+
+Exact installed-binary [Live III reports](benchmarks/0.0.34):
+
+| Measurement | p99 | Maximum | Result |
+| --- | ---: | ---: | --- |
+| Standard official host | 1.1% | 2.0% | PASS |
+| Additional full-parameter sweep | 70.6% | 101.9% | FAIL |
+| Separately paced audio workload | 1.9% | 2.7% | PASS |
+
+The paced run measures background synthesis at up to 77.7% of one core.
+The previous 0.0.33 sweep was 346.2% / 405.6%; its paced background value was
+78.5%. Audio percentages are one-block budget, not the MPC project CPU meter.
+The paced report is separate from the official catalog result. Full stress is
+still above budget in its worst block; no full-stress clearance is claimed.
+
 # Current verification —0.0.32 explicit tab targets
 
 UI-only package revision: all18 oscillator/effects subpages include both layer

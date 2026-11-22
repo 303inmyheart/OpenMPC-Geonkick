@@ -1,0 +1,55 @@
+--- a/tools/gen_vst.py
++++ b/tools/gen_vst.py
+@@ -235,6 +235,11 @@
+               "#define PLUG_UID 0x%08x /* '%s' */" % (int.from_bytes(cfg["uid"].encode(), "big"), cfg["uid"]),
+               "#define PLUG_VERSION %d" % cfg.get("version", 1000)]
+     lines += ["#define %s %s" % (k, v) for k, v in cfg.get("defines", {}).items()]
++    # Popup operations visit only real popup flags, never every stored/graph parameter.
++    popup_indices = [i for i, p in enumerate(params) if p.get("popup_of") in key_to_index]
++    lines += ["#define PLUG_POPUP_COUNT %d" % len(popup_indices)]
++    if popup_indices:
++        lines += ["static const int PLUG_POPUP_INDICES[] = {%s};" % ", ".join(map(str, popup_indices))]
+     # "live": true on a param -- the engine changes it by itself (a status readout, a progress value), not only when the host
+     # writes it. host_test skips these in its "parameter 0 toggle changes nothing" check (PLUG_LIVE / PLUG_LIVE_COUNT).
+     live = [i for i, q in enumerate(params) if q.get("live")]
+--- a/wrapper/popup.h
++++ b/wrapper/popup.h
+@@ -24,16 +24,38 @@
+ /* A popup flag was just opened: every other open list closes (two lists on screen cover each other, and the big ones cover
+  * the page). The host hears "open = 0" from processReplacing via holdFrames[]. */
+ static inline void popup_close_others(float *open, volatile int *holdFrames, int i) {
++#ifdef PLUG_POPUP_COUNT
++#if PLUG_POPUP_COUNT > 0
++    for (int k = 0; k < PLUG_POPUP_COUNT; k++) {
++        int j = PLUG_POPUP_INDICES[k];
++        if (j != i && PARAMS[j].popup_of >= 0 && open[j] > 0.5f) { open[j] = 0; holdFrames[j] = 1; }
++    }
++#else
++    (void)open;(void)holdFrames;(void)i;
++#endif
++#else
+     for (int j = 0; j < NPARAMS; j++)
+         if (j != i && PARAMS[j].popup_of >= 0 && open[j] > 0.5f) { open[j] = 0; holdFrames[j] = 1; }
++#endif
+ }
+ 
+ /* An option of param i picked exactly (a list button). A Q-Link nudge lands between options and
+  * must not call this, so turning the knob leaves the list open. Closes i's open popup; the host
+  * hears "open = 0" from processReplacing via holdFrames[], not from inside its own setParameter call. */
+ static inline void popup_picked(float *open, volatile int *holdFrames, int i) {
++#ifdef PLUG_POPUP_COUNT
++#if PLUG_POPUP_COUNT > 0
++    for (int k = 0; k < PLUG_POPUP_COUNT; k++) {
++        int j = PLUG_POPUP_INDICES[k];
++        if (PARAMS[j].popup_of == i && open[j] > 0.5f) { open[j] = 0; holdFrames[j] = 1; }
++    }
++#else
++    (void)open;(void)holdFrames;(void)i;
++#endif
++#else
+     for (int j = 0; j < NPARAMS; j++)
+         if (PARAMS[j].popup_of == i && open[j] > 0.5f) { open[j] = 0; holdFrames[j] = 1; }
++#endif
+ }
+ 
+ #endif

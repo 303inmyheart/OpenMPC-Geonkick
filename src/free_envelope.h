@@ -14,9 +14,10 @@ static void free_key(char *key,int osc,int kind,const char *suffix){snprintf(key
 static float free_value(const float *p,int osc,int kind,const char *suffix){char key[48];free_key(key,osc,kind,suffix);return value(p,key);}
 static void free_store(Engine *e,int osc,int kind,const char *suffix,float v){char key[48];free_key(key,osc,kind,suffix);int i=index_of(key);atomic_store(&e->values[i],v);}
 static void free_read(const float *p,int osc,int kind,FreeCurve *c){
- memset(c,0,sizeof *c);c->n=(int)free_value(p,osc,kind,"n");char key[16];
+ memset(c,0,sizeof *c);c->n=(int)p[gfree_base[osc][kind]];char key[16];
  if(c->n>=2){
-  for(int j=0;j<c->n;j++){snprintf(key,sizeof key,"x%d",j);c->x[j]=free_value(p,osc,kind,key);snprintf(key,sizeof key,"y%d",j);c->y[j]=free_value(p,osc,kind,key);if(j<c->n-1){snprintf(key,sizeof key,"b%d",j);c->b[j]=free_value(p,osc,kind,key);snprintf(key,sizeof key,"c%d",j);c->d[j]=free_value(p,osc,kind,key);}}
+  int base=gfree_base[osc][kind];
+  for(int j=0;j<c->n;j++){c->x[j]=p[base+1+j*2];c->y[j]=p[base+2+j*2];if(j<c->n-1){c->b[j]=p[base+33+j*2];c->d[j]=p[base+34+j*2];}}
  }else if(point_value(p,osc,kind,"seen")==0){
   float length=value(p,"length");char key[40];
   if(!kind){
@@ -38,13 +39,21 @@ static void free_read(const float *p,int osc,int kind,FreeCurve *c){
   for(int j=0;j<5;j++){snprintf(key,sizeof key,"l%d",j);c->y[j]=point_value(p,osc,kind,key);if(j){snprintf(key,sizeof key,"t%d",j);c->x[j]=c->x[j-1]+point_value(p,osc,kind,key)/total;}}c->x[4]=1;
  }
 }
-static void free_current(Engine *e,int osc,int kind,FreeCurve *c){float p[GP_COUNT];for(int i=0;i<GP_COUNT;i++)p[i]=atomic_load(&e->values[i]);free_read(p,osc,kind,c);}
-static void free_write(Engine *e,int osc,int kind,const FreeCurve *c){char key[16];
+static void free_current(Engine *e,int osc,int kind,FreeCurve *c){
+ float p[GP_COUNT];int base=gfree_base[osc][kind];
+ for(int j=0;j<63;j++)p[base+j]=atomic_load(&e->values[base+j]);
+ base=gpoint_base[osc][kind];for(int j=0;j<11;j++)p[base+j]=atomic_load(&e->values[base+j]);
+ int i=index_of("length");p[i]=atomic_load(&e->values[i]);
+ const char *fields[]={"attack","decay","freq","sweep","sweep_time"};
+ for(int j=0;j<5;j++){char key[40];snprintf(key,sizeof key,"o%d_%s",osc+1,fields[j]);i=index_of(key);p[i]=atomic_load(&e->values[i]);}
+ free_read(p,osc,kind,c);
+}
+static void free_write(Engine *e,int osc,int kind,const FreeCurve *c){int base=gfree_base[osc][kind];
  for(int j=0;j<FREE_MAX;j++){
-  snprintf(key,sizeof key,"x%d",j);free_store(e,osc,kind,key,j<c->n?c->x[j]:j/15.f);
-  snprintf(key,sizeof key,"y%d",j);free_store(e,osc,kind,key,j<c->n?c->y[j]:0);
-  if(j<FREE_MAX-1){snprintf(key,sizeof key,"b%d",j);free_store(e,osc,kind,key,j<c->n-1?c->b[j]:0);snprintf(key,sizeof key,"c%d",j);free_store(e,osc,kind,key,j<c->n-1?c->d[j]:0);}
- }free_store(e,osc,kind,"n",c->n);
+  atomic_store(&e->values[base+1+j*2],j<c->n?c->x[j]:j/15.f);
+  atomic_store(&e->values[base+2+j*2],j<c->n?c->y[j]:0);
+  if(j<FREE_MAX-1){atomic_store(&e->values[base+33+j*2],j<c->n-1?c->b[j]:0);atomic_store(&e->values[base+34+j*2],j<c->n-1?c->d[j]:0);}
+ }atomic_store(&e->values[base],c->n);
 }
 static float free_handle(float base,float bend){return base+(bend>0?bend*(1-base):bend*base);}
 static float free_offset(float base,float handle){float span=handle>=base?1-base:base;return span>1e-8f?clampf((handle-base)/span,-1,1):0;}

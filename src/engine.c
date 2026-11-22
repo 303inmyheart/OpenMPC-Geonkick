@@ -71,8 +71,10 @@ static int index_of(const char *key) {
     for(;;){int i=gparam_lookup[slot];if(i<0)return -1;if(!strcmp(key,gparams[i].key))return i;slot=(slot+1)&(GP_LOOKUP_SIZE-1);}
 }
 static int alias_of(const char *key) {
-    for(int i=0;i<G_ALIAS_COUNT;i++)if(!strcmp(key,galiases[i].key))return i;
-    return -1;
+    uint32_t hash=2166136261u;
+    for(const unsigned char *s=(const unsigned char *)key;*s;s++)hash=(hash^*s)*16777619u;
+    unsigned slot=hash&(G_ALIAS_LOOKUP_SIZE-1);
+    for(;;){int i=galias_lookup[slot];if(i<0)return -1;if(!strcmp(key,galiases[i].key))return i;slot=(slot+1)&(G_ALIAS_LOOKUP_SIZE-1);}
 }
 static float at(Engine *e,const char *key) { int i=index_of(key); return i<0?0:atomic_load(&e->values[i]); }
 static float pad_at(Engine *e,int pad,const char *key) { int i=index_of(key);return i<0?0:atomic_load(&e->pad_values[pad][i]); }
@@ -399,13 +401,14 @@ static void hit_pad(Engine *e,int pad,int note,int ch,int vel) {
 }
 
 static int sound_proxy(Engine *e,const char *key,char *target,size_t size) {
-    int slot;char suffix[64],tail;
-    if(sscanf(key,"sound_o%d_%63s%c",&slot,suffix,&tail)!=2 || slot<1 || slot>3)return 0;
+    if(strncmp(key,"sound_o",7) || key[7]<'1' || key[7]>'3' || key[8]!='_' || !key[9])return 0;
+    int slot=key[7]-'0';const char *suffix=key+9;
     int layer=(int)at(e,"plot_osc")/3;
     return snprintf(target,size,"o%d_%s",layer*3+slot,suffix)>0;
 }
 static void set_param(void *inst,const char *key,const char *text) {
     Engine *e=inst;
+    if(key[0]=='f' && key[1]>='1' && key[1]<='9' && key[2]=='_')return; /* private curve storage */
     if(!strcmp(key,"__program_load")) {
         char *end;long index=strtol(text,&end,10);if(end==text||*end||index<0||index>=BANK_PROGRAM_COUNT)return;
         if(index<8){atomic_fetch_add(&e->revision,1);preset(e,(int)index);audio_changed(e);view_changed(e);atomic_fetch_add(&e->revision,1);}
@@ -452,7 +455,6 @@ static void set_param(void *inst,const char *key,const char *text) {
         return;
     }
     if(!strcmp(key,"state")){kit_load(e,text);return;}
-    if(key[0]=='f' && key[1]>='1' && key[1]<='9' && key[2]=='_')return; /* private curve storage */
     int i=index_of(key); if(i<0)return;
     char *end;float v=strtof(text,&end);if(end==text||*end||!isfinite(v))return;
     v=clampf(v,gparams[i].lo,gparams[i].hi);if(gparams[i].discrete)v=roundf(v);
@@ -475,8 +477,8 @@ static void set_param(void *inst,const char *key,const char *text) {
             e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;
         }
         if(!strcmp(key,"plot_osc") || !strcmp(key,"plot_env") || !strcmp(key,"point_select")){e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1;}
-        int oscillator=0;char suffix[32];
-        if(sscanf(key,"o%d_%31s",&oscillator,suffix)==2 && oscillator>=1 && oscillator<=9) {
+        if(key[0]=='o' && key[1]>='1' && key[1]<='9' && key[2]=='_' && key[3]) {
+            int oscillator=key[1]-'0';const char *suffix=key+3;
             atomic_store(&e->sound_focus[atomic_load(&e->selected)][(oscillator-1)/3],oscillator-1);
             int focus=index_of("plot_osc");
             if(atomic_load(&e->values[focus])!=oscillator-1) { atomic_store(&e->values[focus],oscillator-1);e->dirty[focus]=1;e->point_dirty|=POINT_ALL;e->free_dirty=(1u<<FREE_NOTIFY_COUNT)-1; }
@@ -502,6 +504,11 @@ static void set_param(void *inst,const char *key,const char *text) {
 }
 static int get_param(void *inst,const char *key,char *buf,int len) {
     Engine *e=inst;if(!e||len<1)return 0;
+    /* Stored canonical scalars have no virtual formatting or editor effects.
+     * Read them directly instead of trying every sample/editor/graph adapter. */
+    int scalar=index_of(key);
+    if(scalar>=0 && strncmp(key,"free_",5) && strncmp(key,"human_",6))
+        return snprintf(buf,len,"%.9g",atomic_load(&e->values[scalar]));
     if(!strcmp(key,"__program_index"))return snprintf(buf,len,"%d",e->bank_program>=8?e->bank_program:(int)at(e,"preset"));
     if(!strncmp(key,"__program_name:",15)){
         char *end;long index=strtol(key+15,&end,10);if(end==key+15||*end||index<0||index>=BANK_PROGRAM_COUNT)return 0;
@@ -589,6 +596,21 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     int i=index_of(key);if(i<0)return 0;
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));
 }
+/* Optional same-module float read: canonical storage and fine adapters only.
+ * Virtual editors and textual/display controls retain their existing handlers. */
+int mpc_engine_get_float(void *inst,const char *key,float *out) {
+    Engine *e=inst;int scalar=index_of(key);
+    if(scalar>=0 && strncmp(key,"free_",5) && strncmp(key,"human_",6)){*out=atomic_load(&e->values[scalar]);return 1;}
+    int alias=alias_of(key);if(alias>=0){*out=alias_coordinate(alias,at(e,galiases[alias].target));return 1;}
+    char prefix[32];const char *suffix;
+    if(filter_decode(key,prefix,&suffix)){
+        int resonance=!strncmp(suffix,"res_",4),fine=strstr(suffix,"_fine")!=NULL;
+        float coordinate=filter_coordinate(e,prefix,resonance);
+        *out=fine?(resonance?roundf(coordinate*1000):roundf(coordinate*log2f(1000)*240)):coordinate;return 1;
+    }
+    return 0;
+}
+unsigned mpc_engine_input_context(void *inst) { return ((Engine *)inst)->control_context; }
 int mpc_engine_ui_only_input(const char *key) {
     return !strcmp(key,"sound_layer") || !strncmp(key,"sound_o",7) || !strcmp(key,"sample_preview") || !strcmp(key,"sample_preview_stop");
 }

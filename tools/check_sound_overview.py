@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 params=json.loads((ROOT/'params.json').read_text())['params'];ids={p['key']:i for i,p in enumerate(params)}
 p=next((ROOT/'build/skin').glob('*/Plugin Skins/TUI.json'));page=json.loads(p.read_text())['pageData'];defs={d['key']:d['value'] for d in page['componentDefinitions']['localComponentDefinitions']}
 assert len(params)==4096
-old=json.loads(subprocess.check_output(['git','show','40b5a7d:params.json'],cwd=ROOT))['params'];assert params[:3985]==old[:3985]
+old=json.loads((ROOT/'tests/abi/sound-overview-baseline.json').read_text())['params'];assert params[:3985]==old[:3985]
 assert params[3994:]==old[3994:]
 assert [p['key'] for p in params[3992:3994]]==['sample_preview','sample_preview_stop']
 assert [p['key'] for p in old[3992:3994]]==['viz_l3_e_11','viz_l3_e_12']

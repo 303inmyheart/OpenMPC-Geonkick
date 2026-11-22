@@ -27,6 +27,31 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
   program names create native submenus. Preserve program indices, names and saved
   states. No firmware/global-settings patch or replacement custom browser.
 
+## Development candidate 0.0.34 — parameter-path optimization
+
+- Numeric canonical/alias/filter reads avoid repeated number-to-text conversions;
+  hashed alias lookup and direct curve storage retain all frozen parameter IDs.
+- Popup feedback visits only real popup descriptors. Read-only host writes return
+  before locking the engine. Input histories are invalidated lazily on context
+  changes, preserving fine Q-Link handover between pads/layers and coarse touch.
+- Sparse curve snapshots and direct saved-field access retain the existing
+  envelope equations and state representation. No synthesis-quality reduction.
+- Additional reference tests compare popup behavior with full-table traversal,
+  every sparse Amp/Pitch snapshot with a complete snapshot, and numeric fast
+  reads with the established textual API. Native/ARM64, all24 final pages and
+  installer checks pass; installed with backup/hash verification and app restart.
+- Exact0.0.34 standard PASS:1.1% p99 /2.0% max. Additional full-parameter
+  sweep remains FAIL:70.6% /101.9%, versus346.2% /405.6% in0.0.33.
+  About 80% lower stress p99; no full-stress clearance is claimed. Separately
+  paced background synthesis remains up to 77.7% of one core.
+- 0.0.33 final reports: standard PASS (2.2% p99 /3.3% max), extra full-parameter
+  sweep FAIL (346.2% /405.6%), separately paced worker up to78.5% of one core.
+  Retain these results; do not equate the standard pass with full stress clearance.
+- Next: hardware regression and profiling of the remaining parameter/editor
+  dispatch costs, then resolve remaining
+  stress costs before deciding whether the release is ready. Original-file import,
+  broader kit management and supported native dropdown folders remain later work.
+
 ## Development build 0.0.32 — explicit layer in tab names
 
 - Layer subpages identify their complete target: L1 / OSC1–3, L2 / OSC1–3,

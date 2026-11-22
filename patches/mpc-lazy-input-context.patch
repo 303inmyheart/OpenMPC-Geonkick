@@ -1,0 +1,56 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -151,6 +151,8 @@
+     int has_pend0;            /* (see setParameter) */
+ #if defined(CONTROL_CONTEXT_REV) && CONTROL_CONTEXT_REV
+     char last_control_context[32]; /* fine input belongs to one edited instrument */
++    uint64_t control_generation, input_generation[NPARAMS];
++    unsigned numeric_control_context; int has_numeric_control_context;
+ #endif
+     char last_rev[16];       /* HAS_DISPLAY_REV: the "display_rev" last seen */
+     float last_norm[NPARAMS];   /* HAS_DISPLAY_REV: value last reported per param (-1 = never) */
+@@ -341,6 +343,9 @@
+     return dir > 0 ? ceilf(pos - 0.001f) : floorf(pos + 0.001f);
+ }
+ 
++#if defined(ENGINE_INPUT_CONTEXT) && ENGINE_INPUT_CONTEXT
++unsigned mpc_engine_input_context(void *) __attribute__((weak));
++#endif
+ static void set_param_now_unlocked(AEffect *e, int32_t i, float n) {
+     wrap_t *w = e->object;
+     TRACE(0, i, n);
+@@ -348,13 +353,27 @@
+     if (i < 0 || i >= NPARAMS) return;
+     const param_t *p = &PARAMS[i];
+ #if defined(CONTROL_CONTEXT_REV) && CONTROL_CONTEXT_REV
+-    char context[32];
+-    if(eng_get(w,"control_context",context,sizeof context)>0 && strcmp(context,w->last_control_context)) {
+-        snprintf(w->last_control_context,sizeof w->last_control_context,"%s",context);
+-        /* A raw Q-Link position from another instrument must never determine
+-         * the direction of the first event on this one. This happens under
+-         * the existing wrapper lock, before asynchronous UI reports/rebinds. */
+-        for(int j=0;j<NPARAMS;j++){w->last_pos[j]=-1;w->qacc[j]=0;}
++    int context_changed=0;
++#if defined(ENGINE_INPUT_CONTEXT) && ENGINE_INPUT_CONTEXT
++    if(mpc_engine_input_context){
++        /* Caller holds the recursive engine lock, as with the text fallback. */
++        unsigned context=mpc_engine_input_context(w->dsp);
++        context_changed=!w->has_numeric_control_context || context!=w->numeric_control_context;
++        w->numeric_control_context=context;w->has_numeric_control_context=1;
++    }else
++#endif
++    {
++        char context[32];
++        if(eng_get(w,"control_context",context,sizeof context)>0 && strcmp(context,w->last_control_context)){
++            snprintf(w->last_control_context,sizeof w->last_control_context,"%s",context);context_changed=1;
++        }
++    }
++    /* Invalidate histories lazily. No other parameter's history is consulted
++     * by this write; reset it before its next use instead of scanning NPARAMS
++     * on every touch/pad/layer change. Other feedback resets remain intact. */
++    if(context_changed)++w->control_generation;
++    if(w->input_generation[i]!=w->control_generation){
++        w->last_pos[i]=-1;w->qacc[i]=0;w->input_generation[i]=w->control_generation;
+     }
+ #endif
+     const float requested_n = n;

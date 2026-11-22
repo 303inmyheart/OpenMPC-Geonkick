@@ -259,12 +259,37 @@ def generate():
     h += [f'#define GP_LOOKUP_SIZE {size}', 'static const short gparam_lookup[] = {']
     h += ['    '+','.join(map(str,lookup[i:i+32]))+',' for i in range(0,size,32)]
     h += ['};']
+    stored_ids={p['key']:i for i,p in enumerate(STORED_PARAMS)}
+    for array,letter,count in [('gfree_base','f',63),('gpoint_base','o',11)]:
+        bases=[]
+        for osc in range(1,10):
+            row=[]
+            for kind in ('a','p'):
+                key=f'{letter}{osc}_{kind}_'+('n' if letter=='f' else 'mode')
+                first=stored_ids[key]
+                assert all(STORED_PARAMS[first+j]['key'].startswith(f'{letter}{osc}_{kind}_') for j in range(count))
+                row.append(first)
+            bases.append('{'+','.join(map(str,row))+'}')
+        h += [f'static const short {array}[9][2] = {{'+','.join(bases)+'};']
     h+=['typedef struct { const char *key,*target; int kind; float lo,hi; } GAlias;',
         'static const GAlias galiases[] = {']
     for key,target,kind in ALIASES:
         original=next(x for x in params[:CONTROL_COUNT] if x['key']==target)
         h.append('    {"%s", "%s", %d, %sf, %sf},'%(key,target,kind,float(original['min']),float(original['max'])))
     h += ['};',f'#define G_ALIAS_COUNT {len(ALIASES)}',f'#define FREQ_FINE_MIN {FREQ_FINE_MIN}',f'#define FREQ_FINE_MAX {FREQ_FINE_MAX}']
+
+    alias_size=1
+    while alias_size<len(ALIASES)*2:alias_size*=2
+    alias_lookup=[-1]*alias_size
+    for i,(key,_,_) in enumerate(ALIASES):
+        hv=2166136261
+        for byte in key.encode():hv=((hv^byte)*16777619)&0xffffffff
+        slot=hv&(alias_size-1)
+        while alias_lookup[slot]>=0:slot=(slot+1)&(alias_size-1)
+        alias_lookup[slot]=i
+    h += [f'#define G_ALIAS_LOOKUP_SIZE {alias_size}', 'static const short galias_lookup[] = {']
+    h += ['    '+','.join(map(str,alias_lookup[i:i+32]))+',' for i in range(0,alias_size,32)]
+    h += ['};']
     (ROOT/'src/param_defs.h').write_text('\n'.join(h)+'\n')
     theme='''style=dark
 font_label=art/DejaVuSans.ttf

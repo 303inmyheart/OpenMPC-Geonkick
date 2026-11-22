@@ -167,8 +167,10 @@ static void sample_poll(Engine *e) {
     }
     sample_notify(e);sample_free_reply(r);atomic_fetch_sub(&e->samples.pending,1);
 }
-static int sample_osc_key(const char *key,const char *suffix){int o;char field[48],tail;if(sscanf(key,"o%d_%47s%c",&o,field,&tail)==2 && o>=1&&o<=9 && !strcmp(field,suffix))return o-1;return -1;}
+static int sample_osc_key(const char *key,const char *suffix){return key[0]=='o' && key[1]>='1' && key[1]<='9' && key[2]=='_' && !strcmp(key+3,suffix)?key[1]-'1':-1;}
 static int sample_set(Engine *e,const char *key,const char *text) {
+    /* Canonical oscillator controls are not sample-library commands. */
+    if(strncmp(key,"sample_",7) && sample_osc_key(key,"sample_on")<0)return 0;
     int pad=atomic_load(&e->selected),osc=(int)at(e,"plot_osc"),target=sample_osc_key(key,"sample_on");
     if(target>=0 || !strcmp(key,"sample_source")) {
         if(target>=0){osc=target;}

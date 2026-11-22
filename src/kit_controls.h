@@ -41,6 +41,7 @@ static int kit_capture_note(Engine *e,int note) {
     kit_map_feedback(e);return pad;
 }
 static int kit_set(Engine *e,const char *key,const char *text) {
+    if(strncmp(key,"kit_",4))return 0;
     if(strcmp(key,"kit_pad") && strcmp(key,"kit_mode") && strcmp(key,"kit_base") && strcmp(key,"kit_output") && strcmp(key,"kit_mapping") && strcmp(key,"kit_learn"))return !strncmp(key,"kit_",4);
     char *end;float v=strtof(text,&end);if(end==text || *end || !isfinite(v))return 1;
     if(!strcmp(key,"kit_pad")){kit_select(e,(int)roundf(clampf(v,0,PADS-1)));return 1;}

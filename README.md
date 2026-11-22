@@ -4,7 +4,7 @@
 
 A percussion synthesizer and 16-pad kit instrument for **Gen2 MPCs running MPC OS 3.10.1 or newer**, based on [Geonkick 3.9.0](https://github.com/quamplex/geonkick/tree/462fed9bd8c48579a8819e7b360f8a2999b246fc). Hardware testing is limited to **MPC Live III**. This is a community port, not an official Akai/inMusic or Geonkick release.
 
-Release preparation: **0.0.33**. Final performance qualification is in progress; a public release download will appear when it passes. Earlier development builds are not separate required upgrades.
+Release preparation: **0.0.34**. Final performance qualification is in progress; a public release download will appear when it passes. Earlier development builds are not separate required upgrades.
 
 ![Sound design — offline composite rendered from the native interface and real DSP values, not an MPC screenshot](docs/screenshots/synth.png)
 
@@ -57,7 +57,7 @@ See the [sample guide](docs/SAMPLES.md), [pad guide](docs/PADS.md), [filter guid
 
 ## Performance and testing
 
-The first exact-binary release checks found large parameter-feedback spikes in 0.0.32. Those results are retained in [benchmarks/0.0.32](benchmarks/0.0.32); they are not replaced with a favorable run. The 0.0.33 candidate moves engine feedback out of the audio callback and bounds UI lock ownership. Its final checks are pending.
+Exact-binary reports are retained for [0.0.32](benchmarks/0.0.32) and [0.0.33](benchmarks/0.0.33). Moving feedback off the audio callback in 0.0.33 improves the standard Store benchmark to **PASS: p99 2.2%, maximum 3.3%** on Live III. Its additional all-parameter stress test still **FAILS: p99 346.2%, maximum 405.6%**. A separately paced run measures background synthesis at up to **78.5% of one core**; these are not the MPC project CPU-meter percentages. [0.0.34](benchmarks/0.0.34) improves the standard result to **PASS: p99 1.1%, maximum 2.0%** and the additional sweep to **FAIL: p99 70.6%, maximum 101.9%** (about 80% lower stress p99). The separately paced background value remains high at **77.7% of one core**. It is installed for further hardware testing; no new public release is claimed yet.
 
 Native ASan/UBSan/leak and actual ARM64/QEMU tests cover state migration, old normalized controls, touch/fine-input echoes, all 118 programs, large embedded-sample kits, preview isolation, pad learning and factory-sound numerical oracles. The 183 original sound entries are compared over their first 4096 samples against independently configured upstream DSP; this is not a claim of whole-file/audio identity. See [TESTING.md](TESTING.md) for exact scope and pending hardware checks.
 

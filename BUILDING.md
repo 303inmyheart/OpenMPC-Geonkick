@@ -17,9 +17,11 @@ python3 tools/build.py skin
 python3 tools/package.py
 ```
 
-The helper checks out the pinned public framework and applies all18 published
+The helper checks out the pinned public framework and applies all 22 published
 patches in order. Existing unrelated checkouts are not reset or modified. The
 optional workstation toolchain reuse described below is not required by users.
+When changing the patch set, use `GEONKICK_DEPS=build/deps-<revision>` to select
+a fresh cache; an existing cache with a different receipt is never overwritten.
 
 
 Pinned Geonkick source is committed under src/dsp. No upstream checkout is
@@ -40,7 +42,8 @@ patches/mpc-idle-action-release.patch, then
 patches/mpc-filter-control-feedback.patch and patches/mpc-control-context.patch, then patches/mpc-sample-dynamic-units.patch, patches/mpc-native-display-context.patch,
 patches/mpc-ui-only-inputs.patch and patches/mpc-engine-program-bank.patch, followed by
 patches/mpc-async-revision-cache.patch and patches/mpc-bounded-ui-feedback.patch,
-in that order. The wrapper is not copied into this repository.
+then patches/mpc-numeric-parameter-read.patch, patches/mpc-indexed-popup-feedback.patch
+and patches/mpc-readonly-input-fastpath.patch and patches/mpc-lazy-input-context.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
 `bcc8242896f6948b2405014e8443c91941c4ded0` in the neighbouring
 `mpc-vst-plugins-release-tools-20261122` checkout. This revision includes explicit VST2 plugin
@@ -545,3 +548,9 @@ original factory presets/kits. PRG1 saves the current bank identity alongside
 FCT1/embedded samples. Old0.0.29 identities migrate by exact source-ID vectors.
 Restored current-program re-selection preserves edits, as required by JUCE host
 name refresh behavior. Program name queries never change sound state.
+
+For a published release, measure the exact stripped installer binary first, then
+use `python3 tools/package.py --with-benchmark` to attach its standard report.
+The attachment requires a matching binary SHA-256 and qualifying PASS/WARN.
+Normal local/CI packages omit benchmark claims: another compiler build must not
+inherit measurements from a different binary, even with the same source version.

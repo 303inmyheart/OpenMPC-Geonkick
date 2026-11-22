@@ -1,0 +1,19 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -557,7 +557,6 @@
+ 
+ static void setParameter_locked(AEffect *e, int32_t i, float n) {
+     wrap_t *w = e->object;
+-    if(live_readonly(i))return;
+     if(FINE_TRACK_RAW_INPUT && reporting_instance==w && reporting_index==i && fabsf(n-reporting_value)<1e-6f)return;
+ #if defined(CANONICAL_CONTINUOUS_ECHO) && CANONICAL_CONTINUOUS_ECHO
+     /* A native skin rebind may read then write back the exact float value.
+@@ -593,6 +592,8 @@
+ }
+ 
+ static void setParameter(AEffect *e,int32_t i,float n) {
++    /* Immutable display descriptors need no engine lock or state access. */
++    if(i<0 || i>=NPARAMS || live_readonly(i))return;
+     wrap_t *w=e->object;
+     if(FINE_TRACK_RAW_INPUT)pthread_mutex_lock(&w->lock);
+     setParameter_locked(e,i,n);

@@ -8,7 +8,9 @@ static float point_at(Engine *e,int osc,int kind,const char *suffix){char key[48
 static float point_value(const float *p,int osc,int kind,const char *suffix){char key[48];point_key(key,osc,kind,suffix);return value(p,key);}
 static void point_store_key(Engine *e,const char *key,float v){int i=index_of(key);if(i>=0 && atomic_load(&e->values[i])!=v){atomic_store(&e->values[i],v);e->dirty[i]=1;}}
 static void point_store(Engine *e,int osc,int kind,const char *suffix,float v){char key[48];point_key(key,osc,kind,suffix);point_store_key(e,key,v);}
-static int point_decode(const char *key,PointKey *out){int o;char kind,field[16];if(sscanf(key,"o%d_%c_%15s",&o,&kind,field)!=3 || o<1 || o>9 || (kind!='a'&&kind!='p'))return 0;
+static int point_decode(const char *key,PointKey *out){
+ if(key[0]!='o' || key[1]<'1' || key[1]>'9' || key[2]!='_' || (key[3]!='a'&&key[3]!='p') || key[4]!='_')return 0;
+ int o=key[1]-'0';char kind=key[3];const char *field=key+5;
  out->osc=o-1;out->kind=kind=='p';out->number=-1;
  if(!strcmp(field,"mode"))out->field='m';else if(!strcmp(field,"seen"))out->field='s';
  else if(strlen(field)==2 && field[0]=='l' && field[1]>='0'&&field[1]<='4'){out->field='l';out->number=field[1]-'0';}

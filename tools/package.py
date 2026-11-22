@@ -4,7 +4,7 @@ import argparse,hashlib,json,os,re,shutil,subprocess,sys,zipfile
 from pathlib import Path
 import build
 root=build.ROOT
-ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--desktop',action='store_true',help='Explicitly copy installer to Desktop');ap.add_argument('--no-desktop',action='store_true',help=argparse.SUPPRESS);args=ap.parse_args()
+ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--with-benchmark',action='store_true',help='Attach the qualifying report only for its exact measured binary');ap.add_argument('--desktop',action='store_true',help='Explicitly copy installer to Desktop');ap.add_argument('--no-desktop',action='store_true',help=argparse.SUPPRESS);args=ap.parse_args()
 cfg=json.loads((root/'release.json').read_text())
 build.run([sys.executable,'tools/check_sound_overview.py'])
 build.run([sys.executable,'tools/check_redesign.py'])
@@ -39,8 +39,10 @@ notice.write_text('\n\n'.join([
 ]))
 dest=root/'build/releases'
 bench=root/'benchmarks'/cfg['version']/'standard.txt'
-bench_args=['--bench',bench] if bench.exists() else []
-if bench.exists():
+include_bench=args.with_benchmark
+bench_args=['--bench',bench] if include_bench else []
+if include_bench:
+    assert bench.exists(),'Measure this exact installer before attaching its benchmark'
     measurement=json.loads(bench.read_text().strip().splitlines()[-1])
     assert measurement['binary_sha256']==hashlib.sha256(binary.read_bytes()).hexdigest()
     assert measurement['verdict'] in ('PASS','WARN'),'Resolve failed release benchmark before packaging'
@@ -51,7 +53,7 @@ build.run([sys.executable,release_tools/'tools/release.py','--so',binary,'--skin
 archive=dest/f'Geonkick-MPC-{cfg["version"]}-mpc-aarch64.zip'
 # The upstream --bench prose still says Gen1 even for an aarch64 package.
 # Correct documentation only; retain current installer/uninstaller verbatim.
-if bench.exists():
+if include_bench:
     with zipfile.ZipFile(archive) as z:
         entries=[(info,z.read(info.filename)) for info in z.infolist()]
     top=entries[0][0].filename.split('/')[0]

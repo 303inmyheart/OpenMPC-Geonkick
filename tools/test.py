@@ -17,6 +17,13 @@ if target=='aarch64':
     sysroot=build.LOCAL/'aarch64-linux-gnu'
     if not sysroot.exists():sysroot=build.Path('/usr/aarch64-linux-gnu')
     prefix=[qemu,'-L',sysroot]
+for mode in ('INDEXED','EMPTY','FALLBACK'):
+    binary=dest/('popup_index_'+mode.lower())
+    build.run([cc,*f,'-DTEST_'+mode,'tests/popup_index_test.c','-o',binary])
+    build.run([*prefix,binary])
+curve_binary=dest/'curve_access_test'
+build.run([cc,*f,'tests/curve_access_test.c',*[obj for obj in objects if obj.name!='engine.o'],'-lpthread','-lm','-ldl','-Wl,--gc-sections','-o',curve_binary])
+build.run([*prefix,curve_binary])
 preset_dir=dest/'native-presets';preset_dir.mkdir(exist_ok=True);os.environ['GK_NATIVE_PRESETS']=str(preset_dir)
 build.run([sys.executable,'tools/factory_bank.py'])
 os.environ['GK_FACTORY_CHUNKS']=str(build.ROOT/'build/factory-chunks')
