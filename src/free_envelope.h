@@ -146,6 +146,26 @@ static int free_virtual_get(Engine *e,const char *key,char *buf,int len){
  if(!strcmp(key,"free_bend"))return snprintf(buf,len,"%.9g",s<c.n-1?(c.b[s]+c.d[s])*0.5f:0);
  return 0;
 }
+/* Numeric counterparts of placed editor controls; labels keep the text path. */
+static int free_virtual_float(Engine *e,const char *key,float *out){
+ if(strncmp(key,"edit_",5) && strncmp(key,"free_",5))return 0;
+ int level=!strncmp(key,"edit_l",6) && key[6]>='0' && key[6]<='4' && !key[7];
+ int interval=!strncmp(key,"edit_t",6) && key[6]>='1' && key[6]<='4' && !key[7];
+ if(!strcmp(key,"free_add") || !strcmp(key,"free_delete") || !strcmp(key,"free_prev") || !strcmp(key,"free_next")){*out=0;return 1;}
+ if(!level && !interval && strcmp(key,"free_select") && strcmp(key,"free_bank") && strcmp(key,"free_status") && strcmp(key,"free_level") && strcmp(key,"free_time") && strcmp(key,"free_bend"))return 0;
+ int o,k,selected;FreeCurve c;free_context(e,&o,&k,&selected,&c);
+ if(level || interval){
+  int m[5];float x[5];free_map(e,&c,m,x);int j=key[6]-'0';
+  if(level)*out=c.y[m[j]<0?c.n-1:m[j]];
+  else {free_times(e,o,k,&c,x);*out=e->edit_weights[j-1];}
+ }else if(!strcmp(key,"free_select"))*out=selected;
+ else if(!strcmp(key,"free_bank"))*out=nearbyintf(clampf(at(e,key),0,fmaxf(0,(c.n-3)/3)));
+ else if(!strcmp(key,"free_status"))*out=(c.n*16+selected)/271.f;
+ else if(!strcmp(key,"free_level"))*out=c.y[selected];
+ else if(!strcmp(key,"free_time"))*out=c.x[selected];
+ else *out=selected<c.n-1?(c.b[selected]+c.d[selected])*.5f:0;
+ return 1;
+}
 static int free_virtual_set(Engine *e,const char *key,const char *text){
  if(strncmp(key,"edit_",5) && strncmp(key,"free_",5))return 0;
  char *end;float v=strtof(text,&end);if(end==text || *end || !isfinite(v))return 1;

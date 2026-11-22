@@ -120,7 +120,7 @@ static gkick_real bezier(struct gkick_envelope_point *p1,
                          struct gkick_envelope_point *p3,
                          float xm)
 {
-    if (fabsl(p3->x - p1->x) < DBL_EPSILON)
+    if (fabsf(p3->x - p1->x) < DBL_EPSILON)
             return p1->y;
 
     gkick_real t = find_t(p1, p2, p3, xm);
@@ -147,10 +147,19 @@ gkick_envelope_get_value(const struct gkick_envelope* envelope,
     struct gkick_envelope_point *p = envelope->first;
     if (xm < p->x || xm > envelope->last->x)
             return 0.0f;
-    else if (fabsl(xm - p->x) < DBL_EPSILON)
+    else if (fabsf(xm - p->x) < DBL_EPSILON)
             return p->y;
-    else if (fabsl(envelope->last->x - xm) < DBL_EPSILON)
+    else if (fabsf(envelope->last->x - xm) < DBL_EPSILON)
             return envelope->last->y;
+
+    /* Constant finite segments have exactly zero slope. Preserve endpoint and
+     * degenerate-span handling above/below, including signed-zero addition. */
+    if (envelope->npoints == 2 && isfinite(xm)
+        && isfinite(envelope->first->y)
+        && envelope->first->y == envelope->last->y
+        && envelope->first->x >= 0 && envelope->last->x <= 1
+        && envelope->first->x < envelope->last->x)
+        return envelope->first->y + 0.0f;
 
     if (envelope->npoints == 2)
         return linear_interpolate(envelope->first->x, envelope->first->y,

@@ -27,6 +27,31 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
   program names create native submenus. Preserve program indices, names and saved
   states. No firmware/global-settings patch or replacement custom browser.
 
+## Development candidate 0.0.35 — final optimization before screenshots
+
+- Numeric reads now include SOUND proxy controls and the placed point-editor
+  controls, preserving the text path for labels and the exact saved state.
+- Envelope evaluation keeps the original threshold and equations, avoids
+  unnecessary extended-precision absolute values, and bypasses interpolation
+  for finite constant two-point curves within normalized bounds. Extreme and
+  degenerate cases retain the original path. Frozen evaluator comparisons are
+  bit-exact across more than 416,000 cases.
+- Worker waveform generation skips fade arithmetic only where its original
+  result is exactly one. Plot mode/focus checks are computed once per plot pass.
+  No graph resolution, synthesis rate or sound-quality reduction.
+- 0.0.34 was reported working by the maintainer. All 1915 native skin files
+  remain byte-identical. Full native/ARM suites and installer checks pass;
+  0.0.35 is installed with backup/hash verification and app restart.
+- Exact 0.0.35 standard PASS:1.2% p99 /2.0% max. Extra full sweep remains
+  FAIL:78.1% /97.5%; mean50.0% (previous50.9%), p99 higher (previous70.6%),
+  maximum lower (previous101.9%). Paced background remains77.7% of one core.
+  No additional broad CPU reduction or full-stress clearance is claimed.
+- **Next: maintainer screenshots, then release.** Select suitable actual MPC
+  interface screenshots, update README/gallery, retain all performance reports,
+  finalize licences/source tag/installer checks, publish and submit the catalog PR.
+  Any remaining full-parameter or background-engine performance limitations must
+  be disclosed and retained as future work, not hidden by the standard result.
+
 ## Development candidate 0.0.34 — parameter-path optimization
 
 - Numeric canonical/alias/filter reads avoid repeated number-to-text conversions;
@@ -81,6 +106,18 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
   then remaining kit guidance/regression and final-release benchmark. General
   original-file import remains later. No Store benchmark for this development build.
 
+## Later performance work
+
+- Keep versioned standard, full-parameter and separately paced worker reports;
+  distinguish audio-thread budget from total MPC CPU usage.
+- Profile a typed parameter-dispatch interface that retains every legacy
+  normalization, fine/coarse input rule and saved-state identity.
+- Assess reusing unchanged oscillator/layer synthesis with explicit FM,
+  envelope and master-effect dependencies, instead of regenerating a whole hit.
+  This requires independent sound/graph oracles and a memory-budget review.
+- These are future investigations after the screenshot/release milestone;
+  no additional pre-release feature expansion is planned for this round.
+
 ## Current plan
 
 1. **Stable base and device controls** — working through0.0.19, confirmed by
@@ -113,9 +150,9 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
    exact release-binary Store benchmark, source/licensing/reproducible-build
    review, release and catalog PR.
 
-Before release: add a small in-plugin tutorial on MASTER/KIT for pad learning,
-including stopping playback, selecting a bank, pressing1–16 in order and learning
-again after note-layout changes. Sound-tab envelope following was moved forward
+Implemented before screenshots: MASTER/KIT now includes the small pad-learning
+guide: stop playback, choose an MPC bank, learn pads01–16 in order, and relearn
+after note-layout changes. Sound-tab envelope following was moved forward
 into0.0.23 at the user’s request.
 
 Historical build notes follow; the latest entries override older pending items.

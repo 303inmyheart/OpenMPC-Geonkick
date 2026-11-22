@@ -1,3 +1,44 @@
+# Current verification — 0.0.35 final optimization
+
+Full native ASan/UBSan/leak and actual ARM64/QEMU suites pass on the final
+libraries. A frozen 0.0.34 envelope evaluator, verified against commit cccce3a,
+provides 416,357 bit-exact comparisons per architecture. Coverage includes flat,
+linear, Bezier and sampled curves, knots and adjacent float values, subnormals,
+zero/extreme spans, signed zero and nonfinite inputs.
+
+The numeric-read oracle now covers 20,472 scalar/alias/editor/proxy/filter reads.
+The actual-VST comparison with 0.0.34 applies 720 identical writes: all saved kit
+bytes and the compared normalized control values remain identical across 12 batches.
+All 183 original factory-sound oracles and 118 native program/preset checks pass.
+
+All 1915 packaged native skin files are byte-identical to the maintainer-confirmed
+0.0.34 interface. Final 24-page navigation, complete Q-Link frame containment and
+installer checks pass with zero warnings. No graph resolution, synthesis start
+rate, sample limit, parameter identity or saved-state format is changed.
+
+Installed with previous-version backup, 2040 plugin files and 118 preset paths
+verified; settings unchanged during the update, MPC app restarted active/running.
+Installed binary SHA-256:
+`1e1f2517ecaf171bac9d49a53861d146f634da6d313bbcfa331b4c72e1048cd5`.
+It matches the tested installer and all three [device reports](benchmarks/0.0.35):
+
+| Measurement | p99 | Maximum | Result |
+| --- | ---: | ---: | --- |
+| Standard official host | 1.2% | 2.0% | PASS |
+| Additional full-parameter sweep | 78.1% | 97.5% | FAIL |
+| Separately paced audio workload | 1.8% | 2.9% | PASS |
+
+Background synthesis in the paced run reaches 77.7% of one core, unchanged from
+0.0.34. Full-sweep mean falls from 50.9% to 50.0%, but p99 rises from 70.6% to
+78.1%; its maximum falls from 101.9% to 97.5%. These mixed results do not establish
+a further general CPU improvement or full-stress clearance. Prior results remain.
+Temporary benchmark helpers were removed. No settings, projects, unrelated
+plugins or full-device reboot were involved in benchmarking.
+
+The maintainer reports 0.0.34 working; hearing/touch acceptance of this final
+0.0.35 remains separate. Next: [short review and screenshots](TESTPLAN-0.0.35-DE.md),
+then release preparation.
+
 # Current verification — 0.0.34 parameter-path optimization
 
 Full native ASan/UBSan/leak and ARM64/QEMU suites pass. New reference checks

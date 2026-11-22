@@ -27,3 +27,12 @@ libsndfile dependency or external audio assets have been added.
 Oscillators/FM/filter state are advanced once; original mixed synthesis remains
 the audio path. The worker reduces these taps into cached waveform peaks, before
 shared master filter/drive, with no per-tab re-synthesis.
+
+0.0.35 retains the envelope equations and float results while using `fabsf`
+for differences already computed as float. The DBL_EPSILON threshold is retained.
+Finite constant two-point envelopes within normalized0–1 bounds return their
+exact zero-slope result after the original endpoint checks. Degenerate and
+extreme spans keep the original interpolation path. A frozen0.0.34 evaluator
+and more than416,000 bit-exact comparisons cover linear/Bezier/table curves,
+knots, subnormals, signed zero and invalid/extreme inputs. Original licence
+notices remain in both implementation and frozen test reference.

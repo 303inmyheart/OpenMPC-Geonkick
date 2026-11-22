@@ -24,6 +24,9 @@ for mode in ('INDEXED','EMPTY','FALLBACK'):
 curve_binary=dest/'curve_access_test'
 build.run([cc,*f,'tests/curve_access_test.c',*[obj for obj in objects if obj.name!='engine.o'],'-lpthread','-lm','-ldl','-Wl,--gc-sections','-o',curve_binary])
 build.run([*prefix,curve_binary])
+precision_binary=dest/'envelope_precision_test'
+build.run([cc,*f,'tests/envelope_precision_test.c','tests/envelope034_reference.c',*objects,'-lpthread','-lm','-ldl','-Wl,--gc-sections','-o',precision_binary])
+build.run([*prefix,precision_binary])
 preset_dir=dest/'native-presets';preset_dir.mkdir(exist_ok=True);os.environ['GK_NATIVE_PRESETS']=str(preset_dir)
 build.run([sys.executable,'tools/factory_bank.py'])
 os.environ['GK_FACTORY_CHUNKS']=str(build.ROOT/'build/factory-chunks')

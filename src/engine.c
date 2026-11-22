@@ -226,7 +226,9 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
     for(int i=0;i<c->size;i++) {
         float layers[3];float x=gkick_synth_get_value_layers(s,i*dt,layers);
         x=isfinite(x)?clampf(x,-1,1):0;
-        float fade=fminf(1,i/32.f)*edge_gain((c->size-1-i)/(float)(EDGE_SAMPLES-1));
+        float fade=1;
+        if(i<32 || c->size-1-i<EDGE_SAMPLES-1)
+            fade=fminf(1,i/32.f)*edge_gain((c->size-1-i)/(float)(EDGE_SAMPLES-1));
         c->data[i]=x*fade;
         int col=((long long)(i+1)*PLOT_COLUMNS-1)/c->size;
         for(int l=0;l<3;l++){float y=isfinite(layers[l])?layers[l]*fade:0;peaks[l][0][col]=fmaxf(peaks[l][0][col],y);peaks[l][1][col]=fmaxf(peaks[l][1][col],-y);}
@@ -237,13 +239,15 @@ static void synthesize(Engine *e,Cache *c,const float *p,unsigned rev) {
 static void make_plot(Engine *e,Cache *c,const float *p) {
     struct gkick_synth *s=e->synth;
     int osc=(int)value(p,"plot_osc");
+    int pitch_view=value(p,"plot_env")>0;
+    int selected_remap=pitch_view && point_value(p,osc,1,"mode")>0;
     struct gkick_oscillator *selected=s->oscillators[osc];
-    struct gkick_envelope *env=selected->envelopes[value(p,"plot_env")>0?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
+    struct gkick_envelope *env=selected->envelopes[pitch_view?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
     struct gkick_oscillator *layer_osc[3];struct gkick_envelope *layer_env[3];int layer_remap[3];
     for(int l=0;l<3;l++) {
         int focus=(int)p[GP_COUNT+9+l];layer_osc[l]=s->oscillators[focus];
-        layer_env[l]=layer_osc[l]->envelopes[value(p,"plot_env")>0?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
-        layer_remap[l]=value(p,"plot_env")>0 && point_value(p,focus,1,"mode")>0;
+        layer_env[l]=layer_osc[l]->envelopes[pitch_view?GKICK_OSC_FREQUENCY_ENVELOPE:GKICK_OSC_AMPLITUDE_ENVELOPE];
+        layer_remap[l]=pitch_view && point_value(p,focus,1,"mode")>0;
     }
     for(int column=0;column<PLOT_COLUMNS;column++) {
         int begin=(int)((long long)column*c->size/PLOT_COLUMNS);
@@ -253,7 +257,7 @@ static void make_plot(Engine *e,Cache *c,const float *p) {
         c->plot[0][column]=(unsigned char)roundf(clampf(positive,0,1)*(PLOT_WAVE_LEVELS-1));
         c->plot[1][column]=(unsigned char)roundf(clampf(negative,0,1)*(PLOT_WAVE_LEVELS-1));
         float shape=gkick_envelope_get_value(env,(column+0.5f)/PLOT_COLUMNS);
-        if(value(p,"plot_env")>0 && point_value(p,osc,1,"mode")>0)shape=factory_pitch_plot(p,osc,selected,shape);
+        if(selected_remap)shape=factory_pitch_plot(p,osc,selected,shape);
 
         c->plot[2][column]=(unsigned char)roundf(clampf(shape,0,1)*(PLOT_ENV_LEVELS-1));
         for(int l=0;l<3;l++) {
@@ -596,11 +600,12 @@ static int get_param(void *inst,const char *key,char *buf,int len) {
     int i=index_of(key);if(i<0)return 0;
     return snprintf(buf,len,"%.9g",atomic_load(&e->values[i]));
 }
-/* Optional same-module float read: canonical storage and fine adapters only.
- * Virtual editors and textual/display controls retain their existing handlers. */
+/* Same-module numeric reads. Text labels retain the existing formatter. */
 int mpc_engine_get_float(void *inst,const char *key,float *out) {
     Engine *e=inst;int scalar=index_of(key);
     if(scalar>=0 && strncmp(key,"free_",5) && strncmp(key,"human_",6)){*out=atomic_load(&e->values[scalar]);return 1;}
+    char proxy[96];if(sound_proxy(e,key,proxy,sizeof proxy))return mpc_engine_get_float(e,proxy,out);
+    if(free_virtual_float(e,key,out))return 1;
     int alias=alias_of(key);if(alias>=0){*out=alias_coordinate(alias,at(e,galiases[alias].target));return 1;}
     char prefix[32];const char *suffix;
     if(filter_decode(key,prefix,&suffix)){
