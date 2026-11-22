@@ -1,4 +1,26 @@
-# Local build
+# Build from source
+
+## Prepare dependencies on a clean machine
+
+Python3 with Pillow, a C compiler, aarch64-linux-gnu-gcc, matching cross libc,
+binutils and qemu-aarch64 are required. On Ubuntu24.04 these come from the
+standard build-essential, python3-pil, gcc-aarch64-linux-gnu,
+binutils-aarch64-linux-gnu and qemu-user packages. No MPC firmware/SDK dump is used.
+
+```
+python3 tools/prepare_dependencies.py
+export MPC_VST="$PWD/build/deps/wrapper"
+export MPC_RELEASE_TOOLS="$PWD/build/deps/release-tools"
+python3 tools/test.py native
+python3 tools/test.py aarch64
+python3 tools/build.py skin
+python3 tools/package.py
+```
+
+The helper checks out the pinned public framework and applies all18 published
+patches in order. Existing unrelated checkouts are not reset or modified. The
+optional workstation toolchain reuse described below is not required by users.
+
 
 Pinned Geonkick source is committed under src/dsp. No upstream checkout is
 needed at build time. The upstream desktop CMake requires CMake 3.31, C++23,
@@ -16,11 +38,12 @@ patches/mpc-canonical-continuous-echo.patch and finally
 patches/mpc-envelope-state-capacity.patch, then
 patches/mpc-idle-action-release.patch, then
 patches/mpc-filter-control-feedback.patch and patches/mpc-control-context.patch, then patches/mpc-sample-dynamic-units.patch, patches/mpc-native-display-context.patch,
-patches/mpc-ui-only-inputs.patch and patches/mpc-engine-program-bank.patch, in
-that order. The wrapper is not copied into this repository.
+patches/mpc-ui-only-inputs.patch and patches/mpc-engine-program-bank.patch, followed by
+patches/mpc-async-revision-cache.patch and patches/mpc-bounded-ui-feedback.patch,
+in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
-`1af05b911e8580c8c2e473a1cc10119132e06eca` in the neighbouring
-`mpc-vst-plugins-release-tools-20261120` checkout. This revision includes explicit VST2 plugin
+`bcc8242896f6948b2405014e8443c91941c4ded0` in the neighbouring
+`mpc-vst-plugins-release-tools-20261122` checkout. This revision includes explicit VST2 plugin
 format metadata and the current install/uninstall templates. The default
 release-tools directory and exact pin are recorded in release.json.
 `MPC_RELEASE_TOOLS` may select an equivalent checkout at that exact pin.
@@ -64,9 +87,9 @@ with Pillow available, as build.run does. See UI-DESIGN.md for details.
 Packaging uses official release.py, verifies the test receipts and validates
 the result with catalog_check.py. The ZIP contains only installation material,
 including install/uninstall scripts, manifests, checksums and license notices.
-The source-repository field is reserved for the intended future
-303inmyheart/OpenMPC-Geonkick repository; publication is still pending.
-Do not submit this prototype to the catalog or claim public source availability.
+Corresponding adapted source is published at
+https://github.com/303inmyheart/OpenMPC-Geonkick on branch mpc-gen2. Each public
+binary release is paired with its source tag and exact-binary benchmark.
 
 0.0.4 preserves the first 474 VST entries and appends finer display columns
 (total 1482). The 186 stored controls and GKMP3 state are unchanged. Native

@@ -27,6 +27,14 @@ Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live 
   program names create native submenus. Preserve program indices, names and saved
   states. No firmware/global-settings patch or replacement custom browser.
 
+## Development build 0.0.32 — explicit layer in tab names
+
+- Layer subpages identify their complete target: L1 / OSC1–3, L2 / OSC1–3,
+  L3 / OSC1–3, with the corresponding L1/L2/L3 / FX1–3 labels.
+- UI-only package revision: the tested0.0.31 audio binary and native program
+  metadata remain unchanged. Final navigation/Q-Link/preset/package checks apply.
+- Next: hardware review of redesign, preview and these clearer tab titles.
+
 ## Development build 0.0.31 — redesign and sample preview
 
 - All24 pages: flat dark panels, consistent blue selection/value accents, mint

@@ -1,0 +1,13 @@
+plugin geonkick_mpc.so: instrument, 4096 params, open 10.7 ms; block 128 @ 44100 Hz = 2902 us budget
+  25 one-shot trigger(s) excluded from the sweep, fired in their own stage
+stage               mean%     p99%     max%  threads%    peak
+idle                  1.4      1.6      2.4       0.1    0.00
+1 voices              1.4      1.6      1.7       0.0    0.44
+4 voices              1.5      1.8      1.8       0.0    2.10
+8 voices              1.7      2.0      2.1       0.0    4.97
+16 voices             1.8      2.0      3.0       0.0    7.04
+all-param sweep     493.8    558.3    601.8     547.6    2.60
+release tail          1.4      1.6     48.9       1.5    0.00
+trigger fire          1.9      4.1    740.6       0.6    0.06
+worst p99 558.3%, worst block 601.8%, background threads up to 547.6% of a core, trigger max 740.6% of a block -> FAIL
+{"plugin":"geonkick_mpc.so","instrument":1,"open_ms":10.7,"p99_pct":558.3,"max_pct":601.8,"threads_pct":547.6,"verdict":"FAIL","triggers":25,"trigger_max_pct":740.6,"binary_sha256":"a5d516de41ad8be549e7f3866e66df82ce48f8d6d8e306e8732801f6bce501aa","version":"0.0.32","device":"MPC Live III","os_version":"3.10.1 (maintainer reported)","tool_ref":"eca4e515ba0f7e16ac57cfd41d9af791bcce32ad","bench_source_sha256":"6a839caaf0482f401c32838123adf1405b248f096d4d210179d7b47df693bca5","arguments":"-s 10 -v 1,4,8,16 -p -j","affinity":"Cortex-A76 core 4","priority":"SCHED_OTHER nice19","mpc_state":"Maintainer confirmed empty project; zero external-VST mappings verified; app running","date_utc":"2026-11-21T05:32:02Z","wall_seconds":105.985,"measurement":"Official host, unchanged stages/timers/thresholds","cpu_governor":"performance","cpu_frequency_khz":"2400000"}

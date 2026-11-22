@@ -31,7 +31,7 @@ Upstream data/README and src/resources/README dedicate their images to CC0 1.0.
 Our MPC interface and browser tile are newly drawn; no upstream GUI artwork or
 Akai artwork is currently bundled. A source fork should retain these notices.
 
-## Bundled factory sound packs (not used in the current MPC build)
+## Bundled factory sound packs (included since0.0.29)
 
 | Archive | Declared license | Attribution in archive README |
 |---|---|---|
@@ -50,8 +50,9 @@ BY requires attribution and identification of modifications; BY-SA also requires
 adapted pack content to retain its share-alike terms (or a permitted compatible
 license). Do not relabel all presets/samples GPL merely because the code is GPL.
 For AVL samples, preserve and review the referenced sample-source terms as well
-before bundling. Current eight MPC starting sounds are parameter configurations
-written in src/engine.c; no archived factory samples or presets are copied.
+before bundling. The eight MPC starting sounds are separate parameter recipes. Since0.0.29
+the original factory packs and embedded samples are also included, under the
+individual terms and conversion notices described below.
 
 CC license references: https://creativecommons.org/licenses/by/4.0/ ,
 https://creativecommons.org/licenses/by-sa/4.0/ ,

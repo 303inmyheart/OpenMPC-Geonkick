@@ -1,0 +1,34 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -742,6 +742,23 @@
+                     __atomic_store_n(&w->notify_pending[i],1,__ATOMIC_RELEASE);
+             if(mpc_engine_changed) {
+                 char key[64];
++#if defined(ASYNC_NOTIFY_BOUNDED) && ASYNC_NOTIFY_BOUNDED
++                /* Each engine access is short. Never hold its audio lock while
++                 * searching the host parameter table or draining a full preset. */
++                for(int k=0;k<64;++k) {
++                    pthread_mutex_lock(&w->lock);
++                    int changed=mpc_engine_changed(w->dsp,key,sizeof key);
++                    pthread_mutex_unlock(&w->lock);
++                    if(!changed)break;
++                    for(int i=0;i<NPARAMS;++i)if(!strcmp(PARAMS[i].key,key)) {
++                        pthread_mutex_lock(&w->lock);w->last_pos[i]=-1;pthread_mutex_unlock(&w->lock);
++                        __atomic_store_n(&w->notify_pending[i],1,__ATOMIC_RELEASE);
++                        if(PARAMS[i].string_display && !PARAMS[i].no_poll)
++                            __atomic_store_n(&w->notify_update,1,__ATOMIC_RELEASE);
++                        break;
++                    }
++                }
++#else
+                 pthread_mutex_lock(&w->lock);
+                 for(int k=0;k<NPARAMS && mpc_engine_changed(w->dsp,key,sizeof key)>0;++k)
+                     for(int i=0;i<NPARAMS;++i)if(!strcmp(PARAMS[i].key,key)) {
+@@ -752,6 +769,7 @@
+                         break;
+                     }
+                 pthread_mutex_unlock(&w->lock);
++#endif
+             }
+ #endif
+             if(IDLE_ACTION_RELEASE) {

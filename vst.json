@@ -2,7 +2,7 @@
   "name": "Geonkick MPC",
   "vendor": "OpenMPC",
   "uid": "GkM3",
-  "version": 31,
+  "version": 33,
   "so": "geonkick_mpc.so",
   "params": "params.json",
   "layout": "layout.conf",
@@ -32,7 +32,9 @@
     "MODULE_SUBDIR": "\".\"",
     "UI_DISPLAY_CONTEXT": 0,
     "UI_ONLY_INPUTS": 1,
-    "ENGINE_PROGRAM_COUNT": 118
+    "ENGINE_PROGRAM_COUNT": 118,
+    "ASYNC_IDLE_NOTIFY": 1,
+    "ASYNC_NOTIFY_BOUNDED": 1
   },
   "programs": {
     "param": "preset"

@@ -54,6 +54,8 @@ def prepare():
     if 'DYNAMIC_PARAM_UNITS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-sample-dynamic-units.patch last.')
     if 'UI_DISPLAY_CONTEXT' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-native-display-context.patch last.')
     if 'UI_ONLY_INPUTS' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-ui-only-inputs.patch last.')
+    if 'ASYNC_NOTIFY_BOUNDED' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-bounded-ui-feedback.patch last.')
+    if 'ASYNC_IDLE_FEEDBACK' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-async-revision-cache.patch after engine program bank.')
     if '__program_load' not in (MPC/'wrapper/vst2_wrap.c').read_text():raise SystemExit('Apply patches/mpc-engine-program-bank.patch last.')
     run([sys.executable,MPC/'tools/gen_vst.py','vst.json','--params-h'])
 def build(target,sanitize=False):
@@ -84,7 +86,7 @@ def skin():
     run([sys.executable,'tools/native_presets.py'])
     run([sys.executable,'tools/check_native_presets.py'])
     folder=ROOT/'build/skin'/f"{CFG['vendor']} - VST - {CFG['name']}"/'Plugin Skins'
-    run([sys.executable,MPC/'tools/studio.py','preview',folder,'-o',ROOT/'build/preview_%d.png'])
+    run([sys.executable,'tools/render_ui.py'])
 if __name__=='__main__':
     target=sys.argv[1] if len(sys.argv)>1 else 'all'
     with platform_lock():

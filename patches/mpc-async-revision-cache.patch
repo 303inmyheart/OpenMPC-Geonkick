@@ -1,0 +1,123 @@
+--- a/wrapper/vst2_wrap.c
++++ b/wrapper/vst2_wrap.c
+@@ -193,6 +193,15 @@
+ #if ASYNC_HOST_NOTIFY && !defined(DISPLAY_REV_THREAD)
+ #error ASYNC_HOST_NOTIFY requires DISPLAY_REV_THREAD
+ #endif
++#ifndef IDLE_ACTION_RELEASE
++#define IDLE_ACTION_RELEASE 0
++#endif
++#ifndef ASYNC_IDLE_NOTIFY
++#define ASYNC_IDLE_NOTIFY 0
++#endif
++#if ASYNC_IDLE_NOTIFY && (!ASYNC_HOST_NOTIFY || !defined(DISPLAY_REV_THREAD))
++#error ASYNC_IDLE_NOTIFY requires ASYNC_HOST_NOTIFY and DISPLAY_REV_THREAD
++#endif
+ #ifndef FINE_TRACK_RAW_INPUT
+ #define FINE_TRACK_RAW_INPUT 0
+ #endif
+@@ -236,9 +245,6 @@
+     w->master(&w->fx,audioMasterAutomate,i,0,0,value);
+     reporting_instance=saved;reporting_index=saved_i;reporting_value=saved_value;
+ }
+-#ifndef IDLE_ACTION_RELEASE
+-#define IDLE_ACTION_RELEASE 0
+-#endif
+ static const mpc_engine_t *g_api;
+ 
+ /* One engine call at a time per instance. A JUCE host (MPC's) sets and reads parameters, chunks and displays on its
+@@ -370,7 +376,7 @@
+                 idx = ((idx % tp->nopts) + tp->nopts) % tp->nopts;
+                 norm_to_str(tp, (float)idx / (tp->nopts - 1), buf, sizeof buf);
+                 eng_set(w, tp->key, buf);
+-                w->changed[p->step_target] = 1;
++                __atomic_store_n(&w->changed[p->step_target], 1, __ATOMIC_RELEASE);
+             } else if (eng_get(w, tp->key, buf, sizeof buf) > 0) {
+                 float cur = (float)atof(buf) + p->step_delta;
+                 if (cur < tp->min) cur = tp->min;
+@@ -500,8 +506,10 @@
+      * selections follow the engine. An echo of that exact value schedules nothing,
+      * avoiding recursion and feedback loops. Ordinary continuous writes stay quiet. */
+     if ((p->nopts > 1 || p->int_display) && fabsf(n - requested_n) > 1e-6f)
+-        w->changed[i] = 1;
++        __atomic_store_n(&w->changed[i], 1, __ATOMIC_RELEASE);
+     if (PARAMS[i].momentary && n > 0.5f) w->holdFrames[i] = PARAMS[i].hold_ms > 0 ? (int)(PARAMS[i].hold_ms * 44.1f) : 1;
++    if (ASYNC_IDLE_NOTIFY && PARAMS[i].momentary && n > 0.5f)
++        __atomic_store_n(&w->notify_pending[i],1,__ATOMIC_RELEASE);
+     if (!nudge) popup_picked(w->open, w->holdFrames, i);   /* a list pick closes it; a Q-Link nudge doesn't */
+     /* No UpdateDisplay for a plain host write: the host knows the value it sent, and MPC answers every UpdateDisplay by
+      * rebuilding its parameter screen, so asking on each write (each automation step, each Q-Link event) left Q-Links
+@@ -726,6 +734,26 @@
+         if (__atomic_load_n(&w->rev_stop, __ATOMIC_ACQUIRE)) break;
+         if (!ASYNC_HOST_NOTIFY || ++scan_ticks >= 10) { scan_ticks = 0; rev_scan(w); }
+         if (ASYNC_HOST_NOTIFY) {
++#if ASYNC_IDLE_NOTIFY
++            /* ASYNC_IDLE_FEEDBACK: touch actions and derived cells must settle
++             * even when a stopped instrument receives no audio blocks. */
++            for(int i=0;i<NPARAMS;++i)
++                if(__atomic_exchange_n(&w->changed[i],0,__ATOMIC_ACQ_REL))
++                    __atomic_store_n(&w->notify_pending[i],1,__ATOMIC_RELEASE);
++            if(mpc_engine_changed) {
++                char key[64];
++                pthread_mutex_lock(&w->lock);
++                for(int k=0;k<NPARAMS && mpc_engine_changed(w->dsp,key,sizeof key)>0;++k)
++                    for(int i=0;i<NPARAMS;++i)if(!strcmp(PARAMS[i].key,key)) {
++                        w->last_pos[i]=-1;
++                        __atomic_store_n(&w->notify_pending[i],1,__ATOMIC_RELEASE);
++                        if(PARAMS[i].string_display && !PARAMS[i].no_poll)
++                            __atomic_store_n(&w->notify_update,1,__ATOMIC_RELEASE);
++                        break;
++                    }
++                pthread_mutex_unlock(&w->lock);
++            }
++#endif
+             if(IDLE_ACTION_RELEASE) {
+                 uint64_t now_ns=monotonic_ns();
+                 for(int i=0;i<NPARAMS;i++) {
+@@ -742,6 +770,9 @@
+                 if(graph_feedback(i) && !graph_quiet(w))continue;
+                 if (!__atomic_exchange_n(&w->notify_pending[i], 0, __ATOMIC_ACQ_REL)) continue;
+                 float value = get_norm(w, i);
++                /* ASYNC_REVISION_CACHE: rev_scan and delivery share this UI thread.
++                 * Keep its snapshot current for audio-side pending notifications too. */
++                w->last_norm[i] = value;
+                 if (PARAMS[i].nopts > 1 || PARAMS[i].int_display) {
+                     __atomic_store(&w->stepped_echo_value[i], &value, __ATOMIC_RELAXED);
+                     __atomic_store_n(&w->stepped_echo_pending[i], 1, __ATOMIC_RELEASE);
+@@ -773,8 +804,7 @@
+     for (int i = 0; i < NPARAMS; i++)
+         if (w->holdFrames[i] > 0 && (w->holdFrames[i] -= n) <= 0) { w->holdFrames[i] = 0; notify_value(w, i, 0.0f); }
+     for (int i = 0; i < NPARAMS; i++)
+-        if (w->changed[i]) {
+-            w->changed[i] = 0;
++        if (!ASYNC_IDLE_NOTIFY && __atomic_exchange_n(&w->changed[i], 0, __ATOMIC_ACQ_REL)) {
+             float value = get_norm(w, i);
+             if (PARAMS[i].nopts > 1 || PARAMS[i].int_display) {
+                 __atomic_store(&w->stepped_echo_value[i], &value, __ATOMIC_RELAXED);
+@@ -843,7 +873,7 @@
+     (void)poll_rev;
+ #endif
+     /* parameters the engine changed by itself (engine.h mpc_engine_changed): reported as a CC's are, just below */
+-    if (mpc_engine_changed) {
++    if (!ASYNC_IDLE_NOTIFY && mpc_engine_changed) {
+         char key[64];
+         pthread_mutex_lock(&w->lock);
+         for (int k = 0; k < NPARAMS && mpc_engine_changed(w->dsp, key, sizeof key) > 0; k++)
+@@ -1011,7 +1041,7 @@
+ #elif defined(NPRESETS)
+     for (int i = 0; i < PRESETS[idx].n; i++) {
+         eng_set(w, PARAMS[PRESETS[idx].values[i].param].key, PRESETS[idx].values[i].value);
+-        w->changed[PRESETS[idx].values[i].param] = 1;   /* reported to the host from housekeeping() */
++        __atomic_store_n(&w->changed[PRESETS[idx].values[i].param], 1, __ATOMIC_RELEASE);   /* reported to the host from housekeeping() */
+     }
+     w->program = idx;
+ #elif defined(PROG_PARAM)
+@@ -1019,7 +1049,7 @@
+     const param_t *pp = &PARAMS[PROG_PARAM];
+     snprintf(buf, sizeof buf, "%d", pp->nopts > 1 ? idx : (int)lroundf(pp->min) + idx);
+     eng_set(w, pp->key, buf);
+-    for (int i = 0; i < NPARAMS; i++) w->changed[i] = !popup_is(i);   /* a preset may change anything */
++    for (int i = 0; i < NPARAMS; i++) __atomic_store_n(&w->changed[i], !popup_is(i), __ATOMIC_RELEASE);   /* a preset may change anything */
+ #endif
+     w->need_update_display = 1;
+ }

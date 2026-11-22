@@ -1,0 +1,32 @@
+name: Build and validate MPC port
+on:
+  push:
+    branches: [mpc-gen2]
+  pull_request:
+    branches: [mpc-gen2]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: sudo apt-get update && sudo apt-get install -y build-essential python3-pil gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-user
+      - name: Prepare pinned wrapper and release tools
+        run: python3 tools/prepare_dependencies.py
+      - name: Native sanitizers, ARM64 and native UI
+        env:
+          MPC_VST: ${{ github.workspace }}/build/deps/wrapper
+          MPC_RELEASE_TOOLS: ${{ github.workspace }}/build/deps/release-tools
+        run: |
+          python3 tools/test.py native
+          python3 tools/test.py aarch64
+          python3 tools/build.py skin
+          python3 tools/package.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Geonkick-MPC-Gen2
+          path: build/releases/Geonkick-MPC-*-mpc-aarch64.zip

@@ -77,7 +77,8 @@ def panel_background(layout,bank,children,defs,skin):
     elif name=='KIT':
         card((70,72,660,510));card((690,72,1220,450));card((70,520,1220,603))
         text(d,(955,508),'SAVE COMPLETE KITS IN THE MPC PRESET MENU',10,MUTED)
-        text(d,(955,535),'PRESS HARDWARE PADS 01-16 IN ORDER',11,MUTED)
+        text(d,(955,535),'STOP / MPC BANK / LEARN 16 / PRESS PADS 01-16',10,MUTED)
+        text(d,(955,594),'RELEARN AFTER CHANGING THE MPC NOTE LAYOUT',10,MUTED)
         text(d,(365,495),'Selection edits a sound. PLAY auditions it.',14,MUTED)
     elif name=='SAMPLES':
         card((60,72,810,606));card((830,72,1240,606))

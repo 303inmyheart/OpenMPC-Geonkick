@@ -32,17 +32,44 @@ strip=shutil.which('aarch64-linux-gnu-strip') or str(build.LOCAL/'bin/aarch64-li
 build.run([strip,'--strip-unneeded',binary])
 notice=stage/'LICENSES.txt'
 notice.write_text('\n\n'.join([
-    f'Geonkick MPC {cfg["version"]} DEVELOPMENT PROTOTYPE — GPL-3.0-or-later\nBased on Geonkick 3.9.0, Iurie Nistor and contributors.\nUpstream: https://github.com/quamplex/geonkick\nMPC-app acceptance testing pending. Public adapted-source publication is pending;\nthe source_repo manifest URL is reserved for a future public fork.\nLocal corresponding source and build scripts are supplied in the project.',
+    f'Geonkick MPC {cfg["version"]} — GPL-3.0-or-later\nBased on Geonkick 3.9.0, Iurie Nistor and contributors.\nUpstream: https://github.com/quamplex/geonkick\nCorresponding modified source and build scripts: https://github.com/{cfg["repo"]}/tree/geonkick-mpc-v{cfg["version"]}\nFactory sound licences and modifications: Factory-Licenses.txt.\nSee repository for exact hardware-test scope and known limitations.',
     (root/'LICENSE').read_text(),
     'OpenMPC VST wrapper — MIT\n'+(build.MPC/'LICENSE').read_text(),
     'Artwork rendered using DejaVu Sans:\n'+(root/'art/FONT-LICENSE.txt').read_text(),
 ]))
 dest=root/'build/releases'
+bench=root/'benchmarks'/cfg['version']/'standard.txt'
+bench_args=['--bench',bench] if bench.exists() else []
+if bench.exists():
+    measurement=json.loads(bench.read_text().strip().splitlines()[-1])
+    assert measurement['binary_sha256']==hashlib.sha256(binary.read_bytes()).hexdigest()
+    assert measurement['verdict'] in ('PASS','WARN'),'Resolve failed release benchmark before packaging'
 build.run([sys.executable,release_tools/'tools/release.py','--so',binary,'--skin',skin,
            '--entry',root/'build/pluginlist-entry.xml','--version',cfg['version'],
            '--id',cfg['id'],'--repo',cfg['repo'],'--license',cfg['license'],
-           '--requires',cfg['requires'],'--about',cfg['about'],'--user-data','.sample-folder','--extra',str(notice)+':LICENSES.txt','-o',dest])
+           '--requires',cfg['requires'],'--about',cfg['about'],'--user-data','.sample-folder','--extra',str(notice)+':LICENSES.txt',*bench_args,'-o',dest])
 archive=dest/f'Geonkick-MPC-{cfg["version"]}-mpc-aarch64.zip'
+# The upstream --bench prose still says Gen1 even for an aarch64 package.
+# Correct documentation only; retain current installer/uninstaller verbatim.
+if bench.exists():
+    with zipfile.ZipFile(archive) as z:
+        entries=[(info,z.read(info.filename)) for info in z.infolist()]
+    top=entries[0][0].filename.split('/')[0]
+    payload={info.filename:raw for info,raw in entries}
+    name=top+'/INSTALL.md';text=payload[name].decode()
+    old='Measured on a Gen1 device (MPC Live/One/X/Force class, Cortex-A17)'
+    assert old in text
+    text=text.replace(old,'Measured on MPC Live III (Gen2, Cortex-A76 core4, MPC OS3.10.1)')
+    text+='\nBackground synthesis needs separate measurements; see the versioned benchmark reports in the source repository. Audio-thread percentages are not the MPC project CPU meter.\n'
+    payload[name]=text.encode()
+    sums=top+'/SHA256SUMS';lines=[]
+    for row in payload[sums].decode().splitlines():
+        _,relative=row.split('  ',1);lines.append(hashlib.sha256(payload[top+'/'+relative]).hexdigest()+'  '+relative)
+    payload[sums]=('\n'.join(lines)+'\n').encode()
+    temporary=archive.with_suffix('.zip.stage')
+    with zipfile.ZipFile(temporary,'w',compression=zipfile.ZIP_DEFLATED) as z:
+        for info,_ in entries:z.writestr(info,payload[info.filename])
+    temporary.replace(archive)
 build.run([sys.executable,release_tools/'tools/catalog_check.py',archive,'--catalog','--require-portable','--expect-id',cfg['id'],'--expect-repo',cfg['repo']])
 with zipfile.ZipFile(archive) as z:
     assert z.testzip() is None
@@ -56,7 +83,7 @@ with zipfile.ZipFile(archive) as z:
     assert not any(n.endswith(('.c','.h','.o','.py','.log','.ttf')) for n in z.namelist())
 digest=hashlib.sha256(archive.read_bytes()).hexdigest()
 (dest/'SHA256SUMS').write_text(digest+'  '+archive.name+'\n')
-print('Validated local development package:',archive,'SHA256:',digest)
+print('Validated MPC package:',archive,'SHA256:',digest)
 if args.desktop and not args.no_desktop:
     desktop=Path.home()/'Schreibtisch';desktop.mkdir(exist_ok=True)
     out=desktop/f'Geonkick-MPC-Gen2-{cfg["version"]}-dev1.zip'

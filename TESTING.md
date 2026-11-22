@@ -1,3 +1,12 @@
+# Current verification —0.0.32 explicit tab targets
+
+UI-only package revision: all18 oscillator/effects subpages include both layer
+and oscillator/FX number. Final skin checks verify the complete24-page navigation,
+Q-Link maps/frame containment and118 native preset payloads. The audio library
+is byte-identical to tested0.0.31; its native/ARM64 test receipts remain valid.
+Native VST/preset version metadata remains31; installer version is0.0.32.
+No new audio benchmark or DSP change is claimed.
+
 # Current verification —0.0.31 redesign and audition
 
 Native ASan/UBSan/leak suite passes, including the independent183-sound factory

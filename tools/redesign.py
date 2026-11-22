@@ -59,7 +59,7 @@ for tab in page['tabs']:
  source,bank=tab['componentName'].split('|');children=defs[tab['componentName']]['componentsData']
  navs=[c for c in children if c['componentData'].get('name')=='Navigation']
  title='SOUND DESIGN' if source=='SYNTH' and bank!='MIX' else 'AMPLITUDE / PITCH' if source=='ENVELOPE' else 'PAD KIT' if source=='KIT' else 'SAMPLE LIBRARY' if source=='SAMPLES' else 'SOUND MIX' if bank=='MIX' else 'MASTER EFFECTS' if source=='EFFECTS' else source+'  /  '+('OSCILLATOR '+bank[-1] if 'OSC' in bank else 'PROCESSING '+bank[-1])
- if source.startswith('LAYER'):tab['tabName']=('OSC ' if 'OSC' in bank else 'FX ')+bank[-1]
+ if source.startswith('LAYER'):tab['tabName']='L'+source[-1]+' / '+('OSC ' if 'OSC' in bank else 'FX ')+bank[-1]
  if tab['fnKeyIndex']==5:tab['tabName']={'KIT':'KIT','SAMPLES':'SAMPLES','MIX':'MIX','EFFECTS':'MASTER FX'}[bank]
  im=Image.new('RGB',(1280*S,70*S),BG);d=ImageDraw.Draw(im)
  box(d,(24,16,28,51),GREEN,None,2);text(d,(42,34),'GEONKICK',23,INK,'lm');text(d,(202,35),'MPC',12,GREEN,'lm')

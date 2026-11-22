@@ -23,7 +23,7 @@ for k in ['sample_preview','sample_preview_stop','sample_load','sample_clear']+[
 for i,(k,x,y,w,h) in enumerate(rects):
  for kk,xx,yy,ww,hh in rects[i+1:]:assert x+w<=xx or xx+ww<=x or y+h<=yy or yy+hh<=y,(k,kk,'touch overlap')
 for layer in range(1,4):
- assert [t['tabName'] for t in page['tabs'] if t['fnKeyIndex']==layer]==['OSC 1','OSC 2','OSC 3','FX 1','FX 2','FX 3']
+ assert [t['tabName'] for t in page['tabs'] if t['fnKeyIndex']==layer]==[f'L{layer} / {kind} {osc}' for kind in ('OSC','FX') for osc in range(1,4)]
 print('Final redesign: grouped OSC/FX pages, unique definitions, distinct touch-only Preview/Stop/Load, eight legible file targets, no overlapping sample actions PASS')
 
 # Check actual final native hardware groups after every visual postprocessor.
