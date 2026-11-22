@@ -72,3 +72,7 @@ There are no unrestricted point-list allocations on the host audio callback.
 Original desktop implementation: [Geonkick envelope editor](https://github.com/quamplex/geonkick/blob/462fed9bd8c48579a8819e7b360f8a2999b246fc/src/envelope_draw_area.cpp).
 Native schema reference: [MPC Plugin Builder SDK envelope documentation](https://github.com/inmusic-software/mpc-plugin-builder-sdk/blob/febd2ca5bd9eb16c4a412837196e145566bc981b/docs/ui-reference.md#613-envelope-and-envelopeoverlay-advanced-test-on-hardware).
 Neither an SDK nor manufacturer artwork is bundled.
+
+The turquoise waveform follows the selected **layer** (L1/L2/L3); the orange
+curve and points edit the selected **oscillator** and Amp/Pitch envelope. A muted
+layer has a flat waveform. MASTER → MIX remains the combined-sound view.

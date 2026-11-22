@@ -20,7 +20,9 @@ For public GitHub releases, pin/tag the exact source used for each binary and
 link it beside the installer; preserve attribution, mark changes and dates,
 include GPL text and the necessary third-party notices. Do not impose additional
 restrictions on recipients' GPL rights. Source availability must be real before
-a public binary release; the proposed repository URL is not yet published.
+a public binary release. The adapted source is published in the public
+303inmyheart/OpenMPC-Geonkick fork; release1.0 is paired with its corresponding
+`geonkick-mpc-v1.0.0` source tag.
 
 References: https://www.gnu.org/licenses/gpl-3.0.html (sections 4–6),
 https://www.gnu.org/licenses/gpl-faq.en.html#DoesTheGPLAllowMoney .

@@ -22,7 +22,7 @@ for tab in page['tabs']:
     curves=[c for c in children if c['componentData']['type'].startswith('gkEditCurve_')]
     assert len(curves)==432
 print('All previous 3056 parameter identities preserved; absolute XY point proxies and full DSP curve PASS')
-# Editor draws the same completed sound behind the draggable curve. No new
+# Editor draws the selected layer behind its oscillator curve. No new
 # data channel or per-column host callback path is introduced by this skin.
 for tab in page['tabs']:
     if tab['componentName']!='ENVELOPE|ENVELOPE':continue
@@ -31,8 +31,11 @@ for tab in page['tabs']:
     assert len(wave)==864
     first_curve=min(i for i,c in enumerate(children) if c['componentData']['type']=='gkPointXY')
     assert max(i for i,c in wave)<first_curve
-    for _,c in wave:
-        assert c['bounds']['additionalInvalidatingHandles']==['Parameter '+str(ids['graph_revision'])]
+    for index,(_,c) in enumerate(wave):
+        channel=c['componentData']['type'].split('_')[1]
+        mapping={m['key']:m['value'] for m in c['handle remapping']['map']}
+        assert mapping['Data']=='Parameter '+str(ids[f'viz_sound_{channel}_{index//2}']), 'Envelope waveform must follow selected layer, not the mixed sound'
+        assert c['bounds']['additionalInvalidatingHandles']==['Parameter '+str(ids['graph_revision']),'Parameter '+str(ids['plot_osc'])]
         assert defs[c['componentData']['type']]['ignoreMousePresses']
     point_keys=['point_copy','free_select','free_level','free_time','free_bend','free_add','free_delete','free_prev','free_next']
     for c in children:
@@ -43,7 +46,7 @@ q=json.loads(next((root/'build/skin').glob('*/Plugin Skins/Q-Links.json')).read_
 for m in q['Screen Mode Q-Links']['map']:
     if m.get('Tab')==5:
         assert all(v in (-1,ids['length_ms']) for v in m['Q-Links'].values())
-print('Rendered waveform below native point editor, shared quiet-time invalidation and touch-only point controls PASS')
+print('Selected-layer waveform below native point editor, immediate selector/shared quiet-time invalidation and touch-only point controls PASS')
 
 # Touchable bank/actions must not be hidden under the full-size native editor.
 children=defs['ENVELOPE|ENVELOPE']['componentsData']

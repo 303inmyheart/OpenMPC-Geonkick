@@ -8,6 +8,7 @@ ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--with-benchmar
 cfg=json.loads((root/'release.json').read_text())
 build.run([sys.executable,'tools/check_sound_overview.py'])
 build.run([sys.executable,'tools/check_redesign.py'])
+build.run([sys.executable,'tools/check_point_skin.py'])
 build.run([sys.executable,'tools/check_native_presets.py'])
 release_tools=Path(os.environ.get('MPC_RELEASE_TOOLS',root.parent/cfg.get('tools_dir','mpc-vst-plugins-release-tools')))
 ref=subprocess.check_output(['git','-C',str(release_tools),'rev-parse','HEAD'],text=True).strip()
@@ -62,7 +63,40 @@ if include_bench:
     old='Measured on a Gen1 device (MPC Live/One/X/Force class, Cortex-A17)'
     assert old in text
     text=text.replace(old,'Measured on MPC Live III (Gen2, Cortex-A76 core4, MPC OS3.10.1)')
-    text+='\nBackground synthesis needs separate measurements; see the versioned benchmark reports in the source repository. Audio-thread percentages are not the MPC project CPU meter.\n'
+    # Keep current script templates verbatim, but document OS3.10.1's native
+    # folder/manager route first; root is needed only for the optional SSH route.
+    start=text.index('## Requirements\n');end=text.index('## Install (scripted)\n',start)
+    text=text[:start]+"""## Requirements
+
+- Gen2 MPC (aarch64), MPC OS 3.10.1 or newer. Hardware tested on MPC Live III only.
+- Enable Preferences > Enhancements > External Plugin Support.
+- No Gen1/32-bit build is provided.
+
+## Install (recommended)
+
+Give the release ZIP directly to the OpenMPC Installer or Plugin Manager.
+For the native folder route, unpack portable/OpenMPC - VST - Geonkick MPC/ into
+VST2 Plugins/ at a drive's root. The folder route needs no SSH or settings edits.
+
+The optional scripted/manual routes below require root SSH access. Save your
+project before scripted installation, which restarts the MPC application.
+For those routes, <your Synths folder> means a supported plugin location chosen
+for the device, such as its VST2 Plugins folder. Use the recommended manager
+route if unsure.
+
+"""+text[end:]
+    text=text.replace('As a rule of thumb, several instances run comfortably when p99 is under 15%.',
+        'This standard audio-thread result alone does not predict multi-instance capacity; see the additional worker measurement below.')
+    data_start=text.index('Your own files go in ');data_end=text.index('\n\nThen add ',data_start)
+    text=text[:data_start]+"The remembered sample-folder setting is the `.sample-folder` file inside the plugin folder; it is preserved on upgrade. Imported sample audio is embedded in saved kits. Keep your own presets in the normal MPC user-data locations."+text[data_end:]
+
+    stress=json.loads((bench.parent/'stress.json').read_text())
+    paced=json.loads((bench.parent/'paced-worker.json').read_text())
+    for report in (stress,paced):
+        assert report['binary_sha256']==measurement['binary_sha256'] and report['version']==cfg['version']
+    reports=f"https://github.com/{cfg['repo']}/tree/geonkick-mpc-v{cfg['version']}/benchmarks/{cfg['version']}"
+    text+=f"\n## Additional workload checks\n\nThe standard CPU rating above does not cover the additional full-parameter sweep. That test is {stress['verdict']}: p99 {stress['p99_pct']}%, maximum {stress['max_pct']}% of one audio block.\n\nA separately paced measurement finds background synthesis up to {paced['threads_pct']}% of one CPU core. Audio-thread and one-core percentages are not the MPC project CPU meter. See the exact reports: {reports}.\n"
+
     payload[name]=text.encode()
     sums=top+'/SHA256SUMS';lines=[]
     for row in payload[sums].decode().splitlines():

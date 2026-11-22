@@ -2,6 +2,33 @@
 
 Target: Gen2 / aarch64, MPC OS 3.10.1+. Early builds tested by the user on Live III; new builds require separate validation.
 
+## Release 1.0 completion
+
+- Maintainer confirmed the final layer-waveform correction and authorized release.
+- Six actual Live III interface captures selected; short README with one main
+  image and a separate gallery. Original .gkick/.gkit import and expanded kit
+  management remain future work.
+- Exact release-binary standard PASS: 1.1% p99 / 2.0% max;
+  extra full sweep FAIL: 77.6% / 98.0%; separately paced background
+  synthesis up to 77.9% of one core. Full reports and limitations retained.
+- Publish the tagged source and OpenMPC Installer asset, then submit the single
+  GeonKick catalog entry. Catalog inclusion still requires maintainer merge.
+- After confirmed publication, clear remaining device screenshots as requested.
+
+## Release 1.0 — selected-layer Envelope waveform — Envelope waveform follows its selected layer
+
+- Maintainer found that the turquoise Envelope waveform stayed on the mixed
+  sound while the orange oscillator curve/points correctly followed L1/L2/L3.
+- All 864 wave strips now use the existing selected-layer cache/proxies, with
+  direct selector invalidation plus the shared completed-graph refresh.
+  No DSP, audio quality, synthesis rate, parameter IDs or Q-Link map changes.
+- Regression coverage: final generated skin bindings and 31,104 waveform
+  values per architecture against independent solo-layer renders, all nine
+  selectors, Amp/Pitch and stopped/rendering cases. View changes add no synthesis.
+- Maintainer confirmed the corrected layer display on Live III and renewed
+  release authorization. Six actual device screenshots are selected; final
+  release measurements and package publication are recorded below.
+
 ## Deferred issue: Sounds → Instruments thumbnail navigation
 
 - Reported on MPC Live III / MPC OS 3.10.1: after loading a sound, tapping

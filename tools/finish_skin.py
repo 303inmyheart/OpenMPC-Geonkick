@@ -227,8 +227,8 @@ for tab in page['tabs']:
     for column in range(PLOT_COLUMNS):
         left=108+column*1064//PLOT_COLUMNS;right=108+(column+1)*1064//PLOT_COLUMNS
         for channel,y in (('p',268),('n',335)):
-            child=shadow_skin._placed(f'gkEditWave_{channel}_{right-left}','Rendered sound',ids[f'viz_{channel}_{column}'],left,y+86,right-left,67,focus='No')
-            child['bounds']['additionalInvalidatingHandles']=['Parameter '+str(ids['graph_revision'])]
+            child=shadow_skin._placed(f'gkEditWave_{channel}_{right-left}','Selected layer sound',ids[f'viz_sound_{channel}_{column}'],left,y+86,right-left,67,focus='No')
+            child['bounds']['additionalInvalidatingHandles']=['Parameter '+str(ids['graph_revision']),'Parameter '+str(ids['plot_osc'])]
             children.append(child)
     note=shadow_skin._sub('Image',{'version':2,'imageType':'Regular','colour':'0','image':'point-simple.png'},shadow_skin._bounds(90,466,1100,22),'Simple envelope')
     note['bounds']['additionalInvalidatingHandles']=['IndexedEnabling/0/2/Parameter '+str(ids['ui_point_mode'])]

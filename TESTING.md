@@ -1,3 +1,39 @@
+# Release 1.0 — selected-layer Envelope waveform
+
+The maintainer stopped publication after finding that the turquoise Envelope
+waveform remained on the combined sound while orange curves/points switched
+correctly. The generated skin's 864 waveform strips now read the existing
+selected-layer cache. Both selector changes and completed-graph revisions
+invalidate them. The Q-Link maps are byte-identical to 0.0.35.
+
+Final native skin checks verify every column after all postprocessors and during
+packaging. A new independent solo-layer oracle compares 31,104 waveform values
+per architecture across all nine explicit oscillator selectors, Amp/Pitch and
+stopped/rendering cases. All three layer waveforms are distinct; changing the
+view adds zero synthesis. Native ASan/UBSan/leak and ARM64/QEMU checks pass.
+The complete 1.0 native/ARM suites also passed before this skin-only change.
+
+The maintainer confirmed the correction on MPC Live III and renewed release
+authorization. The exact installed release binary was measured independently;
+[1.0.0 reports](benchmarks/1.0.0) are not relabelled development reports:
+
+| Measurement | p99 | Maximum | Result |
+| --- | ---: | ---: | --- |
+| Standard official host | 1.1% | 2.0% | PASS |
+| Additional full-parameter sweep | 77.6% | 98.0% | FAIL |
+| Separately paced audio workload | 1.8% | 2.7% | PASS |
+
+Paced background synthesis reaches 77.9% of one core. These figures are
+not the MPC project CPU meter; standard PASS does not mean full stress passes.
+The installer records both the qualifying standard result and these limitations.
+Final SO SHA-256: `088dec9e75b89b348521c4c9cb89aa9b278482b304090668a5590ee7e2debb11`.
+
+The full native/ARM suites, new layer-wave oracle, 24-page final skin/Q-Link
+checks and current pinned OpenMPC package validation pass. Real device images
+are selected in the [gallery](docs/SCREENSHOTS.md); private device/settings/debug
+files are excluded. User-confirmed controls do not imply unlimited-project or
+extended-session guarantees.
+
 # Current verification — 0.0.35 final optimization
 
 Full native ASan/UBSan/leak and actual ARM64/QEMU suites pass on the final

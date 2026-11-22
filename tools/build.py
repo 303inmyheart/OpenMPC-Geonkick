@@ -87,6 +87,7 @@ def skin():
     run([sys.executable,'tools/redesign.py'])
     run([sys.executable,'tools/check_sound_overview.py'])
     run([sys.executable,'tools/check_redesign.py'])
+    run([sys.executable,'tools/check_point_skin.py'])
     run([sys.executable,'tools/native_presets.py'])
     run([sys.executable,'tools/check_native_presets.py'])
     folder=ROOT/'build/skin'/f"{CFG['vendor']} - VST - {CFG['name']}"/'Plugin Skins'
