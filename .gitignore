@@ -5,3 +5,7 @@ __pycache__/
 .env*
 *.key
 *.pem
+
+# Personal preset files and converter output must stay private.
+*.xpl
+Converted Presets/

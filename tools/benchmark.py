@@ -36,7 +36,8 @@ remote='/tmp/geonkick-release-'+uuid.uuid4().hex[:12]
 def ssh(cmd,**kw):return subprocess.run(base+[cmd],check=True,**kw)
 def read(cmd):return subprocess.check_output(base+[cmd],text=True)
 pid=read('pidof MPC').strip();assert pid.isdigit();maps=read('cat /proc/'+pid+'/maps');assert '/VST2 Plugins/' not in maps,'Close loaded external plugins before benchmark'
-installed=read("sha256sum '/nvme/VST2 Plugins/OpenMPC - VST - Geonkick MPC/geonkick_mpc.so'").split()[0];assert installed==digest
+installed_folder=f"{build.CFG['vendor']} - VST - {build.CFG['name']}"
+installed=read("sha256sum "+q("/nvme/VST2 Plugins/"+installed_folder+"/"+build.CFG['so'])).split()[0];assert installed==digest
 facts={k:read(p).strip() for k,p in [('cpu_governor','cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor'),('cpu_frequency_khz','cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq')]}
 files={'plugin.so':plugin,'official':(work/'official').read_bytes(),'paced':(work/'paced').read_bytes()};payload=io.BytesIO()
 with tarfile.open(fileobj=payload,mode='w') as t:

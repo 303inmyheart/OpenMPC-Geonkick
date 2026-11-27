@@ -5,13 +5,14 @@
   "repo": "303inmyheart/OpenMPC-Geonkick",
   "kind": "instrument",
   "license": "GPL-3.0-or-later",
-  "summary": "Layered percussion synthesis for Gen2 MPCs with native controls. Development prototype; hardware testing pending.",
-  "style": "synth",
+  "summary": "Percussion synthesis for Gen2 MPCs: 16 pads, nine oscillators per sound, editable envelopes, WAV import and 118 native MPC programs. Tested on Live III.",
+  "style": "drum-machine",
   "tags": [
     "drums",
     "percussion",
     "gen2"
   ],
-  "tier": "experimental",
-  "asset_pattern": "Geonkick-MPC-*-mpc-aarch64.zip"
+  "asset_pattern": "Geonkick-MPC-*-mpc-aarch64.zip",
+  "min_os": "3.10.1",
+  "screenshot": "https://raw.githubusercontent.com/303inmyheart/OpenMPC-Geonkick/geonkick-mpc-v1.0.0/docs/screenshots/synth.png"
 }

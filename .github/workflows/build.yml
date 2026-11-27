@@ -17,6 +17,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y build-essential python3-pil gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu qemu-user
       - name: Prepare pinned wrapper and release tools
         run: python3 tools/prepare_dependencies.py
+      - name: Validate catalog entry
+        run: python3 build/deps/release-tools/tools/catalog_build.py --registry catalog/plugins --check-registry
+      - name: Preset converter safety tests
+        run: python3 -m unittest discover -s tests -p test_preset_converter.py -v
       - name: Native sanitizers, ARM64 and native UI
         env:
           MPC_VST: ${{ github.workspace }}/build/deps/wrapper

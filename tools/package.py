@@ -50,7 +50,7 @@ if include_bench:
 build.run([sys.executable,release_tools/'tools/release.py','--so',binary,'--skin',skin,
            '--entry',root/'build/pluginlist-entry.xml','--version',cfg['version'],
            '--id',cfg['id'],'--repo',cfg['repo'],'--license',cfg['license'],
-           '--requires',cfg['requires'],'--about',cfg['about'],'--user-data','.sample-folder','--extra',str(notice)+':LICENSES.txt',*bench_args,'-o',dest])
+           '--requires',cfg['requires'],'--about',cfg['about'],*[v for folder in cfg.get('retire',[]) for v in ('--retire',folder)],'--user-data','.sample-folder','--extra',str(notice)+':LICENSES.txt','--extra',str(root/'PRESET-MIGRATION.md')+':PRESET-MIGRATION.md','--extra',str(root/'CHANGELOG.md')+':CHANGELOG.md','--extra',str(root/'docs/PRESET-CONVERTER.md')+':docs/PRESET-CONVERTER.md','--extra',str(root/'tools/convert_mpc_presets.py')+':tools/convert_mpc_presets.py',*bench_args,'-o',dest])
 archive=dest/f'Geonkick-MPC-{cfg["version"]}-mpc-aarch64.zip'
 # The upstream --bench prose still says Gen1 even for an aarch64 package.
 # Correct documentation only; retain current installer/uninstaller verbatim.
@@ -66,7 +66,7 @@ if include_bench:
     # Keep current script templates verbatim, but document OS3.10.1's native
     # folder/manager route first; root is needed only for the optional SSH route.
     start=text.index('## Requirements\n');end=text.index('## Install (scripted)\n',start)
-    text=text[:start]+"""## Requirements
+    text=text[:start]+f"""## Requirements
 
 - Gen2 MPC (aarch64), MPC OS 3.10.1 or newer. Hardware tested on MPC Live III only.
 - Enable Preferences > Enhancements > External Plugin Support.
@@ -75,7 +75,7 @@ if include_bench:
 ## Install (recommended)
 
 Give the release ZIP directly to the OpenMPC Installer or Plugin Manager.
-For the native folder route, unpack portable/OpenMPC - VST - Geonkick MPC/ into
+For the native folder route, unpack portable/{folder}/ into
 VST2 Plugins/ at a drive's root. The folder route needs no SSH or settings edits.
 
 The optional scripted/manual routes below require root SSH access. Save your
@@ -114,9 +114,14 @@ with zipfile.ZipFile(archive) as z:
         assert top+'/'+name in z.namelist()
     for line in z.read(top+'/SHA256SUMS').decode().splitlines():
         sha,name=line.split('  ',1);assert hashlib.sha256(z.read(top+'/'+name)).hexdigest()==sha
+    assert z.read(top+'/portable/'+folder+'/PRESET-MIGRATION.md')==(root/'PRESET-MIGRATION.md').read_bytes()
+    assert z.read(top+'/portable/'+folder+'/CHANGELOG.md')==(root/'CHANGELOG.md').read_bytes()
     assert sum(n.endswith('.so') for n in z.namelist())==1
     akai=json.loads(z.read(top+'/portable/'+folder+'/plugin.json'));assert akai['format']=='vst2' and akai['file64']==build.CFG['so']
-    assert not any(n.endswith(('.c','.h','.o','.py','.log','.ttf')) for n in z.namelist())
+    converter=top+'/portable/'+folder+'/tools/convert_mpc_presets.py'
+    assert z.read(converter)==(root/'tools/convert_mpc_presets.py').read_bytes()
+    assert z.read(top+'/portable/'+folder+'/docs/PRESET-CONVERTER.md')==(root/'docs/PRESET-CONVERTER.md').read_bytes()
+    assert not any(n.endswith(('.c','.h','.o','.py','.log','.ttf')) and n!=converter for n in z.namelist())
 digest=hashlib.sha256(archive.read_bytes()).hexdigest()
 (dest/'SHA256SUMS').write_text(digest+'  '+archive.name+'\n')
 print('Validated MPC package:',archive,'SHA256:',digest)

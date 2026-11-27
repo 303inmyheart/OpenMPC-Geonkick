@@ -45,8 +45,8 @@ patches/mpc-async-revision-cache.patch and patches/mpc-bounded-ui-feedback.patch
 then patches/mpc-numeric-parameter-read.patch, patches/mpc-indexed-popup-feedback.patch
 and patches/mpc-readonly-input-fastpath.patch and patches/mpc-lazy-input-context.patch, in that order. The wrapper is not copied into this repository.
 Release tooling: open-mpc/mpc-vst-plugins at
-`bcc8242896f6948b2405014e8443c91941c4ded0` in the neighbouring
-`mpc-vst-plugins-release-tools-20261122` checkout. This revision includes explicit VST2 plugin
+`186718df51cddce58b607988171bd2dce3bb2ae5` in the neighbouring
+`mpc-vst-plugins-release-tools-20261127-publish` checkout. This revision includes explicit VST2 plugin
 format metadata and the current install/uninstall templates. The default
 release-tools directory and exact pin are recorded in release.json.
 `MPC_RELEASE_TOOLS` may select an equivalent checkout at that exact pin.
@@ -85,7 +85,7 @@ the read-only plot components and namespaces compact selectors so detailed OSC
 pages cannot overwrite their smaller SYNTH counterparts. No Chromium dependency
 is needed. tools/render_ui.py renders a composite with actual native VST values
 and checks host display notifications. Build native and skin first; invoke it
-with Pillow available, as build.run does. See UI-DESIGN.md for details.
+with Pillow available, as build.run does. The final native controls are documented in docs/CONTROLS.md.
 
 Packaging uses official release.py, verifies the test receipts and validates
 the result with catalog_check.py. The ZIP contains only installation material,

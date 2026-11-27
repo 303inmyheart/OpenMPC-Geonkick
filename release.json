@@ -1,10 +1,13 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "id": "geonkick-mpc",
   "repo": "303inmyheart/OpenMPC-Geonkick",
   "license": "GPL-3.0-or-later",
-  "tools_ref": "bcc8242896f6948b2405014e8443c91941c4ded0",
+  "tools_ref": "186718df51cddce58b607988171bd2dce3bb2ae5",
   "requires": "Gen2 MPC (aarch64), MPC OS 3.10.1 or newer; hardware tested on MPC Live III only",
   "about": "Percussion synthesizer for Gen2 MPCs:16 independent pad sounds, three layers and nine oscillators per sound, touch-editable envelopes, tap-to-preview WAV import and118 native MPC programs including109 original factory presets/kits. Hardware tested on Live III; see repository for exact validation, benchmark results and known limitations.",
-  "tools_dir": "mpc-vst-plugins-release-tools-20261122"
+  "tools_dir": "mpc-vst-plugins-release-tools-20261127-publish",
+  "retire": [
+    "OpenMPC - VST - Geonkick MPC"
+  ]
 }

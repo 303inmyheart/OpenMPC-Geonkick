@@ -4,9 +4,21 @@
 
 Percussion synthesis and sampling for **Gen2 MPCs, MPC OS 3.10.1+**. Based on [Geonkick 3.9.0](https://github.com/quamplex/geonkick). Hardware tested on **Live III only**.
 
-**[Download 1.0](https://github.com/303inmyheart/OpenMPC-Geonkick/releases/tag/geonkick-mpc-v1.0.0)** · [Screenshots](docs/SCREENSHOTS.md) · [Controls](BEDIENUNG.md) · [Roadmap](ROADMAP.md)
+**[Download 1.0.1](https://github.com/303inmyheart/OpenMPC-Geonkick/releases/tag/geonkick-mpc-v1.0.1)** · [Screenshots](docs/SCREENSHOTS.md) · [Controls](docs/CONTROLS.md) · [Roadmap](ROADMAP.md)
+
+> **Before updating to 1.0.1: preset compatibility changes.** The manufacturer changes from **OpenMPC** to **303inmyheart**. Older personal MPC presets may be rejected until a compatible copy is made. **The installer does not convert user presets automatically.** Keep originals. [Migration instructions](PRESET-MIGRATION.md) · [Changelog](CHANGELOG.md).
 
 ![Geonkick MPC on MPC Live III](docs/screenshots/synth.png)
+
+**1.0.1** changes the manufacturer to **303inmyheart** and adds an English PRESET INFO guide. Read the migration notice and converter instructions before updating.
+
+## Convert older presets
+
+**[Python converter and step-by-step instructions](docs/PRESET-CONVERTER.md)** —
+works for both JC303 MPC and Geonkick MPC. It previews changes and creates new
+copies; originals and encoded sound data stay unchanged. Run it on your computer,
+then copy the results to the MPC. The plugin installer does not run it for you. The ZIP includes the script and
+tutorial too; run the converter on your computer, not on the MPC.
 
 ## Features
 
@@ -19,18 +31,22 @@ Percussion synthesis and sampling for **Gen2 MPCs, MPC OS 3.10.1+**. Based on [G
 
 ## Install
 
-Give the `Geonkick-MPC-1.0.0-mpc-aarch64.zip` release asset directly to the **OpenMPC Installer or Plugin Manager**. Enable **External Plugin Support** in MPC Preferences → Enhancements. Installation restarts the MPC application. Gen2/aarch64 only; no Gen1 build.
+Give the `Geonkick-MPC-1.0.1-mpc-aarch64.zip` release asset directly to the **OpenMPC Installer or Plugin Manager**. Enable **External Plugin Support** in MPC Preferences → Enhancements. Installation restarts the MPC application. Gen2/aarch64 only; no Gen1 build.
 
 For hardware pads, use MASTER → KIT → **16 PADS**. If the note layout differs, stop playback, select the desired MPC bank, enable **LEARN 16** and press pads 01–16 in order. Relearn after changing the MPC note layout.
 
 ## Performance and limits
 
-The standard OpenMPC benchmark passes on Live III. The additional full-parameter stress test still fails; background synthesis can use a substantial part of one CPU core. See the exact [release measurements](benchmarks/1.0.0) and [test scope](TESTING.md).
+Exact 1.0.1 binary on Live III: standard **PASS, 1.1% p99 / 2.0% maximum**.
+The additional full-parameter storm is **FAIL, 77.0% / 97.2%**. A separately paced
+measurement finds 1.9% / 4.0% audio time and background synthesis up to **77.5% of
+one core**. These are not the MPC project CPU meter and do not establish
+multi-instance capacity. [Full measurements](benchmarks/1.0.1) · [Test scope](docs/TESTING.md).
 
 Stereo output and 16 shared voices. WAV import uses the first channel and first four seconds, resampled to 44.1 kHz. Native preset folders, broader kit management and original user `.gkick`/`.gkit` import remain future work. [Limits and workarounds](docs/LIMITS.md).
 
 ## Source and licences
 
-Fork of [quamplex/geonkick](https://github.com/quamplex/geonkick). Software: **GPL-3.0-or-later**; external OpenMPC wrapper: MIT; font: [DejaVu notice](art/FONT-LICENSE.txt). [Build instructions](BUILDING.md) and [licence review](LICENSE-AUDIT.md).
+Fork of [quamplex/geonkick](https://github.com/quamplex/geonkick). Software: **GPL-3.0-or-later**; external OpenMPC wrapper: MIT; font: [DejaVu notice](art/FONT-LICENSE.txt). [Build instructions](BUILDING.md) and [licence review](docs/LICENSES.md).
 
 Factory sounds retain their separate **CC0, CC BY 4.0, CC BY-SA 4.0 or CC BY-SA 3.0** terms. Original credits, licences and conversion notices are preserved in [factory/NOTICE.txt](factory/NOTICE.txt) and the installer. This community port is not an official Akai/inMusic or Geonkick release.

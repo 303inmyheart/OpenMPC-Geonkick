@@ -7,5 +7,14 @@
     "date": "2026-11-22",
     "binary_sha256": "088dec9e75b89b348521c4c9cb89aa9b278482b304090668a5590ee7e2debb11",
     "notes": "Maintainer tested the interface, Q-Link/touch controls, factory browsing, samples, pad mapping and the final Envelope selected-layer waveform correction on Live III, then authorized release. Exact ARM64 release binary deployed with file/path/hash verification and exercised on-device: official standard PASS p99 1.1%, max 2.0%; additional full-parameter stress FAIL p99 77.6%, max 98.0%; separately paced background synthesis up to 77.9% of one core. No Gen1/other-device or extended-session claim. See TESTING.md and versioned reports."
+  },
+  {
+    "id": "geonkick-mpc",
+    "version": "1.0.1",
+    "device": "MPC Live III (Gen2)",
+    "firmware": "3.10.1",
+    "date": "2026-11-27",
+    "binary_sha256": "43049e439a0226c902563590938b98ccdf242a56b58021b33069c562eaf87eea",
+    "notes": "Maintainer confirmed older project sounds/settings and English help opening/dismissal. Exact binary: standard PASS p99 1.1% / max 2.0%; full stress FAIL 77.0% / 97.2%; paced audio PASS 1.9% / 4.0%, background 77.5% of one core. Not exhaustive preset/project/multi-instance coverage."
   }
 ]

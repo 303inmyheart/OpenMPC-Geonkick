@@ -71,6 +71,14 @@ def build(target,sanitize=False):
     run([compiler(target),*flags(target,sanitize),'-shared',*objects,'-lpthread','-lm','-ldl','-Wl,--no-undefined','-Wl,--gc-sections','-Wl,--version-script=src/exports.map','-o',dest/CFG['so']])
     print('Built',dest/CFG['so'],flush=True);return objects
 def skin():
+    # Isolate generated legacy skins so postprocessors cannot select an old
+    # vendor folder through a broad glob during a manufacturer migration.
+    import tempfile
+    for legacy in json.loads((ROOT/'release.json').read_text()).get('retire',[]):
+        previous=ROOT/'build/skin'/legacy
+        if previous.exists():
+            backup=Path(tempfile.mkdtemp(prefix='retired-skins-',dir=ROOT/'build'))
+            shutil.move(str(previous),str(backup/legacy))
     build('native') # native presets are exported from this exact engine build
     run([sys.executable,'tools/tile.py'])
     run([sys.executable,'tools/plot_assets.py'])
@@ -85,6 +93,7 @@ def skin():
     run([sys.executable,'tools/check_navigation.py'])
     run([sys.executable,'tools/sound_overview.py'])
     run([sys.executable,'tools/redesign.py'])
+    run([sys.executable,'tools/preset_help.py'])
     run([sys.executable,'tools/check_sound_overview.py'])
     run([sys.executable,'tools/check_redesign.py'])
     run([sys.executable,'tools/check_point_skin.py'])
